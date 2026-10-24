@@ -99,7 +99,7 @@ body{background:var(--bg)!important;background-image:none!important;color:var(--
 .text-slate-400,.text-slate-500{color:var(--mu)}
 .text-sky-400{color:var(--mu)}
 .wrap{max-width:72rem;margin:0 auto;padding:0 1rem}
-.hd{position:sticky;top:0;z-index:40;background:rgba(1,7,44,.92);backdrop-filter:blur(8px)}
+.hd{position:sticky;top:0;z-index:40;background:rgba(1,7,44,.92)}
 .hd-row{display:flex;align-items:center;justify-content:flex-end}
 .mg{height:.74em;width:.62em;margin:0 .06em;overflow:visible}
 .mg path{fill:none;stroke-width:8}
@@ -183,7 +183,7 @@ article button.rounded-lg:not([class*="emerald"]){background:var(--sf2)}
 .sec-item.on{background:rgba(64,170,255,.2);color:#cfe9ff}
 .sec-item:disabled{opacity:.55;cursor:not-allowed}
 /* Нижняя панель вкладок: капсула, выбранная вкладка с лазурной подсветкой, только текст */
-.bnav{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;width:min(calc(100% - 32px),24rem);display:flex;gap:.2rem;padding:.25rem;border-radius:999px;background:rgba(13,23,79,.94);border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 28px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:transform .25s ease,opacity .2s ease}
+.bnav{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;width:min(calc(100% - 32px),24rem);display:flex;gap:.2rem;padding:.25rem;border-radius:999px;background:rgba(13,23,79,.94);border:1px solid rgba(255,255,255,.07);box-shadow:0 10px 28px rgba(0,0,0,.4);transition:transform .25s ease,opacity .2s ease}
 nav.bnav button{flex:1;padding:.62rem 0;border-radius:999px;background:transparent;color:var(--mu);font-size:.92rem;font-weight:600;transition:background-color .2s ease,color .2s ease}
 nav.bnav button.tab-on{background:rgba(64,170,255,.2);color:#a9dcff}
 body.no-nav .bnav,body.kb-open .bnav{transform:translate(-50%,160%);opacity:0;pointer-events:none}
@@ -306,7 +306,10 @@ html{scrollbar-gutter:stable;overscroll-behavior-x:none}</style>
 @property --au2{syntax:'<color>';inherits:true;initial-value:#12b5c4}
 @property --au3{syntax:'<color>';inherits:true;initial-value:#6a4df0}
 /* Цвета и плавная перекраска лежат на самом #bg, а не на <html>: иначе каждый кадр перекраски браузер пересчитывал стили всей страницы */
-#bg{--au1:#2b74ea;--au2:#12b5c4;--au3:#6a4df0;transition:--au1 2.2s ease,--au2 2.2s ease,--au3 2.2s ease}
+#bg{--au1:#2b74ea;--au2:#12b5c4;--au3:#6a4df0}
+/* Смена темы: пятна гаснут, цвет меняется незаметно, пятна проявляются. Только прозрачность, видеокарта без перерисовки */
+#bg i{transition:opacity .5s ease}
+html.fx-dim #bg i{opacity:0;transition-duration:.22s}
 html[data-hue=kinematics] #bg{--au1:#2f8cff;--au2:#12c4e0;--au3:#4f5cf0}
 html[data-hue=dynamics] #bg{--au1:#7a5cf5;--au2:#3a73ee;--au3:#c04fe0}
 html[data-hue=conservation] #bg{--au1:#12b8a4;--au2:#2fcf86;--au3:#2b84e6}
@@ -458,7 +461,7 @@ main.mx-auto{padding-top:.5rem}
 .hb-stick{position:sticky;top:calc(env(safe-area-inset-top,0px) + .5rem);z-index:30}
 .hb-rail{position:relative;display:flex;gap:.25rem;padding:.3rem;overflow-x:auto;border-radius:999px;
   background:rgba(10,18,74,.93);border:1px solid var(--fx-glass-line);box-shadow:0 8px 24px rgba(0,0,0,.28);
-  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);scrollbar-width:none;overscroll-behavior-x:contain}
+  scrollbar-width:none;overscroll-behavior-x:contain}
 .hb-rail::-webkit-scrollbar,.hb-chips::-webkit-scrollbar{display:none}
 .hb-sec{flex:none;padding:.62rem 1.1rem;border-radius:999px;font-size:.95rem;font-weight:650;line-height:1.2;white-space:nowrap;
   color:var(--mu);transition:background-color .25s ease,color .25s ease,box-shadow .25s ease}
@@ -571,8 +574,8 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 .ct-ops-row{background:rgba(120,148,255,.13)}
 
 /* Капсулы (раздел, нижняя панель, лента разделов): тот же индиго, чуть плотнее карточек */
-.hb-rail{background:rgba(20,32,112,.70)}
-.bnav,.sec-nav{background:rgba(20,32,112,.74);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2)}
+.hb-rail{background:rgba(20,32,112,.88)}
+.bnav,.sec-nav{background:rgba(20,32,112,.90)}
 
 /* Выбранные пункты: один общий оттенок вместо отдельного бирюзового */
 .sec-pill.on,.sec-item.on,.seg button.on,.hb-sec.on,nav.bnav button.tb.tab-on,.fcb.on,.fsb.on,.bl-err-btn.on{background:rgba(110,150,255,.26);color:#dbe7ff;box-shadow:inset 0 0 0 1px rgba(160,190,255,.40)}
@@ -581,9 +584,9 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 /* Шторки «Тема» и «Раздел»: стекло в цвет авроры вместо плоской заливки */
 .sheet{background:rgba(2,4,26,.50)}
 .sheet-card{
-  background:linear-gradient(180deg,rgba(130,156,255,.16) 0%,rgba(80,114,236,.07) 100%),rgba(10,17,80,.78);
+  background:linear-gradient(180deg,rgba(130,156,255,.16) 0%,rgba(80,114,236,.07) 100%),rgba(10,17,80,.94);
   border:1px solid var(--fx-glass-line);border-bottom:0;
-  -webkit-backdrop-filter:blur(26px) saturate(1.3);backdrop-filter:blur(26px) saturate(1.3);
+  
   box-shadow:0 -14px 44px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.08)}
 .sheet-card::before{content:"";display:block;flex:none;width:2.4rem;height:.28rem;margin:-.3rem auto .8rem;border-radius:999px;background:rgba(190,205,255,.30)}
 .fhead b{color:#fff}
@@ -3893,7 +3896,6 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         if (ok) { st.r++; st.d = Math.max(0, st.d - 1); } else { st.w++; st.d = Math.min(3, st.d + 1); }
         this.save();
       },
-      mastered(id) { const st = this.stat(id); return this.has(id) || (st.r > 0 && st.d === 0); },
       errors() { return HBD().filter((f) => this.debt(f.id) > 0); }
     };
     Store.load();
@@ -4454,10 +4456,9 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       return shuffle([...need, ...tr].map((tex) => ({ k: 'v', tex })));
     }
     // Экран конструктора: CT.skel = true по умолчанию («Скелет / Слоты»), левая часть CT.lhs даётся сразу
-    const CT = { f: null, lhs: '', ref: [], validKeys: [], bank: [], root: [], z: 'r', at: 0, done: false, skel: true, autoT: 0 };
+    const CT = { f: null, lhs: '', ref: [], validKeys: [], bank: [], root: [], z: 'r', at: 0, done: false, skel: true, halfOk: false };
     const ctZ = (z) => { let a = CT.root; for (const s of z.split('/').slice(1)) { const [i, k] = s.split('.'); a = a[+i][k]; } return a; };
     function ctResetRoot() {
-      clearTimeout(CT.autoT);
       if (CT.skel) {
         CT.root = ctMakeSkel(CT.ref);
         const sl = ctSlots(CT.root);
@@ -4471,18 +4472,17 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     }
     function ctStart(cat) {
       if (window.fxHue) fxHue(cat);
-      clearTimeout(CT.autoT);
       TR.pool = HBD().filter((f) => cat === 'all' || f.category === cat);
       TR.mode = 'ctor'; TR.streak = 0; TR.last = null;
       ctNext();
     }
     function ctNext() {
-      clearTimeout(CT.autoT);
       const f = CT.f = pickWeighted(TR.pool, TR.last); TR.last = f.id;
       const sp = ctSplitFormula(f);
       CT.lhs = sp.lhs;
       CT.ref = ctParse(sp.rhs);
       CT.validKeys = [ctKey(CT.ref), ...sp.alt.map((a) => ctKey(ctParse(a)))];
+      CT.halfOk = ctHalfOk(CT.ref, sp.alt);
       CT.done = false;
       CT.bank = ctBank(f, CT.ref);
       ctResetRoot();
@@ -4563,6 +4563,15 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         setTimeout(() => c.remove(), 240);
       } catch (e) { /* анимация не обязательна */ }
     }
+    // ½ верна, только если у формулы есть вариант с ½: он есть в таблице альтернатив (CT_MULTI.alt) или в эталоне
+    // стоит дробь «что-то / 2» с нечисловым числителем (at²/2, mv²/2: ключ CTK у ½·N и N/2 один и тот же).
+    // 3/2, 5/2 и 2v₀sinα/g — ловушки, каркас под них не перестраиваем
+    const CT_HALF_RE = /\\d?frac\{1\}\{2\}/;
+    function ctHalfOk(ref, alt) {
+      if (alt.some((a) => CT_HALF_RE.test(a))) return true;
+      const num = (A) => A.length > 0 && A.every((x) => x.t === 'l' && /^\d+$/.test(x.tex));
+      return ref.some((x) => x.t === 'f' && x.d.length === 1 && x.d[0].t === 'l' && x.d[0].tex === '2' && !num(x.n));
+    }
     function ctAdaptHalf() {
       for (let i = 0; i < CT.root.length; i++) {
         const x = CT.root[i];
@@ -4596,7 +4605,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         CT.at = CT.root.length;
       }
       if (CT.skel) {
-        if (tile.k === 'v' && (tile.tex === '\\frac{1}{2}' || tile.tex === '\\dfrac{1}{2}')) ctAdaptHalf();
+        if (CT.halfOk && tile.k === 'v' && (tile.tex === '\\frac{1}{2}' || tile.tex === '\\dfrac{1}{2}')) ctAdaptHalf();
         const sl = ctSlots(CT.root);
         let curSlot = sl.find((s) => s.path === CT.z);
         if (!curSlot || (tile.k === 'v' && curSlot.node.c.length >= curSlot.node.cap)) {
@@ -4654,7 +4663,6 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     }
     function ctCheck(giveUp) {
       if (CT.done) return;
-      clearTimeout(CT.autoT);
       const f = CT.f, flat = ctFlatten(CT.root), ok = !giveUp && ctIsComplete(CT.root) && CT.validKeys.includes(ctKey(flat));
       CT.done = true;
       buzz(ok ? 40 : [40, 50, 40]);
@@ -4712,13 +4720,16 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 
     const VIB = Object.assign({ ok: 12, bad: [40, 50, 40], end: 260, learn: 14 }, (window.FX_CFG || {}).vib);
     function buzz(p) { try { if (Store.s.ui.vib && navigator.vibrate) navigator.vibrate(p); } catch (e) { /* не страшно */ } }
+    // Знак в аргументе тригонометрической функции (фаза ω₀t + φ₀) не портим и не прячем:
+    // ω₀t − φ₀ тоже верная запись, ученика нельзя штрафовать за неё
+    const signSwapOk = (L, m) => !/\\(?:cos|sin|operatorname\{tg\})\s*\([^()]*$/.test(L.slice(0, m.index));
     // Скрыть степень, знак или коэффициент вместо величины
     function extraMask(f) {
       const L = f.latex, M = '[\\; ? \\;]', out = [];
       let m = L.match(/\^(\d)(?!\d)/);
       if (m) { const d = m[1]; out.push({ kind: 'степень', latexMasked: L.replace(m[0], '^{' + M + '}'), correctSymbol: d, distractors: ['1', '2', '3', '4'].filter((x) => x !== d).slice(0, 3) }); }
       m = L.match(/\s([+\-])\s/);
-      if (m) { const g = m[1]; out.push({ kind: 'знак', latexMasked: L.replace(m[0], ' ' + M + ' '), correctSymbol: g, distractors: ['+', '-', '\\cdot', '/'].filter((x) => x !== g).slice(0, 3) }); }
+      if (m && signSwapOk(L, m)) { const g = m[1]; out.push({ kind: 'знак', latexMasked: L.replace(m[0], ' ' + M + ' '), correctSymbol: g, distractors: ['+', '-', '\\cdot', '/'].filter((x) => x !== g).slice(0, 3) }); }
       const half = L.includes('\\dfrac{1}{2}') ? '\\dfrac{1}{2}' : L.includes('\\frac{1}{2}') ? '\\frac{1}{2}' : null;
       if (half) out.push({ kind: 'коэффициент', latexMasked: L.replace(half, M), correctSymbol: half, distractors: ['2', '1', '\\frac{1}{3}'] });
       return out.length ? out[Math.floor(Math.random() * out.length)] : null;
@@ -4729,7 +4740,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       let m = L.match(/\^(\d)(?!\d)/);
       if (m) { const d = m[1]; c.push(Math.random() < 0.5 ? { latex: L.replace(m[0], ''), explanation: 'Потеряна степень: в верной формуле показатель равен ' + d + '.' } : { latex: L.replace(m[0], '^' + (d === '2' ? '3' : '2')), explanation: 'Изменена степень: в верной формуле показатель равен ' + d + '.' }); }
       m = L.match(/\s([+\-])\s/);
-      if (m) c.push({ latex: L.replace(m[0], ' ' + (m[1] === '+' ? '-' : '+') + ' '), explanation: 'Перепутан знак: в верной формуле стоит «' + (m[1] === '-' ? '−' : '+') + '».' });
+      if (m && signSwapOk(L, m)) c.push({ latex: L.replace(m[0], ' ' + (m[1] === '+' ? '-' : '+') + ' '), explanation: 'Перепутан знак: в верной формуле стоит «' + (m[1] === '-' ? '−' : '+') + '».' });
       const half = L.includes('\\dfrac{1}{2}') ? '\\dfrac{1}{2}' : L.includes('\\frac{1}{2}') ? '\\frac{1}{2}' : null;
       if (half) c.push({ latex: L.replace(half, ''), explanation: 'Потерян множитель ½.' });
       if (c.length && Math.random() < 0.6) return c[Math.floor(Math.random() * c.length)];
@@ -4746,7 +4757,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     ];
     const BL = {
       timer: null, end: 0, durationMs: 60000, score: 0, cur: null, bad: false,
-      mistakes: [], last: null, running: false, lives: 3, maxLives: 3, endTimer: null,
+      mistakes: [], last: null, running: false, lives: 3, maxLives: 3, endTimer: null, ansTimer: null,
       cfg: { time: +(Store.s.ui && Store.s.ui.blTime) || 60, err: (Store.s.ui && Store.s.ui.blErr) || '3' }
     };
     if (!BL_TIMES.includes(BL.cfg.time)) BL.cfg.time = 60;
@@ -4781,7 +4792,8 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       el.classList.remove('bat-hit'); void el.offsetWidth; el.classList.add('bat-hit');
     }
     function blMenu() {
-      clearTimeout(BL.endTimer);
+      clearTimeout(BL.endTimer); BL.endTimer = null;
+      clearTimeout(BL.ansTimer); BL.ansTimer = null;
       clearInterval(BL.timer);
       BL.running = false;
       document.body.classList.remove('no-nav');
@@ -4804,7 +4816,8 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         <p class="rec"><span class="rec-l">Рекорд</span><b class="rec-n">${Store.s.blitzBest}</b></p></div>`;
     }
     function blStart() {
-      clearTimeout(BL.endTimer);
+      clearTimeout(BL.endTimer); BL.endTimer = null;
+      clearTimeout(BL.ansTimer); BL.ansTimer = null;
       document.body.classList.add('no-nav');           // во время раунда нижняя панель спрятана
       document.documentElement.classList.add('bl-run');
       if (window.scrollX) window.scrollTo(0, window.scrollY);
@@ -4907,7 +4920,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           const dir = dx < 0 ? -1 : 1;
           card.style.transition = 'transform .18s ease-out, opacity .18s ease-out';
           card.style.transform = `translate3d(${dir * 340}px, ${dy}px, 0) rotate(${dir * 16}deg)`;
-          setTimeout(() => blAnswer(dir > 0 ? 'ok' : 'bad'), 140);
+          BL.ansTimer = setTimeout(() => { BL.ansTimer = null; blAnswer(dir > 0 ? 'ok' : 'bad'); }, 140);
         } else {
           snapBack();
         }
@@ -4951,7 +4964,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           // Останавливаем игру сразу, но даём 0,7 с увидеть пустую батарею
           BL.running = false;
           clearInterval(BL.timer);
-          BL.endTimer = setTimeout(() => blFinish('battery'), 700);
+          BL.endTimer = setTimeout(() => { BL.endTimer = null; blFinish('battery'); }, 700);
           return;
         }
       }
@@ -4998,7 +5011,6 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (!$('fsheet').hidden) { fSheet(false); return; }
-        if ($('secsheet') && !$('secsheet').hidden) { secSheet(false); return; }
       }
       if (!BL.running || BL.answering || activeTab !== 'blitz' || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
       e.preventDefault();
@@ -5160,7 +5172,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       let g = null;          // текущий жест
 
       // Блокируем свайп, когда он помешал бы: открыт выбор темы, идёт блиц или собирается формула
-      const blocked = () => !!document.getElementById('splash') || !$('fsheet').hidden || ($('secsheet') && !$('secsheet').hidden) || (activeTab === 'blitz' && BL.running) || (activeTab === 'trainer' && TR.mode === 'ctor' && !CT.done);
+      const blocked = () => !!document.getElementById('splash') || !$('fsheet').hidden || (activeTab === 'blitz' && (BL.running || BL.endTimer)) || (activeTab === 'trainer' && TR.mode === 'ctor' && !CT.done);
       const selecting = () => { const sel = window.getSelection && window.getSelection(); return !!(sel && String(sel).length); };
 
       // Касание началось там, где горизонтальный жест нужен самому элементу:
@@ -5217,27 +5229,18 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       document.addEventListener('touchcancel', () => finish(true), { passive: true });
     }
 
-    function secSheet(open) {
-      const sh = $('secsheet'), btn = $('sec-picker-btn');
-      if (!sh) return;
-      if (open && BL.running) blMenu();
-      sh.hidden = !open;
-      if (btn) btn.setAttribute('aria-expanded', String(!!open));
-      document.body.style.overflow = open ? 'hidden' : '';
-    }
     function setSection(id, first) {
       if (!SECTIONS[id] || (id === SEC && !first)) return;
       const same = id === SEC; SEC = id;
       Store.s.sec = id; Store.save();
       document.body.dataset.psec = id;
       HB.cat = 'all'; HB.sub = 'all'; HB.q = ''; $('hb-search').value = ''; hbPrev = { key: '', n: 0 };
-      const lbl = document.querySelector('#sec-picker-btn span'); if (lbl) lbl.textContent = SECTIONS[id].name;
       document.querySelectorAll('[data-phys-sec]').forEach((b) => {
         const k = b.dataset.physSec, n = SECTIONS[k].data.length, on = k === id;
         b.classList.toggle('on', on);
         const c = b.querySelector('.fcnt'); if (c) c.textContent = (on ? 'Выбрано · ' : '') + n + ' ' + plForm(n);
       });
-      if (!same) { hbBuild(); hbFilterUI(); hbRender(); clearTimeout(CT.autoT); TR.mode = 'cat'; trMenu(true); }
+      if (!same) { hbBuild(); hbFilterUI(); hbRender(); TR.mode = 'cat'; trMenu(true); }
       if (!first) {
         switchTab('handbook');
         window.scrollTo({ top: 0, behavior: 'auto' });
@@ -5258,14 +5261,6 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         setSection(b.dataset.physSec);
         rail.scrollTo({ left: Math.max(0, b.offsetLeft - (rail.clientWidth - b.offsetWidth) / 2), behavior: 'smooth' });
       });
-      const secBtn = $('sec-picker-btn'), secSh = $('secsheet');
-      if (secBtn && secSh) {
-        secBtn.addEventListener('click', () => secSheet(secSh.hidden));
-        secSh.addEventListener('click', (e) => {
-          const ps = e.target.closest('[data-phys-sec]'); if (ps) setSection(ps.dataset.physSec);
-          if (e.target === secSh || e.target.closest('[data-sec-close]') || ps) secSheet(false);
-        });
-      }
       setSection(SECTIONS[Store.s.sec] ? Store.s.sec : 'mechanics', true);
       switchTab(activeTab);
     }
@@ -5329,7 +5324,16 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         };
         requestAnimationFrame(f);
       }
-      window.fxHue = function (c) { var d = root.dataset; c = c || 'all'; if (d.hue !== c) d.hue = c; };
+      var hueGoal = 'all', hueT = 0;
+      window.fxHue = function (c) {
+        c = c || 'all'; hueGoal = c;
+        var d = root.dataset;
+        if ((d.hue || 'all') === c && !hueT) return;
+        if (rm.matches || !root.classList.contains('fx-run')) { clearTimeout(hueT); hueT = 0; root.classList.remove('fx-dim'); d.hue = c; return; }
+        if (hueT) return;                                   // гашение уже идёт: подхватит последнюю тему
+        root.classList.add('fx-dim');
+        hueT = setTimeout(function () { hueT = 0; root.dataset.hue = hueGoal; root.classList.remove('fx-dim'); }, 240);
+      };
       document.addEventListener('mechcore:tabchange', function (e) { if (!e.detail || e.detail.tab !== 'handbook') window.fxHue('all'); });
       document.addEventListener('visibilitychange', restart);
       if (rm.addEventListener) rm.addEventListener('change', apply); else if (rm.addListener) rm.addListener(apply);
