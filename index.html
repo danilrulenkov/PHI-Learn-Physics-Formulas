@@ -4,17 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#070e48">
+  <meta name="theme-color" content="#0F1420">
+  <script>
+    /* Тема оформления: «dark» или «light». Пока человек не выбрал вручную, берётся тема системы и следует за ней.
+       Выбор хранится в том же хранилище, что и прогресс (ui.theme). Тема ставится до первой отрисовки, поэтому мигания нет. */
+    (function () {
+      var R = document.documentElement, mq = null, cur = null;
+      try { mq = matchMedia('(prefers-color-scheme: light)'); } catch (e) { /* без системной темы */ }
+      function saved() { try { var u = (JSON.parse(localStorage.getItem('mechcore.v1')) || {}).ui; return u && (u.theme === 'light' || u.theme === 'dark') ? u.theme : null; } catch (e) { return null; } }
+      function sys() { return mq && mq.matches ? 'light' : 'dark'; }
+      function apply(t) {
+        if (t === cur) return; cur = t;
+        R.setAttribute('data-theme', t); R.style.colorScheme = t; R.classList.toggle('dark', t === 'dark');
+        var a = document.querySelector('meta[name="color-scheme"]'); if (a) a.setAttribute('content', t);
+        var b = document.querySelector('meta[name="theme-color"]'); if (b) b.setAttribute('content', t === 'light' ? '#F4F5F7' : '#0F1420');
+        try { document.dispatchEvent(new CustomEvent('fx:theme', { detail: { theme: t } })); } catch (e) { /* не страшно */ }
+      }
+      window.fxTheme = { get: function () { return cur; }, apply: apply };
+      apply(saved() || sys());
+      /* Размер шрифта: три шага на <html> (15 / 17 / 19 px), ставится до первой отрисовки */
+      try { var fz = (JSON.parse(localStorage.getItem('mechcore.v1')) || {}).ui; R.style.fontSize = ({ 1: '17px', 2: '19px' })[fz && fz.fs] || ''; } catch (e) { /* не страшно */ }
+      var follow = function () { if (!saved()) apply(sys()); };
+      if (mq) { if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
+    })();
+  </script>
   <style id="fx-config">
     /* ═══════════════ НАСТРОЙКИ ЭФФЕКТОВ ═══════════════
        Всё, что регулирует вид фона, света и стекла, лежит здесь.
        Цвета: «R,G,B». Яркость: 0 — нет, 1 — максимум. */
     :root{
-      /* Живой фон: три крупные подсветки (верх, середина, низ), чтобы свет был на всей высоте экрана.
-         k — яркость светлого пятна (чем больше, тем ярче), dur — время одного круга (чем меньше, тем быстрее) */
-      --fx-a-k:36%;  --fx-a-dur:39s;   /* верхнее пятно: синий */
-      --fx-c-k:25%;  --fx-c-dur:61s;   /* среднее пятно: индиго */
-      --fx-b-k:29%;  --fx-b-dur:49s;   /* нижнее пятно: бирюзовый */
+      /* Фон: один источник цвета сверху — мягкий радиальный свет, без движения.
+         --fx-src — цвет и яркость (последнее число в rgba — сила света, 0–1), --fx-src-h — на какую высоту экрана он опускается,
+         --fx-bg-dur — за сколько секунд фон плавно перетекает в новый цвет при смене темы. Для светлой темы значение ниже. */
+      --fx-src:rgba(34,98,255,.66);  --fx-src-h:78vh;  --fx-bg-dur:.6s;
       /* Стекло: карточки, поиск, строки. Заливка полупрозрачная (фон просвечивает), без размытия */
       --fx-glass:linear-gradient(135deg,rgba(72,76,216,.40) 0%,rgba(40,64,182,.35) 55%,rgba(26,62,164,.38) 100%);  /* карточки */
       --fx-glass-strong:linear-gradient(135deg,rgba(46,62,174,.92) 0%,rgba(34,58,154,.91) 55%,rgba(30,56,146,.92) 100%);  /* верхняя карточка Блица (под ней стопка карт) */
@@ -34,12 +56,12 @@
       /* Часть 2. Кнопка «Выучено»: плавность перекраски */
       --fx-learn-dur:.35s;
     }
+    /* Светлая тема: источник — едва заметный голубоватый тон на почти белом (0.15 — сила, поднимите для заметнее) */
+    html[data-theme="light"]{ --fx-src:rgba(70,110,255,.15); }
   </style>
   <script>
-    /* Время в миллисекундах. startDelay — пауза после заставки до начала движения фона.
-       probeMs — сколько проверять плавность, badFrameMs — кадр дольше этого считается рывком,
-       badShare — если рывков больше такой доли, фон останавливается (свет остаётся). */
-    window.FX_CFG = { startDelay: 700, probeMs: 2500, badFrameMs: 34, badShare: 0.22,
+    /* Время в миллисекундах. startDelay — пауза после заставки, после которой справочник начинает заранее дорисовывать формулы. */
+    window.FX_CFG = { startDelay: 700,
        /* Часть 2 (мс, доли, пиксели). pressScale — во сколько сжимается нажатая кнопка, pressOut — возврат пружиной.
           riseStep — задержка между карточками, riseMax — сколько карточек появляется по очереди, risePx — подъём.
           fwdDur — выход следующей карточки в Блице, edgeFull — на сколько пикселей отклонения край светит на максимум,
@@ -48,8 +70,18 @@
        riseDur: 340, riseStep: 40, riseMax: 8, risePx: 10, learnDur: 350, rollDur: 260,
        fwdDur: 300, edgeFull: 120, warnSec: 10,
        vib: { ok: 12, bad: [40, 50, 40], end: 260, learn: 14 } };
+    /* Пока НЕ используется: цвет источника не привязан к теме и разделу (это ещё не утверждено).
+       Оставлено на будущее. Число — оттенок на цветовом круге в градусах: 0 красный, 60 жёлтый, 120 зелёный, 180 голубой,
+       240 синий, 300 малиновый. Строки идут в том же порядке, что и темы в списке, поэтому при прокрутке цвет
+       движется по спектру. У каждого раздела свой участок круга: механика — от зелёно-бирюзового к индиго,
+       МКТ и термодинамика — от фиолетового через малиновый и красный к оранжевому (тепло ближе к концу).
+       Новый раздел: добавьте строку с его id и темами; шаг между соседними темами 16–24°. */
+    window.FX_HUES = {
+      mechanics: { kinematics: 160, dynamics: 184, conservation: 208, statics_hydro: 232, oscillations: 256 },
+      mkt: { mkt: 262, gas: 278, vapor: 294, liquid: 310, solid: 326, thermo_energy: 342, thermo_proc: 358, thermo_heat: 14, thermo_engine: 30 }
+    };
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='-25%20-15%20290%20330'%3E%3Crect%20x='-25'%20y='-15'%20width='290'%20height='330'%20rx='64'%20fill='%2301072c'/%3E%3Cpath%20d='M42%2019C25%2044%2017%2072%2017%20102C17%20150%2036%20185%2070%20185C128%20185%20223%20114%20223%2055C223%204%20144%20-2%20118%2078C102%20127%2080%20215%2061.5%20290'%20fill='none'%20stroke='%23fff'%20stroke-width='19'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='-25%20-15%20290%20330'%3E%3Crect%20x='-25'%20y='-15'%20width='290'%20height='330'%20rx='64'%20fill='%2314171C'/%3E%3Cpath%20d='M42%2019C25%2044%2017%2072%2017%20102C17%20150%2036%20185%2070%20185C128%20185%20223%20114%20223%2055C223%204%20144%20-2%20118%2078C102%20127%2080%20215%2061.5%20290'%20fill='none'%20stroke='%23E6E9F0'%20stroke-width='19'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
   <title>φHI</title>
 
 
@@ -76,7 +108,7 @@
     .bat-cap { width: 4px; height: 10px; margin-left: 1px; background: #38448f; border-radius: 0 2px 2px 0; transition: background-color .2s; }
     .bat[data-level="0"] .bat-body { border-color: #e5575b; }
     .bat[data-level="0"] .bat-cap { background: #e5575b; }
-    .bat-cell { width: 20px; height: 16px; background: #0b1448; }
+    .bat-cell { width: 20px; height: 16px; background: var(--bat-cell, #0b1448); }
     .bat-cell i { display: block; width: 100%; height: 100%; opacity: 0; transform: scaleX(.4); transition: opacity .25s, transform .25s;
       background: var(--mid); }
     .bat-cell.on i { opacity: 1; transform: none; }
@@ -301,30 +333,15 @@ html{scrollbar-gutter:stable;overscroll-behavior-x:none}</style>
 
 <style id="fx">
 /* ═══ ЧАСТЬ 1. Живой фон ═══ */
-#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict}
-@property --au1{syntax:'<color>';inherits:true;initial-value:#2b74ea}
-@property --au2{syntax:'<color>';inherits:true;initial-value:#12b5c4}
-@property --au3{syntax:'<color>';inherits:true;initial-value:#6a4df0}
-/* Цвета и плавная перекраска лежат на самом #bg, а не на <html>: иначе каждый кадр перекраски браузер пересчитывал стили всей страницы */
-#bg{--au1:#2b74ea;--au2:#12b5c4;--au3:#6a4df0}
-/* Смена темы: пятна гаснут, цвет меняется незаметно, пятна проявляются. Только прозрачность, видеокарта без перерисовки */
-#bg i{transition:opacity .5s ease}
-html.fx-dim #bg i{opacity:0;transition-duration:.22s}
-html[data-hue=kinematics] #bg{--au1:#2f8cff;--au2:#12c4e0;--au3:#4f5cf0}
-html[data-hue=dynamics] #bg{--au1:#7a5cf5;--au2:#3a73ee;--au3:#c04fe0}
-html[data-hue=conservation] #bg{--au1:#12b8a4;--au2:#2fcf86;--au3:#2b84e6}
-html[data-hue=statics_hydro] #bg{--au1:#1b97c4;--au2:#4b7fd0;--au3:#2fb894}
-html[data-hue=oscillations] #bg{--au1:#5a52e6;--au2:#9a5cf0;--au3:#3fb0ff}html[data-hue=mkt] #bg{--au1:#3d7bff;--au2:#18c0d8;--au3:#8a5cf0}html[data-hue=gas] #bg{--au1:#18b8c8;--au2:#35c99a;--au3:#3a86f0}html[data-hue=vapor] #bg{--au1:#4aa3e8;--au2:#7cc4f0;--au3:#5a6cf0}html[data-hue=liquid] #bg{--au1:#1f8fd8;--au2:#18c0b0;--au3:#3f6cf0}html[data-hue=solid] #bg{--au1:#8a6cf0;--au2:#d8789a;--au3:#4a8cf0}html[data-hue=thermo_energy] #bg{--au1:#7a5cf5;--au2:#d8589a;--au3:#3a73ee}html[data-hue=thermo_proc] #bg{--au1:#5a52e6;--au2:#c04fe0;--au3:#3fb0ff}html[data-hue=thermo_heat] #bg{--au1:#e0568a;--au2:#8a5cf0;--au3:#3f8cff}html[data-hue=thermo_engine] #bg{--au1:#3a73ee;--au2:#12c4e0;--au3:#9a5cf0}.sec-stub{display:none;margin:0 auto;max-width:36rem;padding:2rem 1.25rem;text-align:center;border:1px dashed var(--ln);border-radius:1.25rem;color:var(--mu);font-size:.875rem;line-height:1.6}
-#bg i{position:absolute;display:block;border-radius:50%;will-change:transform;animation-play-state:paused;
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--c) var(--k),transparent) 0%,color-mix(in srgb,var(--c) calc(var(--k) * .44),transparent) 32%,color-mix(in srgb,var(--c) calc(var(--k) * .08),transparent) 58%,transparent 82%)}
-/* Центры пятен: верх слева, середина справа, низ — свет есть на всей высоте. Размеры те же, что были (нагрузка на телефон не растёт) */
-#bg .bg-a{--c:var(--au1);--k:var(--fx-a-k);width:104vmax;height:104vmax;left:calc(20vw - 52vmax);top:calc(12vh - 52vmax);animation:fxA var(--fx-a-dur) ease-in-out infinite}
-#bg .bg-c{--c:var(--au3);--k:var(--fx-c-k);width:88vmax;height:88vmax;left:calc(84vw - 44vmax);top:calc(50vh - 44vmax);animation:fxC var(--fx-c-dur) ease-in-out infinite}
-#bg .bg-b{--c:var(--au2);--k:var(--fx-b-k);width:100vmax;height:100vmax;left:calc(36vw - 50vmax);top:calc(90vh - 50vmax);animation:fxB var(--fx-b-dur) ease-in-out infinite}
-html.fx-run #bg i{animation-play-state:running}
-@keyframes fxA{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(9vmax,5vmax,0) scale(1.1)}66%{transform:translate3d(4vmax,13vmax,0) scale(.94)}}
-@keyframes fxB{0%,100%{transform:translate3d(0,0,0) scale(1)}35%{transform:translate3d(-10vmax,-6vmax,0) scale(.92)}70%{transform:translate3d(-4vmax,-12vmax,0) scale(1.1)}}
-@keyframes fxC{0%,100%{transform:translate3d(0,0,0) scale(1)}40%{transform:translate3d(-14vmax,9vmax,0) scale(1.12)}75%{transform:translate3d(-5vmax,-8vmax,0) scale(.9)}}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict;background-color:var(--bg);transition:background-color var(--fx-bg-dur) ease}
+/* Один источник цвета: единственный слой с мягким радиальным светом сверху. Без blur и без движения.
+   Цвет --src зарегистрирован как <color>, поэтому при смене темы он плавно перетекает: перерисовывается только этот слой. */
+@property --src{syntax:'<color>';inherits:false;initial-value:rgba(0,0,0,0)}
+#bg-src{position:absolute;display:block;left:0;top:0;width:100%;height:var(--fx-src-h);--src:var(--fx-src);
+  background:radial-gradient(ellipse 125% 100% at 50% 0%,var(--src),transparent);
+  background:radial-gradient(ellipse 125% 100% at 50% 0%,var(--src) 0%,color-mix(in srgb,var(--src) 62%,transparent) 22%,color-mix(in srgb,var(--src) 28%,transparent) 48%,color-mix(in srgb,var(--src) 8%,transparent) 74%,transparent 100%);
+  transition:--src var(--fx-bg-dur) ease}
+.sec-stub{display:none;margin:0 auto;max-width:36rem;padding:2rem 1.25rem;text-align:center;border:1px dashed var(--ln);border-radius:1.25rem;color:var(--mu);font-size:.875rem;line-height:1.6}
 
 /* ═══ Стекло: свет просвечивает сквозь плашки ═══ */
 .hd{background:none;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -363,6 +380,8 @@ article p.leading-relaxed{line-height:1.75}
 /* ═══ Блиц: подсказка направления вместо кнопок, кнопка «Назад» ═══ */
 .bl-dir{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.5rem .2rem 1rem;font-size:1rem;font-weight:700;letter-spacing:.01em;user-select:none;pointer-events:none}
 .bl-dir i{font-style:normal;font-size:1.25em;line-height:1}
+.bl-dir button{pointer-events:auto;background:none;border:0;padding:.5rem .35rem;margin:-.5rem -.35rem;font:inherit;letter-spacing:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border-radius:.6rem}
+.bl-dir button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .bl-dir-bad{color:#e5575b}.bl-dir-ok{color:#5ccb8b}
 .bl-back{padding:.5rem .8rem .5rem 0;margin:-.5rem 0 -.25rem}
 @media (prefers-reduced-motion:reduce){#bg i,#bl-root button[data-act="start"]::after{animation:none!important}}
@@ -383,7 +402,7 @@ button[data-act="learn"]{transition-duration:var(--fx-learn-dur)}
 .bl-edge.r{right:0;background:linear-gradient(to left,rgba(var(--fx-edge-ok),var(--fx-edge-alpha)) 0,rgba(var(--fx-edge-ok),calc(var(--fx-edge-alpha) * .3)) 40%,rgba(var(--fx-edge-ok),0) 100%)}
 .bl-edge.l{left:0;background:linear-gradient(to right,rgba(var(--fx-edge-bad),var(--fx-edge-alpha)) 0,rgba(var(--fx-edge-bad),calc(var(--fx-edge-alpha) * .3)) 40%,rgba(var(--fx-edge-bad),0) 100%)}
 .bat-cell.flash{animation:bat-flash .4s ease-out}
-@keyframes bat-flash{0%{background:#fff}35%{background:#ffb3b6}100%{background:#0b1448}}
+@keyframes bat-flash{0%{background:#fff}35%{background:#ffb3b6}100%{background:var(--bat-cell,#0b1448)}}
 .bl-track{position:relative;height:8px}
 .bl-track-bg{position:absolute;inset:0;border-radius:999px;overflow:hidden}
 .bl-dot{position:absolute;top:50%;left:100%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;pointer-events:none;
@@ -447,7 +466,7 @@ article .border-cyan-500\/40,article .border-cyan-500\/50{border-color:var(--fx-
 <style id="hb-ios">
 /* ═══ Справочник и нижняя панель в стиле iOS: скруглённые «квадраты», воздух, цвета приложения ═══ */
 
-/* Верхняя строка: пока пустая, позже — настройки и профиль */
+/* Верхняя строка: шестерёнка слева, название раздела по центру, тема справа */
 .hd{position:static;z-index:auto;background:none;padding:env(safe-area-inset-top,0px) 0 0}
 .hd::before{display:none}
 .hd-row{min-height:2.6rem;padding:.4rem 0}
@@ -548,8 +567,7 @@ nav.bnav button.tb.tab-on{padding:0 1.1rem 0 .85rem;background:rgba(64,170,255,.
    Фон светлее и глубже, рамки и заливки — полупрозрачный индиго с тихой сиреневато-голубой линией.
    Чтобы вернуть прежние цвета, достаточно удалить этот блок целиком (исправления выше останутся). */
 :root{
-  --bg:#070e48;
-  --fx-a-k:44%; --fx-c-k:31%; --fx-b-k:35%;
+  --bg:#0C0C0D;
   --fx-glass:linear-gradient(145deg,rgba(118,146,255,.17) 0%,rgba(78,112,232,.11) 52%,rgba(70,128,225,.14) 100%);
   --fx-glass-strong:linear-gradient(145deg,rgba(40,56,160,.95) 0%,rgba(30,46,140,.94) 55%,rgba(28,48,134,.95) 100%);
   --fx-glass2:rgba(120,148,255,.15);
@@ -559,9 +577,7 @@ nav.bnav button.tb.tab-on{padding:0 1.1rem 0 .85rem;background:rgba(64,170,255,.
   --fx-stack-rgb:10,16,76;
   --fx-dot-rgb:170,200,255;
 }
-/* Подложка фона: мягкий свет сверху и вертикальный градиент вместо плоской почти-чёрной заливки */
-#bg{background:radial-gradient(90% 52% at 14% 0%,rgba(78,108,240,.20),rgba(78,108,240,0) 70%),linear-gradient(180deg,#0b1454 0%,#070e48 46%,#050b3c 100%)}
-#splash{background:#070e48}
+#splash{background:#0C0C0D}
 .hd::before{background:linear-gradient(to bottom,rgba(7,14,72,.93) 0,rgba(7,14,72,.93) calc(100% - 24px),rgba(7,14,72,0) 100%)}
 
 /* Карточки: лёгкий верхний блик */
@@ -578,8 +594,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 .bnav,.sec-nav{background:rgba(20,32,112,.90)}
 
 /* Выбранные пункты: один общий оттенок вместо отдельного бирюзового */
-.sec-pill.on,.sec-item.on,.seg button.on,.hb-sec.on,nav.bnav button.tb.tab-on,.fcb.on,.fsb.on,.bl-err-btn.on{background:rgba(110,150,255,.26);color:#dbe7ff;box-shadow:inset 0 0 0 1px rgba(160,190,255,.40)}
-.bl-err-btn.on{border-color:rgba(160,190,255,.40)}
+/* (стиль выбранного теперь в блоке fx-theme в конце: сплошной акцент вместо бледной подсветки) */
 
 /* Шторки «Тема» и «Раздел»: стекло в цвет авроры вместо плоской заливки */
 .sheet{background:rgba(2,4,26,.50)}
@@ -599,23 +614,973 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 .fcnt{min-width:1.7rem;padding:.08rem .5rem;border-radius:999px;background:rgba(255,255,255,.07);text-align:center;font-size:.78rem}
 .fcb.on .fcnt,.fsb.on .fcnt{background:rgba(255,255,255,.14);color:#e8efff}
 </style>
+
+<style id="fx-theme">
+/* ═══════════════ ТЕМЫ: общие значения, «выбранное», переключатель, светлая тема ═══════════════
+   Тёмная тема остаётся прежней (значения в :root выше). Светлая — отдельный характер, а не негатив:
+   ровный светлый фон, белые карточки с мягкой тенью, тёмно-синий текст и один акцент (синий).
+   При смене темы переключаются только значения переменных: никаких анимаций «всего сразу», плавно перетекает лишь фон (#bg). */
+:root{
+  --acc:#2a6ef0; --on-acc:#fff;            /* акцент: заливка «выбранного» и белый текст на ней */
+  --unsel:#c3cdf5;                         /* текст невыбранных пунктов: читаемый, не бледный */
+  --ok-bg:rgba(92,203,139,.16); --bad-bg:rgba(229,87,91,.14);
+  --bat-cell:#0b1448;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F4F4F5; --sf:#fff; --sf2:#eef2fc; --ln:rgba(38,56,140,.14);
+  --t1:#0e1a4d; --tx:#1d2a5e; --mu:#59658f; --unsel:#2b3868;
+  --rd:#d0323c; --gn:#178a58; --bl:#2d5bdc; --mg:#d0323c;
+  --acc:#2d5bdc; --on-acc:#fff;
+  --ok-bg:rgba(23,138,88,.12); --bad-bg:rgba(208,50,60,.10);
+  --fx-glass:#fff; --fx-glass-strong:#fff; --fx-glass2:#eef2fc;
+  --fx-glass-line:rgba(38,56,140,.14); --fx-line-hi:rgba(45,91,220,.50);
+  --fx-cond:#47537f; --fx-cond-hi:#1d2a5e;
+  --fx-stack-rgb:226,232,250; --fx-stack-alpha:.96;
+  --fx-dot-rgb:45,91,220; --fx-low-rgb:208,50,60;
+  --fx-edge-ok:23,138,88; --fx-edge-bad:208,50,60; --fx-edge-alpha:.34;
+  --bat-cell:#dbe2f5;
+  --card-shadow:0 0 0 1px rgba(38,56,140,.06),0 1px 2px rgba(20,32,90,.05),0 14px 30px -10px rgba(30,45,120,.16);
+}
+
+/* ── Переключатель темы в шапке (над фильтром) ── */
+.thsw{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--fx-glass2);box-shadow:inset 0 0 0 1px var(--fx-glass-line)}
+.thsw button{display:grid;place-items:center;width:2.3rem;height:1.95rem;border-radius:999px;color:var(--unsel);transition:background-color .2s ease,color .2s ease}
+.thsw svg{width:1.1rem;height:1.1rem;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+:root .thsw button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+
+/* ── Выбранное и невыбранное: сплошной акцент против читаемого текста на тихой подложке ── */
+:root .hb-sec,:root .seg button,:root .bl-err-btn,:root nav.bnav button.tb{color:var(--unsel)}
+:root .hb-sec:disabled{opacity:.45}
+:root .hb-sec.on,:root .seg button.on,:root .bl-err-btn.on,:root .hb-chip.on,:root nav.bnav button.tb.tab-on,:root .fcb.on,:root .fsb.on{background:var(--acc);color:var(--on-acc);box-shadow:none;font-weight:700}
+:root .bl-err-btn.on,:root .hb-chip.on{border-color:var(--acc)}
+:root .hb-chip.on i{color:rgba(255,255,255,.82)}
+/* ответ в «Тестах»: верный и ошибочный вариант снова подсвечиваются (раньше их перекрывала общая заливка кнопок) */
+:root .tr-opt-btn.border-emerald-500{border-color:var(--gn);background:var(--ok-bg)}
+:root .tr-opt-btn.border-rose-500{border-color:var(--rd);background:var(--bad-bg)}
+
+/* ═══ СВЕТЛАЯ ТЕМА ═══ */
+html[data-theme="light"] ::selection{background:rgba(45,91,220,.22)}
+html[data-theme="light"] .text-slate-300{color:#33407a}
+html[data-theme="light"] .fbox,html[data-theme="light"] .tr-fbox,html[data-theme="light"] .ct-line{color:var(--t1)}
+html[data-theme="light"] #hb-progress .rn{color:var(--t1)}
+html[data-theme="light"] .bg-cyan-500,html[data-theme="light"] .bg-cyan-400{background:var(--acc);color:#fff}
+html[data-theme="light"] .hover\:bg-cyan-400:hover{background:#2450c6}
+
+/* карточки: белые, мягкая тень */
+html[data-theme="light"] article.rounded-2xl{box-shadow:var(--card-shadow)}
+html[data-theme="light"] #tr-root .rounded-2xl.border,html[data-theme="light"] #bl-root .rounded-2xl.border,html[data-theme="light"] .bl-cfg-card,html[data-theme="light"] .bg-slate-900\/60.border{box-shadow:var(--card-shadow)}
+html[data-theme="light"] .bg-slate-900\/50{box-shadow:var(--card-shadow)}
+html[data-theme="light"] .bl-card{box-shadow:0 14px 34px -10px rgba(30,45,120,.28)}
+html[data-theme="light"] #hb-list article .fbox{background:radial-gradient(ellipse closest-side at 50% 50%,rgba(45,91,220,.07) 0,rgba(45,91,220,.025) 55%,rgba(45,91,220,0) 100%)}
+html[data-theme="light"] #hb-list article .eyebrow::before{background:var(--acc);box-shadow:none}
+html[data-theme="light"] #hb-list article .eyebrow [data-ec]{background:rgba(208,50,60,.10);color:#b8252f}
+html[data-theme="light"] #hb-list article .eyebrow [data-ec].text-slate-500{background:rgba(38,56,140,.07);color:var(--mu)}
+
+/* поле поиска, фильтр, переключатели, капсулы: белые на светлом фоне */
+html[data-theme="light"] #hb-search,html[data-theme="light"] .fbtn,html[data-theme="light"] .seg,html[data-theme="light"] .thsw{background:#fff}
+html[data-theme="light"] #hb-search::placeholder{color:#7a85ad}
+html[data-theme="light"] #hb-search:focus{background:#fff;border-color:var(--acc);box-shadow:0 0 0 3px rgba(45,91,220,.14)}
+html[data-theme="light"] .fdot{background:var(--acc);box-shadow:0 0 0 2px #fff}
+html[data-theme="light"] .hb-rail{background:rgba(255,255,255,.96);box-shadow:0 8px 22px -8px rgba(30,45,120,.22)}
+html[data-theme="light"] .bnav{background:rgba(255,255,255,.96);border-color:var(--ln);box-shadow:0 10px 26px -8px rgba(30,45,120,.28)}
+html[data-theme="light"] .prog .bar,html[data-theme="light"] .bl-track-bg{background:rgba(45,91,220,.14)}
+html[data-theme="light"] .hb-copy.done{color:var(--gn);border-color:rgba(23,138,88,.5)}
+html[data-theme="light"] .hb-copy.fail{color:var(--rd);border-color:rgba(208,50,60,.5)}
+
+/* зелёный и красный: тёмнее, чтобы читались на белом */
+html[data-theme="light"] .border-emerald-500\/40,html[data-theme="light"] .border-emerald-500{border-color:rgba(23,138,88,.45)}
+html[data-theme="light"] .bg-emerald-500\/10,html[data-theme="light"] .bg-emerald-500\/15,html[data-theme="light"] .bg-emerald-500\/5{background:rgba(23,138,88,.10)}
+html[data-theme="light"] .border-rose-500\/40,html[data-theme="light"] .border-rose-500,html[data-theme="light"] .hover\:border-rose-400:hover{border-color:rgba(208,50,60,.45)}
+html[data-theme="light"] .bg-rose-500\/10,html[data-theme="light"] .bg-rose-500\/15,html[data-theme="light"] .bg-rose-500\/5{background:rgba(208,50,60,.08)}
+html[data-theme="light"] .tr-fbox.ok,html[data-theme="light"] .ct-line.ok{border-color:var(--gn);background:rgba(23,138,88,.10);box-shadow:0 0 0 3px rgba(23,138,88,.10)}
+html[data-theme="light"] .tr-fbox.bad,html[data-theme="light"] .ct-line.bad{border-color:var(--rd);background:rgba(208,50,60,.07);box-shadow:none}
+html[data-theme="light"] .bl-badge.ok{background:rgba(23,138,88,.12);border-color:var(--gn);color:var(--gn)}
+html[data-theme="light"] .bl-badge.bad{background:rgba(208,50,60,.10);border-color:var(--rd);color:var(--rd)}
+html[data-theme="light"] .bl-dir-bad{color:var(--rd)}
+html[data-theme="light"] .bl-dir-ok{color:var(--gn)}
+html[data-theme="light"] .bl-dot{background:radial-gradient(circle,#fff 0,#fff 22%,rgba(45,91,220,.92) 40%,rgba(45,91,220,0) 72%)}
+
+/* батарея */
+html[data-theme="light"] .bat-body{border-color:#9aa8d6;background:#eef1fb}
+html[data-theme="light"] .bat-cap{background:#9aa8d6}
+
+/* тесты и конструктор */
+html[data-theme="light"] .tr-opt-btn{background:#fff;color:var(--t1)}
+html[data-theme="light"] .tr-opt-btn:hover:not(:disabled),html[data-theme="light"] .ct-tile:hover:not(:disabled){background:#eef2fd;border-color:var(--fx-line-hi)}
+html[data-theme="light"] .ct-lhs{color:var(--acc)}
+html[data-theme="light"] .ct-bksp{background:rgba(38,56,140,.07);color:var(--tx)}
+html[data-theme="light"] .ct-bksp:hover:not(:disabled){background:rgba(208,50,60,.14);color:#b8252f}
+html[data-theme="light"] .ct-mode-btn{background:#fff;border-color:rgba(45,91,220,.35);color:var(--acc)}
+html[data-theme="light"] .ct-box{border-color:rgba(45,91,220,.40);color:rgba(45,91,220,.62)}
+html[data-theme="light"] .ct-box.on,html[data-theme="light"] .ct-end.on{border-color:var(--acc);background:rgba(45,91,220,.10);color:var(--acc)}
+html[data-theme="light"] .ct-end{color:rgba(45,91,220,.62)}
+html[data-theme="light"] .ct-n .ct-end,html[data-theme="light"] .ct-d .ct-end,html[data-theme="light"] .ct-rc .ct-end{border-color:rgba(45,91,220,.36)}
+html[data-theme="light"] .ct-caret{background:var(--acc)}
+html[data-theme="light"] .ct-ops-row{background:#fff;border-color:var(--ln)}
+html[data-theme="light"] .ct-tile{background:#fff;color:var(--t1)}
+html[data-theme="light"] .ct-op-tile{background:#e9efff;border-color:rgba(45,91,220,.30);color:var(--acc)}
+html[data-theme="light"] .ct-check-btn{background:var(--acc);color:#fff;box-shadow:0 4px 14px rgba(45,91,220,.28)}
+html[data-theme="light"] .ct-check-btn:hover:not(:disabled){background:#2450c6}
+html[data-theme="light"] .ct-check-btn:disabled{background:#e3e8f7;color:#8a94b8;border:1px solid var(--ln);box-shadow:none}
+html[data-theme="light"] .ct-ghost{background:#fff;color:var(--unsel);box-shadow:inset 0 0 0 1px var(--ln)}
+html[data-theme="light"] .ct-ghost:hover{background:#e8eefc;color:var(--t1)}
+html[data-theme="light"] .ct-nm span{background:#fff;box-shadow:inset 0 0 0 1px var(--ln)}
+
+/* шторка выбора темы */
+html[data-theme="light"] .sheet{background:rgba(18,28,76,.34)}
+html[data-theme="light"] .sheet-card{background:#fff;border:1px solid var(--ln);border-bottom:0;box-shadow:0 -14px 44px rgba(20,32,90,.20)}
+html[data-theme="light"] .sheet-card::before{background:rgba(38,56,140,.25)}
+html[data-theme="light"] .fhead b,html[data-theme="light"] .fcb{color:var(--t1)}
+html[data-theme="light"] .freset{color:var(--tx)}
+html[data-theme="light"] .fsb{color:var(--tx)}
+html[data-theme="light"] .fcb:active,html[data-theme="light"] .fsb:active{background:rgba(45,91,220,.08)}
+html[data-theme="light"] .fcnt{background:rgba(38,56,140,.08)}
+
+/* заставка: светлый фон, тёмно-синие буквы */
+html[data-theme="light"] #splash{background:#F4F4F5}
+html[data-theme="light"] #sp-mark{fill:#12205f}
+html[data-theme="light"] #sp-tag,html[data-theme="light"] #sp-tag text{fill:#4a5fa8}
+html[data-theme="light"] .sp-glow g,html[data-theme="light"] #sg-tag{fill:#6f93ff}
+html[data-theme="light"] .sp-bg.a{background:radial-gradient(closest-side,rgba(90,130,255,.22),rgba(90,130,255,0) 70%)}
+html[data-theme="light"] .sp-bg.b{background:radial-gradient(closest-side,rgba(120,110,255,.16),rgba(120,110,255,0) 70%)}
+</style>
+<style id="redesign">
+/* ═══════════════ РЕДИЗАЙН: Палитра «Графит + мята» ═══════════════
+   1. Мягкая акцентная заливка (12–15%) для выбранных вкладок и тем + спокойные сегментированные переключатели.
+   2. Цвет раздела (--acc-s) только в мелочах: полоска прогресса, точка у темы и подчёркивание.
+   3. Тёмная тема: графит #0F1420, карточки #1D2128, приглушённый белый #E6E9F0.
+   4. Светлая тема: #F4F5F7, карточки #FFFFFF, акцент #0F9D76.
+   5. Прогресс и «Выучено» — зелёный/мятный, ошибки — коралловый, синего и чистого чёрного нет. */
+@property --section-hue{syntax:'<number>';inherits:true;initial-value:220}
+:root{--section-hue:220;transition:--section-hue var(--hue-dur,250ms) ease}
+@media (prefers-reduced-motion:reduce){:root{transition:none}}
+
+/* ── 1. Палитра «Графит + мята» ── */
+html:root[data-theme="dark"]{
+  --bg:#0F1420;
+  --sf:#1D2128;
+  --sf2:#252A34;
+  --sf-pill:#2B313D;
+  --ln:#2B313D;
+  --t1:#E6E9F0;
+  --tx:#CFD5E0;
+  --mu:#8A93A6;
+  --unsel:#9BA4B5;
+  --acc:#4FD1A5;
+  --acc-soft:rgba(79,209,165,.14);
+  --acc-soft-hi:rgba(79,209,165,.20);
+  --acc-border:rgba(79,209,165,.30);
+  --on-acc:#0D1F18;
+  --bl:#4FD1A5;
+  --gn:#4FD1A5;
+  --rd:#F06E6B;
+  --mg:#F06E6B;
+  --ok-bg:rgba(79,209,165,.14);
+  --ok-border:rgba(79,209,165,.36);
+  --bad-bg:rgba(240,110,107,.14);
+  --bad-border:rgba(240,110,107,.38);
+  --fx-glass:#1D2128;
+  --fx-glass-strong:#1D2128;
+  --fx-glass2:#252A34;
+  --fx-glass-line:#2B313D;
+  --fx-line-hi:rgba(230,233,240,.26);
+  --fx-cond:#949EB0;
+  --fx-cond-hi:#CFD5E0;
+  --fx-stack-rgb:29,33,40;
+  --fx-stack-alpha:.95;
+  --fx-dot-rgb:79,209,165;
+  --fx-low-rgb:240,110,107;
+  --fx-edge-ok:79,209,165;
+  --fx-edge-bad:240,110,107;
+  --bat-cell:#252A34;
+  --acc-s:hsl(var(--section-hue) 56% 58%)}
+
+html:root[data-theme="light"]{
+  --bg:#F4F5F7;
+  --sf:#FFFFFF;
+  --sf2:#EAECEF;
+  --sf-pill:#FFFFFF;
+  --ln:#DFE3EA;
+  --t1:#1B2028;
+  --tx:#2C3340;
+  --mu:#687182;
+  --unsel:#555E6E;
+  --acc:#0F9D76;
+  --acc-soft:rgba(15,157,118,.13);
+  --acc-soft-hi:rgba(15,157,118,.19);
+  --acc-border:rgba(15,157,118,.28);
+  --on-acc:#FFFFFF;
+  --bl:#0F9D76;
+  --gn:#0F9D76;
+  --rd:#D94E4E;
+  --mg:#D94E4E;
+  --ok-bg:rgba(15,157,118,.12);
+  --ok-border:rgba(15,157,118,.34);
+  --bad-bg:rgba(217,78,78,.11);
+  --bad-border:rgba(217,78,78,.36);
+  --fx-glass:#FFFFFF;
+  --fx-glass-strong:#FFFFFF;
+  --fx-glass2:#EAECEF;
+  --fx-glass-line:#DFE3EA;
+  --fx-line-hi:rgba(27,32,40,.24);
+  --fx-cond:#5E6778;
+  --fx-cond-hi:#2C3340;
+  --fx-stack-rgb:234,236,239;
+  --fx-stack-alpha:.96;
+  --fx-dot-rgb:15,157,118;
+  --fx-low-rgb:217,78,78;
+  --fx-edge-ok:15,157,118;
+  --fx-edge-bad:217,78,78;
+  --bat-cell:#E2E6EC;
+  --card-shadow:0 1px 3px rgba(20,23,28,.04),0 6px 18px -6px rgba(20,23,28,.06);
+  --acc-s:hsl(var(--section-hue) 74% 35%)}
+
+@supports (color:oklch(.5 .1 100)){
+  html:root[data-theme="dark"]{--acc-s:oklch(.77 .12 var(--section-hue))}
+  html:root[data-theme="light"]{--acc-s:oklch(.58 .13 var(--section-hue))}}
+
+/* ── 2. Нейтральный фон без цветного свечения ── */
+html:root[data-theme] body{background:var(--bg)!important;color:var(--tx)}
+html:root[data-theme] #bg{background-color:var(--bg)}
+html:root[data-theme] #bg-src{display:none!important;background:none!important}
+html:root[data-theme] ::selection{background:var(--acc-soft-hi);color:var(--t1)}
+html:root[data-theme] :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* Заставка в спокойных тонах палитры */
+html:root[data-theme] #splash{background:var(--bg)}
+html:root[data-theme] #sp-mark{fill:var(--t1)}
+html:root[data-theme] .sp-bg.a,html:root[data-theme] .sp-bg.b{background:radial-gradient(closest-side,var(--acc-soft),transparent 70%)}
+html:root[data-theme] .sp-glow g,html:root[data-theme] #sg-tag{fill:var(--acc)}
+html:root[data-theme] #sp-tag,html:root[data-theme] #sp-tag text{fill:var(--mu)}
+
+/* Приглушённый белый для формул и заголовков в тёмной теме (#E6E9F0 вместо #FFFFFF) */
+html:root[data-theme] .fbox,
+html:root[data-theme] .tr-fbox,
+html:root[data-theme] .ct-line,
+html:root[data-theme] #hb-list article h3,
+html:root[data-theme] #bl-card h3,
+html:root[data-theme] .text-slate-100,
+html:root[data-theme] .fhead b{color:var(--t1)}
+html:root[data-theme] .text-slate-200,
+html:root[data-theme] .text-slate-300{color:var(--tx)}
+html:root[data-theme] .text-slate-400,
+html:root[data-theme] .text-slate-500,
+html:root[data-theme] .text-sky-400{color:var(--mu)}
+
+/* ── 3. Выбранное: мягкая заливка акцентом (12–15%) + iOS-переключатели, без чёрного и синего ── */
+/* Вкладки разделов («Механика», «МКТ»), темы («Все», «Кинематика»...), нижняя навигация, фильтр и лимит ошибок:
+   полупрозрачная заливка акцента (13–14%) и текст того же акцентного цвета */
+html:root[data-theme] .hb-sec,
+html:root[data-theme] .seg button,
+html:root[data-theme] .bl-err-btn,
+html:root[data-theme] nav.bnav button.tb,
+html:root[data-theme] .thsw button{color:var(--unsel);font-weight:600}
+
+html:root[data-theme] .hb-sec.on,
+html:root[data-theme] .hb-chip.on,
+html:root[data-theme] .bl-err-btn.on,
+html:root[data-theme] .fcb.on,
+html:root[data-theme] .fsb.on,
+html:root[data-theme] .sec-pill.on,
+html:root[data-theme] .sec-item.on,
+html:root[data-theme] nav.bnav button.tb.tab-on{
+  background:var(--acc-soft);
+  color:var(--acc);
+  border-color:var(--acc-border);
+  box-shadow:none;
+  font-weight:650}
+
+html:root[data-theme] .hb-chip{background:var(--sf);border:1px solid var(--ln);color:var(--tx)}
+html:root[data-theme] .hb-chip i{color:var(--mu)}
+html:root[data-theme] .hb-chip.on{background:var(--acc-soft);border-color:var(--acc-border);color:var(--acc)}
+html:root[data-theme] .hb-chip.on i{color:var(--acc);opacity:.8}
+html:root[data-theme] .fcb.on .fcnt,html:root[data-theme] .fsb.on .fcnt{background:var(--acc-soft-hi);color:var(--acc)}
+
+/* Сегментированные переключатели (.seg — «30 / 60 / 90 сек» и режим тренажёра, .thsw — тема):
+   спокойная подложка + мягкая «таблетка» с лёгкой тенью и полупрозрачным мятным акцентом */
+html:root[data-theme] .seg,
+html:root[data-theme] .thsw{
+  background:var(--sf2);
+  box-shadow:inset 0 0 0 1px var(--ln);
+  padding:3px}
+
+html:root[data-theme="light"] .seg button.on,
+html:root[data-theme="light"] .thsw button[aria-pressed="true"]{
+  background:#FFFFFF;
+  color:var(--acc);
+  box-shadow:0 1px 3px rgba(20,23,28,.08),0 0 0 1px rgba(15,157,118,.18);
+  font-weight:650}
+
+html:root[data-theme="dark"] .seg button.on,
+html:root[data-theme="dark"] .thsw button[aria-pressed="true"]{
+  background:var(--acc-soft);
+  color:var(--acc);
+  box-shadow:inset 0 0 0 1px var(--acc-border),0 1px 2px rgba(0,0,0,.2);
+  font-weight:650}
+
+/* ── 4. Цвета разделов (--acc-s): ТОЛЬКО в мелочах ──
+   1) Полоска прогресса (.prog i)
+   2) Точка рядом с названием темы (.eyebrow::before и .fdot)
+   3) Подчёркивание (у выбранного раздела и у названия темы в карточке) */
+html:root[data-theme] .prog .bar,
+html:root[data-theme] .bl-track-bg{background:var(--sf2)}
+html:root[data-theme] .prog .bar,
+html:root[data-theme] .prog i{height:5px;border-radius:999px}
+html:root[data-theme] .prog i{background:var(--acc-s)!important}
+
+html:root[data-theme] #hb-list article .eyebrow::before{
+  background:var(--acc-s)!important;
+  box-shadow:none!important}
+html:root[data-theme] .fdot{
+  background:var(--acc-s)!important;
+  box-shadow:0 0 0 2px var(--sf)}
+
+/* Подчёркивание цветом раздела */
+html:root[data-theme] .hb-sec{position:relative}
+html:root[data-theme] .hb-sec.on::after{
+  content:"";
+  position:absolute;
+  left:1.1rem;
+  right:1.1rem;
+  bottom:.22rem;
+  height:2px;
+  border-radius:2px;
+  background:var(--acc-s)}
+html:root[data-theme] #hb-list article .eyebrow>span:first-of-type{
+  text-decoration:underline;
+  text-decoration-color:color-mix(in srgb,var(--acc-s) 65%,transparent);
+  text-underline-offset:4px;
+  text-decoration-thickness:1.5px}
+
+/* ── 5. Прогресс, «Выучено» и ошибки — по смыслу (зелёный/мятный и коралловый, без синего) ── */
+html:root[data-theme] .bg-cyan-500,
+html:root[data-theme] .bg-cyan-400{background:var(--acc);color:var(--on-acc);font-weight:700}
+html:root[data-theme] .hover\:bg-cyan-400:hover{background:color-mix(in srgb,var(--acc) 88%,var(--t1))}
+html:root[data-theme] .text-cyan-400,
+html:root[data-theme] .hover\:text-cyan-400:hover{color:var(--acc)}
+html:root[data-theme] .border-cyan-500\/40,
+html:root[data-theme] .border-cyan-500\/50,
+html:root[data-theme] .hover\:border-cyan-500\/40:hover{border-color:var(--acc-border)}
+html:root[data-theme] .bg-cyan-500\/10,
+html:root[data-theme] .bg-cyan-500\/5{background:var(--acc-soft)}
+html:root[data-theme] .focus\:border-cyan-500\/60:focus{border-color:var(--acc)}
+
+/* Зелёный для выученного и верных ответов */
+html:root[data-theme] .text-emerald-400,
+html:root[data-theme] .text-emerald-300,
+html:root[data-theme] .bl-dir-ok,
+html:root[data-theme] .bat-inf{color:var(--gn)}
+html:root[data-theme] .border-emerald-500\/40,
+html:root[data-theme] .border-emerald-500{border-color:var(--ok-border)}
+html:root[data-theme] .bg-emerald-500\/10,
+html:root[data-theme] .bg-emerald-500\/15,
+html:root[data-theme] .bg-emerald-500\/5{background:var(--ok-bg)}
+html:root[data-theme] .tr-opt-btn.border-emerald-500,
+html:root[data-theme] .tr-fbox.ok,
+html:root[data-theme] .ct-line.ok{border-color:var(--gn);background:var(--ok-bg);box-shadow:none;color:var(--t1)}
+html:root[data-theme] .bl-badge.ok{background:var(--ok-bg);border-color:var(--gn);color:var(--gn)}
+
+/* Коралловый для ошибок */
+html:root[data-theme] .text-rose-400,
+html:root[data-theme] .text-rose-300,
+html:root[data-theme] .bl-dir-bad{color:var(--rd)}
+html:root[data-theme] .border-rose-500\/40,
+html:root[data-theme] .border-rose-500,
+html:root[data-theme] .hover\:border-rose-400:hover{border-color:var(--bad-border)}
+html:root[data-theme] .bg-rose-500\/10,
+html:root[data-theme] .bg-rose-500\/15,
+html:root[data-theme] .bg-rose-500\/5{background:var(--bad-bg)}
+html:root[data-theme] .tr-opt-btn.border-rose-500,
+html:root[data-theme] .tr-fbox.bad,
+html:root[data-theme] .ct-line.bad{border-color:var(--rd);background:var(--bad-bg);box-shadow:none;color:var(--t1)}
+html:root[data-theme] .bl-badge.bad{background:var(--bad-bg);border-color:var(--rd);color:var(--rd)}
+html:root[data-theme] #hb-list article .eyebrow [data-ec]{background:var(--bad-bg);color:var(--rd)}
+html:root[data-theme] #hb-list article .eyebrow [data-ec].text-slate-500{background:var(--sf2);color:var(--mu)}
+
+/* Кнопка «Отметить выученным» / «Выучено» в карточке:
+   невыученная — спокойная нейтральная, выученная — мягкая мятно-зелёная */
+html:root[data-theme] #hb-list article .hb-act{margin-top:1rem;gap:.6rem}
+html:root[data-theme] .hb-copy{width:3rem;height:3rem;background:var(--sf2);border:1px solid var(--ln);color:var(--tx)}
+html:root[data-theme] .hb-copy:hover{border-color:var(--fx-line-hi);color:var(--t1)}
+html:root[data-theme] .hb-copy.done{color:var(--gn);border-color:var(--ok-border);background:var(--ok-bg)}
+html:root[data-theme] .hb-copy.fail{color:var(--rd);border-color:var(--bad-border);background:var(--bad-bg)}
+html:root[data-theme] #hb-list article button[data-act="learn"]{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  min-height:3rem;padding:.7rem 1rem;border-radius:14px;font-size:.95rem;font-weight:650;
+  transition:background-color .2s ease,border-color .2s ease,color .2s ease}
+html:root[data-theme] #hb-list article button[data-act="learn"]:not([class*="emerald"]){
+  background:var(--sf2);border:1px solid var(--ln);color:var(--tx)}
+html:root[data-theme] #hb-list article button[data-act="learn"]:not([class*="emerald"]):hover{
+  background:var(--acc-soft);border-color:var(--acc-border);color:var(--acc)}
+html:root[data-theme] #hb-list article button[data-act="learn"][class*="emerald"]{
+  background:var(--ok-bg);border:1px solid var(--ok-border);color:var(--gn)}
+
+/* ── 6. Карточки, поиск, тренажёр, конструктор и блиц ── */
+html:root[data-theme] article.rounded-2xl,
+html:root[data-theme] #tr-root .rounded-2xl.border,
+html:root[data-theme] #bl-root .rounded-2xl.border,
+html:root[data-theme] .bl-cfg-card{
+  background:var(--sf);
+  border-color:var(--ln);
+  border-radius:20px;
+  box-shadow:0 0 0 1px var(--ln)}
+html:root[data-theme="light"] article.rounded-2xl,
+html:root[data-theme="light"] #tr-root .rounded-2xl.border,
+html:root[data-theme="light"] #bl-root .rounded-2xl.border,
+html:root[data-theme="light"] .bl-cfg-card{
+  box-shadow:0 0 0 1px var(--ln),var(--card-shadow)}
+html:root[data-theme] article.rounded-2xl{padding:1.1rem 1.1rem .9rem}
+html:root[data-theme] #bl-root #bl-card{background:var(--sf);border-color:var(--ln)}
+html:root[data-theme] #hb-list article h3{font-weight:650;font-size:1.2rem}
+html:root[data-theme] #hb-list article .fbox{background:none;margin-top:.5rem;padding:1.4rem 0 1.2rem}
+html:root[data-theme] #hb-search{background:var(--sf);border:1px solid var(--ln);color:var(--t1)}
+html:root[data-theme] #hb-search::placeholder{color:var(--mu)}
+html:root[data-theme] #hb-search:focus{background:var(--sf);border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+html:root[data-theme] .fbtn{background:var(--sf);box-shadow:inset 0 0 0 1px var(--ln);color:var(--tx)}
+
+/* Конструктор и Тесты */
+html:root[data-theme] .tr-fbox,
+html:root[data-theme] .ct-line,
+html:root[data-theme] .ct-ops-row{background:var(--sf2);border-color:var(--ln)}
+html:root[data-theme] .tr-opt-btn,
+html:root[data-theme] .ct-tile{background:var(--sf);border-color:var(--ln);color:var(--t1)}
+html:root[data-theme] .ct-op-tile{background:var(--sf2);border-color:var(--ln);color:var(--tx)}
+html:root[data-theme] .ct-tile:hover:not(:disabled),
+html:root[data-theme] .tr-opt-btn:hover:not(:disabled){border-color:var(--acc-border);background:var(--acc-soft)}
+html:root[data-theme] .ct-lhs{color:var(--acc)}
+html:root[data-theme] .ct-mode-btn{border-color:var(--ln);background:var(--sf2);color:var(--tx)}
+html:root[data-theme] .ct-bksp{background:var(--sf);border:1px solid var(--ln);color:var(--tx)}
+html:root[data-theme] .ct-bksp:hover:not(:disabled){background:var(--bad-bg);border-color:var(--bad-border);color:var(--rd)}
+html:root[data-theme] .ct-box,
+html:root[data-theme] .ct-end,
+html:root[data-theme] .ct-n .ct-end,
+html:root[data-theme] .ct-d .ct-end,
+html:root[data-theme] .ct-rc .ct-end{border-color:var(--fx-line-hi);color:var(--mu)}
+html:root[data-theme] .ct-box.on,
+html:root[data-theme] .ct-end.on{border-color:var(--acc);background:var(--acc-soft);color:var(--acc)}
+html:root[data-theme] .ct-caret{background:var(--acc)}
+html:root[data-theme] .ct-check-btn{background:var(--acc);color:var(--on-acc);box-shadow:none}
+html:root[data-theme] .ct-check-btn:hover:not(:disabled){background:color-mix(in srgb,var(--acc) 88%,var(--t1))}
+html:root[data-theme] .ct-check-btn:disabled{background:var(--sf2);color:var(--mu);border:1px solid var(--ln)}
+html:root[data-theme] .ct-ghost{background:var(--sf2);color:var(--unsel);box-shadow:inset 0 0 0 1px var(--ln)}
+html:root[data-theme] .ct-ghost:hover{background:var(--acc-soft);color:var(--acc)}
+html:root[data-theme] .ct-nm span{background:var(--sf2);color:var(--mu);box-shadow:inset 0 0 0 1px var(--ln)}
+
+/* Блиц и батарея */
+html:root[data-theme] #bl-root button[data-act="start"]::after{display:none}
+html:root[data-theme] .bl-dot{background:radial-gradient(circle,var(--sf) 0,var(--sf) 22%,var(--acc) 40%,transparent 72%)}
+html:root[data-theme] .bl-low #bl-bar{background:var(--rd)!important}
+html:root[data-theme] .bat-body{border-color:var(--fx-line-hi);background:var(--sf2)}
+html:root[data-theme] .bat-cap{background:var(--fx-line-hi)}
+html:root[data-theme] .bat-cell{background:var(--bat-cell)}
+html:root[data-theme] .bl-err-btn{background:var(--sf2);border-color:transparent;color:var(--unsel)}
+
+/* Шторка фильтра */
+html:root[data-theme] .sheet{background:rgba(10,12,16,.55)}
+html:root[data-theme] .sheet-card{background:var(--sf);border:1px solid var(--ln);border-bottom:0;box-shadow:0 -12px 36px rgba(0,0,0,.24)}
+html:root[data-theme] .sheet-card::before{background:var(--ln)}
+html:root[data-theme] .freset{background:var(--sf2);color:var(--tx);box-shadow:inset 0 0 0 1px var(--ln)}
+html:root[data-theme] .fcb{color:var(--t1)}
+html:root[data-theme] .fsb{color:var(--tx)}
+html:root[data-theme] .fcnt{background:var(--sf2);color:var(--mu)}
+
+/* «Величины» и «Вывод» — строки во всю ширину с шевроном справа */
+html:root[data-theme] #hb-list article details{margin-top:.4rem;border-top:1px solid var(--ln)}
+html:root[data-theme] #hb-list article details+details{margin-top:0}
+html:root[data-theme] #hb-list article details>summary[class]{display:flex;width:100%;align-items:center;justify-content:space-between;padding:.85rem 0;border:0;border-radius:0;background:none;color:var(--tx);font-size:.95rem;font-weight:600}
+html:root[data-theme] #hb-list article details>summary[class]:hover{color:var(--acc)}
+html:root[data-theme] #hb-list article details>summary .chev{width:1.1rem;height:1.1rem;color:var(--mu);opacity:1}
+html:root[data-theme] #hb-list article details>:not(summary){padding:0 0 .9rem}
+html:root[data-theme] #hb-list article p.rounded-lg.bg-slate-900{margin:0;padding:.85rem 0 0;border:0;border-top:1px solid var(--ln);color:var(--fx-cond);font-size:.9rem}
+
+/* Прогресс «0 / 46 выучено» */
+html:root[data-theme] .prog{flex-direction:column;align-items:stretch;gap:.55rem}
+html:root[data-theme] #hb-progress{display:flex;align-items:baseline;gap:.4rem;flex-wrap:wrap}
+html:root[data-theme] #hb-progress .rn{font-size:1.3rem;line-height:1.2;font-weight:700;color:var(--gn)}
+html:root[data-theme] #hb-progress .pg-t{font-size:1.3rem;font-weight:700;color:var(--t1)}
+html:root[data-theme] #hb-progress .pg-l{margin-left:.35rem;font-size:.88rem;color:var(--mu)}
+
+/* Панель разделов и чипы тем */
+html:root[data-theme] .hb-rail{background:var(--sf);border:1px solid var(--ln);box-shadow:none}
+html:root[data-theme="light"] .hb-rail{background:var(--sf2)}
+html:root[data-theme="light"] .hb-rail .hb-sec.on{background:#FFFFFF;color:var(--acc);box-shadow:0 1px 3px rgba(20,23,28,.07)}
+html:root[data-theme] .hb-sec:disabled{opacity:1;color:var(--mu)}
+html:root[data-theme] .hb-sec:disabled::after{content:"скоро";margin-left:.45rem;padding:.1rem .4rem;border-radius:999px;background:var(--sf2);font-size:.68rem;font-weight:600}
+html:root[data-theme="light"] .hb-sec:disabled::after{background:rgba(27,32,40,.06)}
+html:root[data-theme] .hb-chips{padding-right:2.6rem;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 2.6rem),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 2.6rem),transparent)}
+
+/* Нижняя панель: три вкладки с подписями и мягкой акцентной заливкой выбранной */
+html:root[data-theme] .bnav{left:0;right:0;bottom:0;transform:none;width:auto;max-width:none;display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;padding:.4rem .5rem calc(.4rem + env(safe-area-inset-bottom,0px));border:0;border-top:1px solid var(--ln);border-radius:0;background:var(--sf);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html:root[data-theme] nav.bnav button.tb,html:root[data-theme] nav.bnav button.tb.tab-on{flex-direction:column;gap:.2rem;height:3.4rem;min-width:0;padding:0;border-radius:12px;background:transparent;color:var(--mu);font-weight:600;box-shadow:none}
+html:root[data-theme] nav.bnav button.tb.tab-on{background:var(--acc-soft);color:var(--acc);font-weight:650}
+html:root[data-theme] .tb-l,html:root[data-theme] .tab-on .tb-l{display:block;margin:0;opacity:1}
+html:root[data-theme] .tb-l>span{display:block;font-size:.78rem;line-height:1.1}
+html:root[data-theme] body.no-nav .bnav,html:root[data-theme] body.kb-open .bnav{transform:translateY(110%);opacity:0;pointer-events:none}
+html:root[data-theme] main.mx-auto{padding-bottom:calc(5.6rem + env(safe-area-inset-bottom,0px))}
+
+/* ── 7. Адаптивные раскладки ── */
+@media (min-width:600px) and (max-width:1099.98px){
+  html:root[data-theme] main.mx-auto,html:root[data-theme] .wrap{max-width:48rem}
+  html:root[data-theme] #hb-list{grid-template-columns:minmax(0,1fr)}
+  html:root[data-theme] .bnav{padding-left:max(.5rem,calc((100% - 44rem)/2));padding-right:max(.5rem,calc((100% - 44rem)/2))}}
+@media (min-width:1100px){
+  html:root[data-theme] body{padding-left:17rem}
+  html:root[data-theme] main.mx-auto,html:root[data-theme] .wrap{max-width:calc(760px + 4rem)}
+  html:root[data-theme] main.mx-auto{padding-bottom:2.5rem}
+  html:root[data-theme] #hb-list{grid-template-columns:minmax(0,1fr)}
+  html:root[data-theme] #rail{position:fixed;left:0;top:0;bottom:0;z-index:45;width:17rem;display:flex;flex-direction:column;gap:1.5rem;padding:1.5rem 1rem;overflow-y:auto;background:var(--sf);border-right:1px solid var(--ln)}
+  html:root[data-theme] #rail .rail-h{margin:0 .8rem .4rem;font-size:.78rem;font-weight:600;color:var(--mu)}
+  html:root[data-theme] body:not(.on-hb) #rail .rail-hb{display:none}
+  html:root[data-theme] #rail .bnav,html:root[data-theme] body.kb-open #rail .bnav,html:root[data-theme] body.no-nav #rail .bnav{position:static;display:flex;flex-direction:column;gap:.2rem;padding:0;border:0;background:none;transform:none;opacity:1;pointer-events:auto}
+  html:root[data-theme] #rail nav.bnav button.tb,html:root[data-theme] #rail nav.bnav button.tb.tab-on{flex-direction:row;justify-content:flex-start;gap:.7rem;height:2.7rem;padding:0 .8rem}
+  html:root[data-theme] #rail .tb-l>span{font-size:.95rem}
+  html:root[data-theme] #rail .hb-stick{position:static}
+  html:root[data-theme] #rail .hb-rail{flex-direction:column;gap:.15rem;padding:0;border:0;background:none;border-radius:0;overflow:visible}
+  html:root[data-theme] #rail .hb-sec{display:flex;align-items:center;justify-content:space-between;width:100%;padding:.55rem .8rem;border-radius:10px;text-align:left;font-size:.95rem}
+  html:root[data-theme] #rail .hb-sec.on{background:var(--acc-soft);color:var(--acc);box-shadow:none}
+  html:root[data-theme] #rail .hb-sec.on::after{left:0;right:auto;top:.45rem;bottom:.45rem;width:3px;height:auto}
+  html:root[data-theme] #rail .hb-chips{flex-direction:column;gap:.15rem;margin:0;padding:0;overflow:visible;-webkit-mask-image:none;mask-image:none}
+  html:root[data-theme] #rail .hb-chip{width:100%;justify-content:space-between;padding:.5rem .8rem;border:0;border-radius:10px;background:none;font-size:.92rem}
+  html:root[data-theme] #rail .hb-chip.on{background:var(--acc-soft);color:var(--acc)}}
+</style>
+<style id="redesign2">
+/* ═══════════ Цвета v2: чернильная тёмная тема + нейтральное выделение ═══════════
+   Выбранное (раздел, тема, вкладка, 30/60/90, лимит ошибок) — не цветная заливка, а «приподнятая» плашка:
+   в тёмной теме чуть светлее фона, в светлой — белая (сегменты) или светло-серая (чипы), текст яркий и жирнее.
+   Цвет остаётся только там, где он что-то значит: мятный — выучено/верно/главные кнопки, коралловый — ошибки,
+   цвет раздела — полоска прогресса и точка у темы. */
+html:root[data-theme="dark"]{
+  --bg:#0F1420;--sf:#171F33;--sf2:#1F2841;--sf-pill:#2A3556;--ln:#252F4A;
+  --t1:#E7EAF6;--tx:#C9D0E4;--mu:#8791B0;--unsel:#98A2C0;
+  --sel-bg:#2A3556;--sel-fg:#F3F5FC;--sel-ring:rgba(255,255,255,.10);
+  --rd:#EF7A7A;--mg:#EF7A7A;
+  --bad-bg:rgba(239,122,122,.14);--bad-border:rgba(239,122,122,.38);
+  --fx-glass:#171F33;--fx-glass-strong:#171F33;--fx-glass2:#1F2841;--fx-glass-line:#252F4A;
+  --fx-line-hi:rgba(231,234,246,.26);--fx-cond:#98A2C0;--fx-cond-hi:#C9D0E4;
+  --fx-stack-rgb:23,31,51;--fx-low-rgb:239,122,122;--fx-edge-bad:239,122,122;--bat-cell:#1F2841}
+html:root[data-theme="light"]{
+  --sel-bg:#E1E6EE;--sel-fg:#1B2028;--sel-ring:rgba(27,32,40,.10)}
+html:root[data-theme] #bg{background-color:var(--bg)}
+html:root[data-theme] .sheet{background:rgba(6,9,18,.6)}
+
+/* 1. Единое нейтральное выделение */
+html:root[data-theme] .hb-sec.on,
+html:root[data-theme] .hb-chip.on,
+html:root[data-theme] .bl-err-btn.on,
+html:root[data-theme] .fcb.on,
+html:root[data-theme] .fsb.on,
+html:root[data-theme] .sec-pill.on,
+html:root[data-theme] .sec-item.on,
+html:root[data-theme] nav.bnav button.tb.tab-on{
+  background:var(--sel-bg);color:var(--sel-fg);border-color:transparent;
+  box-shadow:inset 0 0 0 1px var(--sel-ring);font-weight:650}
+html:root[data-theme] .hb-chip.on{background:var(--sel-bg);border-color:transparent;color:var(--sel-fg)}
+html:root[data-theme] .hb-chip.on i{color:var(--sel-fg);opacity:.62}
+html:root[data-theme] .fcb.on .fcnt,
+html:root[data-theme] .fsb.on .fcnt{background:color-mix(in srgb,var(--sel-fg) 12%,transparent);color:var(--sel-fg)}
+html:root[data-theme] .sec-pill.on:hover{background:var(--sel-bg)}
+
+/* 2. Сегменты (30/60/90, режимы, тема) */
+html:root[data-theme="dark"] .seg button.on,
+html:root[data-theme="dark"] .thsw button[aria-pressed="true"]{
+  background:var(--sel-bg);color:var(--sel-fg);
+  box-shadow:inset 0 0 0 1px var(--sel-ring),0 1px 2px rgba(0,0,0,.25);font-weight:650}
+html:root[data-theme="light"] .seg button.on,
+html:root[data-theme="light"] .thsw button[aria-pressed="true"]{
+  background:#FFFFFF;color:var(--t1);
+  box-shadow:0 1px 3px rgba(20,23,28,.10),0 0 0 1px rgba(20,23,28,.06);font-weight:650}
+html:root[data-theme="light"] .hb-rail .hb-sec.on{
+  background:#FFFFFF;color:var(--t1);
+  box-shadow:0 1px 3px rgba(20,23,28,.10),0 0 0 1px rgba(20,23,28,.06)}
+
+/* 3. Без подчёркивания под выбранным разделом */
+html:root[data-theme] .hb-sec.on::after{display:none}
+
+/* 4. Боковая рейка на компьютере */
+@media (min-width:1100px){
+  html:root[data-theme] #rail .hb-sec.on,
+  html:root[data-theme] #rail .hb-chip.on,
+  html:root[data-theme] #rail nav.bnav button.tb.tab-on{
+    background:var(--sel-bg);color:var(--sel-fg);box-shadow:none}
+  html:root[data-theme] #rail .hb-sec.on::after{display:none}}
+</style>
+<style id="aurora-css">
+/* ═══════════ Аврора: цветной свет сверху (до середины экрана) ═══════════
+   Цвет задаётся РАЗДЕЛОМ физики (Механика, МКТ, ...), темы внутри раздела цвет не меняют.
+   Три цвета на раздел: --a1, --a2, --a3. Меняйте их ниже — свет перекрасится. */
+@property --a1{syntax:'<color>';inherits:true;initial-value:#8fd3f4}
+@property --a2{syntax:'<color>';inherits:true;initial-value:#b9c4ff}
+@property --a3{syntax:'<color>';inherits:true;initial-value:#9fead8}
+html:root[data-theme] body{transition:--a1 .9s ease,--a2 .9s ease,--a3 .9s ease}
+
+html:root[data-theme="light"] body{--a1:#8fd3f4;--a2:#b9c4ff;--a3:#9fead8}
+html:root[data-theme="light"] body[data-psec="mkt"]{--a1:#ffb4a8;--a2:#ffd3a6;--a3:#f7b5d6}
+html:root[data-theme="light"] body[data-psec="electro"]{--a1:#c6b6ff;--a2:#ffe29b;--a3:#a3d5ff}
+html:root[data-theme="light"] body[data-psec="optics"]{--a1:#9ae9c6;--a2:#a9dfff;--a3:#d6f29a}
+html:root[data-theme="dark"] body{--a1:#2c74ff;--a2:#5a4df0;--a3:#12b3d6}
+html:root[data-theme="dark"] body[data-psec="mkt"]{--a1:#ff5a57;--a2:#ff8a3a;--a3:#e0408c}
+html:root[data-theme="dark"] body[data-psec="electro"]{--a1:#8a5cff;--a2:#f2a516;--a3:#3d8bff}
+html:root[data-theme="dark"] body[data-psec="optics"]{--a1:#12b87c;--a2:#17a2e6;--a3:#8dcc22}
+
+/* Свечение сверху: один неподвижный слой, без анимации, без blur и без маски (дёшево для батареи и прокрутки).
+   Яркость задаёт --glow (процент: больше — ярче). Центр — цвет --a1, по краям слабее --a3 и --a2.
+   «ellipse 70% 100%» — радиусы пятна по ширине и высоте слоя; высота слоя — height. */
+#aurora{position:absolute;left:0;right:0;top:0;height:52vh;pointer-events:none;--g:var(--glow,50%);
+  background:radial-gradient(ellipse 70% 100% at 50% 0%,var(--a1),transparent);
+  background:
+    radial-gradient(ellipse 70% 100% at 50% 0%,color-mix(in srgb,var(--a1) calc(var(--g)*1),transparent) 0%,color-mix(in srgb,var(--a1) calc(var(--g)*0.82),transparent) 14%,color-mix(in srgb,var(--a1) calc(var(--g)*0.55),transparent) 30%,color-mix(in srgb,var(--a1) calc(var(--g)*0.32),transparent) 46%,color-mix(in srgb,var(--a1) calc(var(--g)*0.15),transparent) 62%,color-mix(in srgb,var(--a1) calc(var(--g)*0.05),transparent) 80%,transparent 100%),
+    radial-gradient(ellipse 46% 80% at 88% 0%,color-mix(in srgb,var(--a2) calc(var(--g)*0.5),transparent) 0%,color-mix(in srgb,var(--a2) calc(var(--g)*0.41),transparent) 14%,color-mix(in srgb,var(--a2) calc(var(--g)*0.275),transparent) 30%,color-mix(in srgb,var(--a2) calc(var(--g)*0.16),transparent) 46%,color-mix(in srgb,var(--a2) calc(var(--g)*0.075),transparent) 62%,color-mix(in srgb,var(--a2) calc(var(--g)*0.025),transparent) 80%,transparent 100%),
+    radial-gradient(ellipse 46% 80% at 12% 0%,color-mix(in srgb,var(--a3) calc(var(--g)*0.5),transparent) 0%,color-mix(in srgb,var(--a3) calc(var(--g)*0.41),transparent) 14%,color-mix(in srgb,var(--a3) calc(var(--g)*0.275),transparent) 30%,color-mix(in srgb,var(--a3) calc(var(--g)*0.16),transparent) 46%,color-mix(in srgb,var(--a3) calc(var(--g)*0.075),transparent) 62%,color-mix(in srgb,var(--a3) calc(var(--g)*0.025),transparent) 80%,transparent 100%)}
+html:root[data-theme="light"] #aurora{--glow:60%}
+html:root[data-theme="dark"] #aurora{--glow:38%}
+
+/* ── Без цветных точек и без текста «цвета темы» ── */
+html:root[data-theme] #hb-list article .eyebrow::before{display:none!important}
+html:root[data-theme] .fdot{display:none!important}
+html:root[data-theme] #hb-list article .eyebrow>span:first-of-type{text-decoration:none;color:var(--tx)}
+html:root[data-theme] #hb-list article details>summary[class]:hover{color:var(--t1)}
+/* Фильтр включён — кнопка выглядит выбранной (вместо точки) */
+html:root[data-theme="light"] .fbtn:has(.fdot:not([hidden])){background:#fff;color:var(--t1);box-shadow:0 2px 8px -2px rgba(20,30,60,.18)}
+html:root[data-theme="dark"] .fbtn:has(.fdot:not([hidden])){background:rgba(255,255,255,.17);color:#fff}
+
+/* Прогресс — всегда зелёный */
+html:root[data-theme] .prog i{background:linear-gradient(90deg,color-mix(in srgb,var(--gn) 68%,#fff),var(--gn))!important}
+html:root[data-theme] .prog .bar{background:color-mix(in srgb,var(--t1) 11%,transparent)}
+
+/* ── Стекло: карточки, поиск, панель разделов, чипы ──
+   Карточка: заливка полупрозрачная, без размытия; контур один — в светлой теме тень, в тёмной тонкая рамка.
+   --card-a — плотность заливки: .50 = 50% прозрачности (светлая), .55 = 45% прозрачности (тёмная). Меняйте только эти два числа. */
+html:root[data-theme="light"]{--card-a:.50}
+html:root[data-theme="dark"]{--card-a:.55}
+html:root[data-theme="light"] article.rounded-2xl,
+html:root[data-theme="light"] #tr-root .rounded-2xl.border,
+html:root[data-theme="light"] #bl-root .rounded-2xl.border,
+html:root[data-theme="light"] .bl-cfg-card{background:rgba(255,255,255,var(--card-a));border-color:transparent;
+  box-shadow:0 1px 3px rgba(20,30,60,.08),0 14px 34px -14px rgba(30,45,100,.22)}
+html:root[data-theme="dark"] article.rounded-2xl,
+html:root[data-theme="dark"] #tr-root .rounded-2xl.border,
+html:root[data-theme="dark"] #bl-root .rounded-2xl.border,
+html:root[data-theme="dark"] .bl-cfg-card{background:rgba(20,28,48,var(--card-a));border-color:rgba(255,255,255,.10);
+  box-shadow:none}
+
+html:root[data-theme="light"] #hb-search,html:root[data-theme="light"] .fbtn,html:root[data-theme="light"] .hb-rail{
+  background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.8);box-shadow:none}
+html:root[data-theme="dark"] #hb-search,html:root[data-theme="dark"] .fbtn,html:root[data-theme="dark"] .hb-rail{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);box-shadow:none}
+html:root[data-theme] .hb-rail{-webkit-backdrop-filter:none;backdrop-filter:none}
+
+html:root[data-theme="light"] .hb-chip{background:rgba(255,255,255,.5);border-color:rgba(255,255,255,.8)}
+html:root[data-theme="light"] .hb-chip.on,html:root[data-theme="light"] .hb-rail .hb-sec.on{background:#fff;border-color:transparent;color:var(--t1);
+  box-shadow:0 2px 8px -2px rgba(20,30,60,.18)}
+html:root[data-theme="dark"] .hb-chip{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.09)}
+html:root[data-theme="dark"] .hb-chip.on,html:root[data-theme="dark"] .hb-rail .hb-sec.on{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+
+/* Формула: нейтральная плашка без рамки. Светлая тема — чисто белая, тёмная — спокойная светлая дымка без цвета.
+   Радиус 12px меньше радиуса карточки (20px): отступ плашки от края ~18px, строгое «внешний минус отступ» дало бы ~2px — углы вышли бы острыми. */
+html:root[data-theme] #hb-list article .fbox{margin-top:.6rem;padding:1.6rem .75rem 1.4rem;border-radius:12px;background:#fff;border:1px solid transparent}
+html:root[data-theme="dark"] #hb-list article .fbox{background:rgba(255,255,255,.07)}
+
+/* Нижняя панель — стеклянная */
+html:root[data-theme] .bnav{background:color-mix(in srgb,var(--sf) 80%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+
+/* ── Верхние ряды (поиск, разделы, темы): заливка только у активного, остальное — просто текст ──
+   Активный: раздел/тема .on, поиск в фокусе или с текстом, фильтр с включённой темой. Ряд разделов остаётся прилипающим:
+   рамку и заливку дорожки убрали, размытие под ней оставили — иначе при прокрутке текст карточек просвечивал бы сквозь названия. */
+@media (max-width:1099.98px){
+  html:root[data-theme] .hb-rail{margin-left:-.3rem;margin-right:-.3rem;background:transparent;border-color:transparent;box-shadow:none}
+  html:root[data-theme] .hb-chip:not(.on){background:transparent;border-color:transparent}
+}
+</style>
+<style id="fit-fix">
+/* ═══ Масштаб и «налезание»: страница никогда не шире экрана ═══
+   Причина: широкий контент (формула, строка темы) растягивал колонку карточек, а соседняя вкладка при свайпе
+   выступала за край. Chrome тогда «уменьшал масштаб», чтобы всё уместилось. */
+html,body{max-width:100%}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+@supports not (overflow:clip){body{overflow-x:hidden}}
+main,main>section,#hb-list,#tr-root,#bl-root{min-width:0;max-width:100%}
+html:root[data-theme] #hb-list{grid-template-columns:minmax(0,1fr)}
+#hb-list>*,#tr-root>*,#bl-root>*{min-width:0;max-width:100%}
+#hb-list article{overflow-wrap:anywhere}
+#hb-list article .fbox,#hb-list article .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+</style>
+<style id="section-palette">
+/* ═══ Цвета разделов физики ═══
+   Механика — синий (индиго), МКТ и термодинамика — оранжевый (коралл), электродинамика — фиолетовый,
+   колебания и волны — зелёный, оптика — жёлтый, квантовая и ядерная — красный.
+   Светлая тема: мягкая цветная полоса сверху (пастельный тон). Тёмная тема: ореол (насыщенный тон).
+   Чтобы поменять цвет раздела, меняйте --a1 (остальные два держим равными). */
+html:root[data-theme="light"] body{--a1:#7c96ff;--a2:#7c96ff;--a3:#7c96ff}
+html:root[data-theme="light"] body[data-psec="mechanics"]{--a1:#7c96ff;--a2:#7c96ff;--a3:#7c96ff}
+html:root[data-theme="light"] body[data-psec="mkt"]{--a1:#ff8a5c;--a2:#ff8a5c;--a3:#ff8a5c}
+html:root[data-theme="light"] body[data-psec="electro"]{--a1:#c2a8ff;--a2:#c2a8ff;--a3:#c2a8ff}
+html:root[data-theme="light"] body[data-psec="oscillations"]{--a1:#8fe3ae;--a2:#8fe3ae;--a3:#8fe3ae}
+html:root[data-theme="light"] body[data-psec="optics"]{--a1:#ffe07a;--a2:#ffe07a;--a3:#ffe07a}
+html:root[data-theme="light"] body[data-psec="quantum"]{--a1:#ff9d9a;--a2:#ff9d9a;--a3:#ff9d9a}
+html:root[data-theme="dark"] body{--a1:#4468ff;--a2:#4468ff;--a3:#4468ff}
+html:root[data-theme="dark"] body[data-psec="mechanics"]{--a1:#4468ff;--a2:#4468ff;--a3:#4468ff}
+html:root[data-theme="dark"] body[data-psec="mkt"]{--a1:#ff6a45;--a2:#ff6a45;--a3:#ff6a45}
+html:root[data-theme="dark"] body[data-psec="electro"]{--a1:#8a5cff;--a2:#8a5cff;--a3:#8a5cff}
+html:root[data-theme="dark"] body[data-psec="oscillations"]{--a1:#1fc26a;--a2:#1fc26a;--a3:#1fc26a}
+html:root[data-theme="dark"] body[data-psec="optics"]{--a1:#f5c400;--a2:#f5c400;--a3:#f5c400}
+html:root[data-theme="dark"] body[data-psec="quantum"]{--a1:#ff4a4a;--a2:#ff4a4a;--a3:#ff4a4a}
+
+/* Светлая тема: мягкая полоса, растворяется в фоне за ~200px */
+html:root[data-theme="light"] #aurora{height:260px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--a1) 62%,transparent) 0%,color-mix(in srgb,var(--a1) 54%,transparent) 10%,color-mix(in srgb,var(--a1) 42%,transparent) 24%,color-mix(in srgb,var(--a1) 29%,transparent) 40%,color-mix(in srgb,var(--a1) 17%,transparent) 56%,color-mix(in srgb,var(--a1) 8%,transparent) 74%,color-mix(in srgb,var(--a1) 2%,transparent) 90%,transparent 100%)}
+/* Тёмная тема: один источник света у верхнего края (ореол) */
+html:root[data-theme="dark"] #aurora{
+  background:radial-gradient(ellipse 85% 100% at 50% 0%,color-mix(in srgb,var(--a1) 40%,transparent) 0%,color-mix(in srgb,var(--a1) 26%,transparent) 22%,color-mix(in srgb,var(--a1) 12%,transparent) 48%,color-mix(in srgb,var(--a1) 4%,transparent) 76%,transparent 100%)}
+
+/* Закрытые разделы: пометка «скоро» окрашена в будущий цвет раздела (--sc задан у кнопки) */
+html:root[data-theme] .hb-sec[data-future]:disabled::after{
+  background:color-mix(in srgb,var(--sc) 22%,transparent);color:color-mix(in srgb,var(--sc) 55%,var(--t1))}
+</style>
+
+<style id="polish-v2">
+/* ═══════════ Полировка v2 ═══════════
+   1) Батарея Блица: пустая ячейка — тусклая, а не зелёная
+   2) Поиск и фильтр: плотные плитки с рамкой и иконкой
+   3) Формула: без плашки и свечения
+   4) Вывод формулы: без зелёных рамок, нейтральные номера и «Итог»
+   5) Кнопка копирования: скруглённый квадрат в один ряд с «Выучено»
+   6) Лента разделов: мягкая подложка вместо blur+saturate (убирает ступеньку цвета до строки «Выучено») */
+
+/* 1. Батарея */
+html:root[data-theme="dark"]{--bat-cell:rgba(231,234,246,.11)}
+html:root[data-theme="light"]{--bat-cell:rgba(27,32,40,.09)}
+html:root[data-theme] .bat-cell{background:var(--bat-cell)}
+
+/* 2. Поиск и фильтр */
+html:root[data-theme] .srch{gap:.6rem}
+html:root[data-theme] #hb-search{
+  height:3rem;padding:0 .9rem 0 2.8rem;border-radius:16px;font-size:.95rem;font-weight:500;
+  background-repeat:no-repeat;background-position:1rem 50%;background-size:1.15rem 1.15rem;
+  transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+html:root[data-theme] #hb-search::-webkit-search-cancel-button{opacity:.6}
+html:root[data-theme="light"] #hb-search{
+  background-color:#fff;border:1px solid rgba(24,36,80,.10);color:var(--t1);
+  box-shadow:0 1px 2px rgba(20,30,60,.05),0 10px 24px -14px rgba(30,45,100,.32);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d869c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='M16 16l4 4'/%3E%3C/svg%3E")}
+html:root[data-theme="dark"] #hb-search{
+  background-color:rgba(26,34,58,.82);border:1px solid rgba(255,255,255,.12);color:var(--t1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px -14px rgba(0,0,0,.6);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e98b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='M16 16l4 4'/%3E%3C/svg%3E")}
+@media (max-width:380px){html:root[data-theme] #hb-search{font-size:.85rem}}
+html:root[data-theme="light"] #hb-search::placeholder{color:#7d869c;opacity:1}
+html:root[data-theme="dark"] #hb-search::placeholder{color:rgba(231,234,246,.46);opacity:1}
+html:root[data-theme="light"] #hb-search:focus{
+  background-color:#fff;border-color:rgba(24,36,80,.26);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--a1) 38%,transparent),0 10px 24px -14px rgba(30,45,100,.32)}
+html:root[data-theme="dark"] #hb-search:focus{
+  background-color:rgba(30,40,68,.92);border-color:color-mix(in srgb,var(--a1) 65%,#fff);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--a1) 24%,transparent),0 10px 24px -14px rgba(0,0,0,.6)}
+
+html:root[data-theme] .fbtn{width:3rem;height:3rem;border-radius:16px;transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease,transform .12s ease}
+html:root[data-theme] .fbtn:active{transform:scale(.95)}
+html:root[data-theme="light"] .fbtn{
+  background:#fff;border:1px solid rgba(24,36,80,.10);color:#48526b;
+  box-shadow:0 1px 2px rgba(20,30,60,.05),0 10px 24px -14px rgba(30,45,100,.32)}
+html:root[data-theme="dark"] .fbtn{
+  background:rgba(26,34,58,.82);border:1px solid rgba(255,255,255,.12);color:#cfd5e6;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 24px -14px rgba(0,0,0,.6)}
+/* фильтр включён — плитка окрашена в цвет раздела */
+html:root[data-theme="light"] .fbtn:has(.fdot:not([hidden])){
+  background:color-mix(in srgb,var(--a1) 42%,#fff);border-color:color-mix(in srgb,var(--a1) 70%,transparent);color:var(--t1);
+  box-shadow:0 1px 2px rgba(20,30,60,.05),0 10px 24px -14px rgba(30,45,100,.32)}
+html:root[data-theme="dark"] .fbtn:has(.fdot:not([hidden])){
+  background:color-mix(in srgb,var(--a1) 26%,rgba(26,34,58,.95));border-color:color-mix(in srgb,var(--a1) 55%,transparent);color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 24px -14px rgba(0,0,0,.6)}
+
+/* 3. Формула: без плашки и свечения, крупно прямо на карточке */
+html:root[data-theme] #hb-list article .fbox,
+html:root[data-theme="dark"] #hb-list article .fbox,
+html:root[data-theme="light"] #hb-list article .fbox{margin-top:.6rem;padding:1.5rem .75rem 1.35rem;border:0;border-radius:0;background:none;box-shadow:none}
+
+/* 4. Вывод и физический смысл: без зелёного, всё нейтральное */
+html:root[data-theme] #hb-list article .dv-n{
+  display:flex;flex:none;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;margin-top:.1rem;
+  border-radius:8px;background:color-mix(in srgb,var(--t1) 8%,transparent);color:var(--mu);
+  font-size:.72rem;font-weight:650;line-height:1}
+html:root[data-theme] #hb-list article .dv-lab{font-weight:650;color:var(--t1)}
+html:root[data-theme] #hb-list article .dv-fin{
+  padding:.65rem .85rem;border-radius:12px;background:color-mix(in srgb,var(--t1) 7%,transparent);color:var(--t1)}
+/* «Условия»: ровная линия-разделитель (раньше у неё были скруглённые концы-«дужка») */
+html:root[data-theme] #hb-list article p.rounded-lg.bg-slate-900{border-radius:0}
+
+/* 5. Кнопка копирования: скруглённый квадрат той же высоты и формы, что «Выучено» */
+html:root[data-theme] #hb-list article .hb-act{gap:.55rem;align-items:stretch;margin-top:1.1rem}
+html:root[data-theme] #hb-list article .hb-copy{
+  width:3.4rem;height:auto;min-height:3.4rem;border-radius:16px;
+  background:var(--sf2);border:1px solid var(--ln);color:var(--tx);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .12s ease}
+html:root[data-theme] #hb-list article .hb-copy:hover{color:var(--t1);border-color:var(--fx-line-hi)}
+html:root[data-theme] #hb-list article .hb-copy:active{transform:scale(.95)}
+html:root[data-theme] #hb-list article .hb-copy svg{width:1.5rem;height:1.5rem;stroke-width:1.7}
+html:root[data-theme] #hb-list article .hb-copy .i-cp rect{fill:none}
+html:root[data-theme] #hb-list article .hb-copy.done{color:var(--gn);border-color:var(--ok-border);background:var(--ok-bg)}
+html:root[data-theme] #hb-list article .hb-copy.fail{color:var(--rd);border-color:var(--bad-border);background:var(--bad-bg)}
+html:root[data-theme] #hb-list article button[data-act="learn"]{min-height:3.4rem;border-radius:16px}
+
+/* 6. Лента разделов: размытие остаётся (иначе текст карточек просвечивает при прокрутке),
+   но оно без saturate и растворяется к краям — ступеньки цвета между ореолом и строкой «Выучено» нет */
+@media (max-width:1099.98px){
+  html:root[data-theme] .hb-stick::before{
+    content:"";position:absolute;z-index:-1;left:-1rem;right:-1rem;top:-.5rem;bottom:-1.7rem;pointer-events:none;
+    -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 26%,#000 76%,transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0,#000 26%,#000 76%,transparent 100%)}
+}
+</style>
+
+<style id="type-harmony">
+/* ═══ Шрифты тренажёра и блица по шкале справочника ═══
+   Справочник: метка 0.8rem/600 · заголовок 1.2rem/650 · кнопки и пункты 0.92–0.95rem · пояснения 0.9rem */
+
+/* Верхняя строка («← Назад», «Серия», «Счёт», время) */
+html:root[data-theme] #tr-root div.text-xs,
+html:root[data-theme] #bl-root div.text-xs{font-size:.9rem;font-weight:600}
+html:root[data-theme] #bl-root div.text-sm{font-size:1rem;font-weight:650}
+
+/* Карточка задания: метка темы и название — как в карточке справочника */
+html:root[data-theme] #tr-root p.text-xs,
+html:root[data-theme] #bl-root p.text-xs,
+html:root[data-theme] #tr-root span.text-xs,
+html:root[data-theme] #bl-root span.text-xs{font-size:.8rem;font-weight:600;letter-spacing:0}
+html:root[data-theme] #tr-root .rounded-2xl.border h3,
+html:root[data-theme] #bl-root #bl-card h3{margin-top:.5rem;font-size:1.2rem;line-height:1.25;font-weight:650}
+
+/* Описания и подписи над настройками */
+html:root[data-theme] #tr-root .sec,
+html:root[data-theme] #bl-root .sec{font-size:.9rem;line-height:1.55;font-weight:400}
+html:root[data-theme] .bl-cfg-label,
+html:root[data-theme] .rec-l{font-size:.8rem;font-weight:600;letter-spacing:0;text-transform:none}
+
+/* Кнопки списка тем, «Повторить ошибки», «Старт», «В меню» */
+html:root[data-theme] #tr-root button.rounded-xl.text-sm,
+html:root[data-theme] #bl-root button.rounded-xl.text-sm{font-size:.95rem;font-weight:600}
+html:root[data-theme] #tr-root button.text-sm.font-semibold,
+html:root[data-theme] #bl-root button.text-sm.font-semibold{font-weight:700}
+html:root[data-theme] .bl-err-btn{font-size:.9rem;font-weight:600}
+html:root[data-theme] .seg button{font-size:.92rem;font-weight:600}
+
+/* Конструктор */
+html:root[data-theme] .ct-mode-btn{font-size:.8rem;font-weight:650}
+html:root[data-theme] .ct-hint,
+html:root[data-theme] .ct-nm{font-size:.85rem}
+html:root[data-theme] .ct-act2 button{font-size:.9rem;font-weight:650}
+html:root[data-theme] .ct-ghost{font-size:.9rem;font-weight:600}
+
+/* Блиц: подсказки и бейджи */
+html:root[data-theme] .bl-swipe-hint{font-size:.8rem}
+html:root[data-theme] .bl-badge{font-size:.8rem;font-weight:700;letter-spacing:.02em}
+
+/* Результаты: «Верно!», пояснения, итог раунда */
+html:root[data-theme] #tr-result p.font-semibold{font-size:1rem;font-weight:650}
+html:root[data-theme] #tr-result p.text-xs{font-size:.9rem;font-weight:400;line-height:1.55}
+html:root[data-theme] #bl-root h3.text-sm{font-size:1rem;font-weight:650}
+html:root[data-theme] #bl-root p.text-sm{font-size:.95rem;font-weight:600}
+</style>
+<style id="theme-morph">
+/* Переключатель темы: одна кнопка, иконка плавно превращается из солнца в полумесяц и обратно */
+html:root[data-theme] button.thsw{display:grid;place-items:center;flex:none;width:2.6rem;height:2.6rem;padding:0;border:0;border-radius:999px;
+  background:var(--sf2);box-shadow:inset 0 0 0 1px var(--ln);color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background-color .6s ease,box-shadow .6s ease;view-transition-name:theme-btn}
+html:root[data-theme="light"] button.thsw{background:#fff}
+.thsw svg{width:1.45rem;height:1.45rem;overflow:visible;transform:translateX(0) rotate(0deg);transition:transform .7s cubic-bezier(.5,0,.2,1)}
+.thm-core{r:4.4px;transition:r .6s cubic-bezier(.5,0,.2,1)}
+.thm-cut{cx:31px;cy:1px;r:7px;transition:cx .6s cubic-bezier(.5,0,.2,1),cy .6s cubic-bezier(.5,0,.2,1)}
+.thm-rays{transform-origin:12px 12px;transition:transform .6s cubic-bezier(.5,0,.2,1),opacity .35s ease}
+html[data-theme="dark"] .thsw svg{transform:translateX(.14rem) rotate(45deg)}
+html[data-theme="dark"] .thm-core{r:8.4px}
+html[data-theme="dark"] .thm-cut{cx:17.5px;cy:6.5px}
+html[data-theme="dark"] .thm-rays{transform:rotate(70deg) scale(.35);opacity:0}
+@media (prefers-reduced-motion:reduce){.thsw svg,.thm-core,.thm-cut,.thm-rays,button.thsw{transition:none!important}}
+
+/* Смена темы: вся страница перетекает за ~0.6 с; сама кнопка не растворяется, а превращается на месте */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.6s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+::view-transition-group(theme-btn){animation:none}
+::view-transition-old(theme-btn){display:none}
+::view-transition-new(theme-btn){animation:none}
+/* запасной путь без View Transitions */
+html.theme-fade *:not(.thsw):not(.thsw *){transition:background-color .6s ease,color .6s ease,border-color .6s ease,box-shadow .6s ease,fill .6s ease,stroke .6s ease!important}
+</style>
+<style id="hd-settings">
+/* Шапка: шестерёнка слева, название раздела по центру, тема справа.
+   Кнопки по краям одного размера, поэтому название стоит ровно по центру и шапка не прыгает */
+.hd-row{justify-content:space-between;gap:.6rem}
+html:root[data-theme] button.hdb{display:grid;place-items:center;flex:none;width:2.6rem;height:2.6rem;padding:0;border:0;border-radius:999px;
+  background:var(--sf2);box-shadow:inset 0 0 0 1px var(--ln);color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background-color .6s ease,box-shadow .6s ease,opacity .2s ease}
+html:root[data-theme="light"] button.hdb{background:#fff}
+.hdb svg{width:1.4rem;height:1.4rem;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s cubic-bezier(.5,0,.2,1)}
+.hdb:active svg{transform:rotate(30deg)}
+html.bl-run .hdb{opacity:.35;pointer-events:none}
+.hd-title{flex:1;min-width:0;text-align:center;font-size:1.05rem;font-weight:700;letter-spacing:.01em;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .22s ease,transform .22s ease}
+.hd-title.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.hd-title,.hdb svg{transition:none}}
+/* Панель настроек (та же нижняя шторка, что и у фильтра по темам) */
+.scard{max-height:78dvh;overflow-y:auto;overscroll-behavior:contain;padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px))}
+.srow{padding:.75rem 0}
+.srow+.srow{border-top:1px solid var(--ln)}
+.slab{display:block;margin-bottom:.55rem;font-size:.82rem;font-weight:600;color:var(--mu)}
+.sz0{font-size:.82rem}.sz1{font-size:1.02rem}.sz2{font-size:1.26rem}
+.sdanger,.sghost{padding:.75rem 1rem;border-radius:14px;font-size:.95rem;font-weight:700;box-shadow:inset 0 0 0 1px var(--ln)}
+.sdanger{width:100%;background:var(--sf2);color:var(--rd)}
+.sghost{background:transparent;color:var(--tx)}
+.sconf-t{margin:0 0 .7rem;font-size:.88rem;line-height:1.4;color:var(--mu)}
+.sconf-b{display:flex;gap:.5rem}
+.sconf-b>*{flex:1}
+</style>
+<style id="flat-float">
+/* 1. Ровный фон: цветной ореол сверху убран. Цвет раздела остаётся только акцентом (--acc: активная вкладка, выделения) */
+html:root[data-theme] #aurora{display:none}
+
+/* Счётчик «выучено»: число выученных — цветом текста и крупнее (акцент); зелёной остаётся только полоска прогресса */
+html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
+
+/* 4. Нижняя панель: плавающая капсула, оторванная от краёв экрана (телефон и планшет; на ПК вкладки в левой колонке) */
+@media (max-width:1099.98px){
+  html:root[data-theme] .bnav{
+    left:0;right:0;margin:0 auto;
+    bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    width:calc(100% - 28px);max-width:26rem;
+    padding:.3rem;gap:.2rem;
+    border:1px solid var(--ln);border-radius:999px;
+    background:var(--sf);
+    box-shadow:0 12px 28px -10px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.2)}
+  html:root[data-theme="light"] .bnav{box-shadow:0 12px 28px -10px rgba(20,32,90,.28),0 2px 6px rgba(20,32,90,.10)}
+  html:root[data-theme] nav.bnav button.tb,
+  html:root[data-theme] nav.bnav button.tb.tab-on{height:3.2rem;border-radius:999px}
+  html:root[data-theme] body:not(.no-nav) main.mx-auto{padding-bottom:calc(6.4rem + env(safe-area-inset-bottom,0px))}
+  /* Активная вкладка: мягкая заливка и подпись в цвете раздела (--acc-s), без обводки */
+  html:root[data-theme] nav.bnav button.tb.tab-on{
+    background:color-mix(in srgb,var(--acc-s) 16%,transparent);
+    color:color-mix(in srgb,var(--acc-s) 80%,var(--t1));
+    box-shadow:none}
+}
+</style>
 </head>
 
 <body class="flex min-h-[100dvh] flex-col bg-zinc-950 font-sans text-slate-200 antialiased">
-  <div id="bg" aria-hidden="true"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-c"></i></div>
+  <div id="bg" aria-hidden="true"><i id="bg-src"></i><div id="aurora"></div></div>
 
   <div id="splash" aria-hidden="true">
     <i class="sp-bg a"></i><i class="sp-bg b"></i>
     <div class="sp-stage" id="sp-stage">
-      <svg class="sp-svg sp-glow" id="sp-glow" viewBox="-20 -8 504 312"><g fill="#8fd0ff"><g id="sg-L0"><path id="sg-phi" d=""/></g><g id="sg-L1"><path id="sg-h1" d=""/><path id="sg-h2" d=""/><path id="sg-h3" d=""/></g><g id="sg-L2"><path id="sg-i1" d=""/></g></g></svg>
-      <svg class="sp-svg sp-glow sp-glow-tag" id="sp-glow-tag" viewBox="-20 -8 504 312"><g id="sg-tag" fill="#8fd0ff"></g></svg>
+      <svg class="sp-svg sp-glow" id="sp-glow" viewBox="-20 -8 504 312"><g fill="#4FD1A5"><g id="sg-L0"><path id="sg-phi" d=""/></g><g id="sg-L1"><path id="sg-h1" d=""/><path id="sg-h2" d=""/><path id="sg-h3" d=""/></g><g id="sg-L2"><path id="sg-i1" d=""/></g></g></svg>
+      <svg class="sp-svg sp-glow sp-glow-tag" id="sp-glow-tag" viewBox="-20 -8 504 312"><g id="sg-tag" fill="#4FD1A5"></g></svg>
       <svg class="sp-svg" viewBox="-20 -8 504 312">
-        <g id="sp-mark" fill="#ffffff" transform="translate(93,-18) scale(1.16)">
+        <g id="sp-mark" fill="#E6E9F0" transform="translate(93,-18) scale(1.16)">
           <g id="sp-L0"><path id="sp-phi" d=""/></g>
           <g id="sp-L1"><path id="sp-h1" d=""/><path id="sp-h2" d=""/><path id="sp-h3" d=""/></g>
           <g id="sp-L2"><path id="sp-i1" d=""/></g>
         </g>
-        <g id="sp-tag" fill="rgb(169,200,236)"></g>
+        <g id="sp-tag" fill="rgb(142,152,168)"></g>
       </svg>
     </div>
   </div>
@@ -779,7 +1744,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
             var op = a.toFixed(4);
             T.a.setAttribute('opacity', op);
             T.b.setAttribute('opacity', op);
-            var r = Math.round(169 + 86 * k), gr = Math.round(200 + 55 * k), bl = Math.round(236 + 19 * k);
+            var r = Math.round(142 + 88 * k), gr = Math.round(152 + 81 * k), bl = Math.round(168 + 72 * k);
             T.a.setAttribute('fill', 'rgb(' + r + ',' + gr + ',' + bl + ')');
           }
         } catch (e) {
@@ -842,7 +1807,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         function frame(ts) {
           if (done) return;
           if (f0 === null) f0 = ts;
-          var t = ts - f0;
+          var t = (ts - f0) * 1.47; // скорость ×1.47: раскадровка на 4410 мс проходит за ~3 с
           // 1. Рисование прописной буквы φ по центру (0 .. 1600 мс)
           var pPhi = handEase(Math.min(1, t / T_PHI));
           elPhi.setAttribute('d', ribbonD(phiPts, pPhi));
@@ -942,12 +1907,43 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
 
   <!-- ═══════════════ ШАПКА ═══════════════ -->
   <header class="hd"><div class="wrap">
-    <!-- Пустая строка: позже сюда придут настройки и профиль -->
-    <div class="hd-row" id="hd-slot" aria-hidden="true"></div>
+    <!-- Строка шапки: шестерёнка (настройки) слева, название раздела по центру (только Тренажёр и Блиц), переключатель темы справа -->
+    <div class="hd-row" id="hd-slot">
+      <button type="button" class="hdb" id="set-btn" aria-label="Настройки" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.43 5.18 L10.57 2.41 L13.43 2.41 L13.57 5.18 A7.0 7.0 0 0 1 15.71 6.06 L17.77 4.20 L19.80 6.23 L17.94 8.29 A7.0 7.0 0 0 1 18.82 10.43 L21.59 10.57 L21.59 13.43 L18.82 13.57 A7.0 7.0 0 0 1 17.94 15.71 L19.80 17.77 L17.77 19.80 L15.71 17.94 A7.0 7.0 0 0 1 13.57 18.82 L13.43 21.59 L10.57 21.59 L10.43 18.82 A7.0 7.0 0 0 1 8.29 17.94 L6.23 19.80 L4.20 17.77 L6.06 15.71 A7.0 7.0 0 0 1 5.18 13.57 L2.41 13.43 L2.41 10.57 L5.18 10.43 A7.0 7.0 0 0 1 6.06 8.29 L4.20 6.23 L6.23 4.20 L8.29 6.06 A7.0 7.0 0 0 1 10.43 5.18 Z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <div class="hd-title" id="hd-title" aria-hidden="true"></div>
+      <button type="button" class="thsw" id="theme-sw" aria-pressed="true" aria-label="Переключить тему">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <defs><mask id="thm" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><rect width="24" height="24" fill="#fff"/><circle class="thm-cut" cx="31" cy="1" r="7" fill="#000"/></mask></defs>
+          <circle class="thm-core" cx="12" cy="12" r="4.4" mask="url(#thm)" fill="currentColor" stroke="none"/>
+          <g class="thm-rays"><path d="M12 2.6v2.1M12 19.3v2.1M2.6 12h2.1M19.3 12h2.1M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></g>
+        </svg>
+      </button>
+    </div>
   </div></header>
   <div id="fsheet" class="sheet" hidden><div class="sheet-card fcard" role="dialog" aria-label="Фильтр по темам">
     <div class="fhead"><b>Тема</b><button type="button" data-f="reset" class="freset">Сбросить</button></div>
     <div id="f-list" class="flist"></div>
+  </div></div>
+
+  <div id="ssheet" class="sheet" hidden><div class="sheet-card scard" role="dialog" aria-modal="true" aria-label="Настройки">
+    <div class="fhead"><b>Настройки</b><button type="button" data-s="close" class="freset">Готово</button></div>
+    <div class="srow">
+      <span class="slab" id="s-sz-l">Размер шрифта</span>
+      <div class="seg" id="s-sz" role="group" aria-labelledby="s-sz-l">
+        <button type="button" data-sz="0" aria-label="Обычный"><span class="sz0">А</span></button>
+        <button type="button" data-sz="1" aria-label="Крупный"><span class="sz1">А</span></button>
+        <button type="button" data-sz="2" aria-label="Очень крупный"><span class="sz2">А</span></button>
+      </div>
+    </div>
+    <div class="srow">
+      <button type="button" class="sdanger" id="s-reset">Сбросить прогресс</button>
+      <div id="s-conf" hidden>
+        <p class="sconf-t">Сотрутся выученные формулы, статистика ошибок и рекорды блица. Вернуть их не получится.</p>
+        <div class="sconf-b"><button type="button" class="sghost" id="s-no">Отмена</button><button type="button" class="sdanger" id="s-yes">Сбросить</button></div>
+      </div>
+    </div>
   </div></div>
 
   <!-- ═══════════════ РАБОЧАЯ ОБЛАСТЬ ═══════════════ -->
@@ -964,8 +1960,10 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           <nav id="hb-rail" class="hb-rail" aria-label="Раздел физики">
             <button type="button" class="hb-sec on" data-phys-sec="mechanics">Механика</button>
             <button type="button" class="hb-sec" data-phys-sec="mkt">МКТ</button>
-            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро">Электродинамика</button>
-            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро">Оптика</button>
+            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="electro" style="--sc:#8a5cff">Электродинамика</button>
+            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="oscillations" style="--sc:#1fc26a">Колебания и волны</button>
+            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="optics" style="--sc:#f5c400">Оптика</button>
+            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="quantum" style="--sc:#ff4a4a">Квантовая и ядерная</button>
           </nav>
         </div>
         <div class="prog"><span id="hb-progress"></span><div class="bar"><i id="hb-bar"></i></div></div>
@@ -2124,23 +3122,37 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     // ───────── 2. Глобальные утилиты ─────────
 
     // Безопасный запуск KaTeX auto-render для переданного элемента (по умолчанию — вся страница)
-    function renderMath(container) {
+    function renderMath(container, opts) {
       const root = container || document.body;
       if (typeof window.renderMathInElement !== 'function') {
         console.warn('[MechCore] KaTeX auto-render не загружен: формулы не будут отрисованы.');
         return;
       }
       try {
-        window.renderMathInElement(root, {
+        window.renderMathInElement(root, Object.assign({
           delimiters: [
             { left: '$$', right: '$$', display: true },
             { left: '$', right: '$', display: false }
           ],
           throwOnError: false
-        });
+        }, opts));
       } catch (err) {
         console.warn('[MechCore] Ошибка рендеринга формул:', err);
       }
+    }
+
+
+    // Готовая разметка KaTeX с кешем: одинаковые строки (плитки и каркас конструктора) рисуются один раз
+    const TEXC = new Map();
+    function texH(src, display) {
+      const key = (display ? 'D' : 'I') + src;
+      let h = TEXC.get(key);
+      if (h === undefined) {
+        try { h = window.katex.renderToString(src, { displayMode: !!display, throwOnError: false }); }
+        catch (err) { h = esc(src); }
+        TEXC.set(key, h);
+      }
+      return h;
     }
 
 
@@ -3900,8 +4912,9 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     };
     Store.load();
     if (!Store.s.ui || typeof Store.s.ui !== 'object') Store.s.ui = { vib: true };
-    // Окна настроек в приложении больше нет: вибрация всегда включена
+    // Вибрация всегда включена (переключателя нет); размер шрифта: 0 — обычный, 1 — крупный, 2 — очень крупный
     if (Store.s.ui.vib !== true) { Store.s.ui.vib = true; Store.save(); }
+    if (![0, 1, 2].includes(Store.s.ui.fs)) Store.s.ui.fs = 0;
 
     // Беззвучный салют (уважает системную настройку «уменьшить анимацию»)
     // Свой экземпляр без Worker: в песочнице Claude (claudeusercontent.com) Worker запрещён
@@ -4003,21 +5016,21 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       if (!d) return '';
       const rows = d.steps.map(([label, text], i) => {
         const fin = label === 'Итог';
-        return `<li class="flex gap-3"><span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-500/40 font-mono text-[11px] text-cyan-400">${i + 1}</span><div class="min-w-0 flex-1 ${fin ? 'rounded-lg border border-cyan-500/50 bg-cyan-500/5 px-3 py-2 text-slate-100' : ''}"><span class="font-medium ${fin ? 'text-cyan-400' : 'text-slate-200'}">${esc(label)}:</span> ${esc(text)}</div></li>`;
+        return `<li class="flex gap-3"><span class="dv-n">${i + 1}</span><div class="min-w-0 flex-1 ${fin ? 'dv-fin' : ''}"><span class="dv-lab">${esc(label)}:</span> ${esc(text)}</div></li>`;
       }).join('');
-      return `<details class="mt-2 text-sm"><summary class="${SUM} border-cyan-500/40 bg-cyan-500/10 text-cyan-400"><span>Вывод и физический смысл</span>${CHEV}</summary><div class="px-1 pt-3"><p class="mb-3 font-mono text-[11px] text-slate-500">${d.kind === 'meaning' ? 'Физический смысл закона' : 'Вывод формулы'}</p><ol class="space-y-3 leading-relaxed text-slate-300">${rows}</ol></div></details>`;
+      return `<details class="mt-2 text-sm"><summary class="${SUM} border-slate-800 text-slate-300 hover:text-cyan-400"><span>Вывод и физический смысл</span>${CHEV}</summary><div class="px-1 pt-3 lz"><p class="mb-3 font-mono text-[11px] text-slate-500">${d.kind === 'meaning' ? 'Физический смысл закона' : 'Вывод формулы'}</p><ol class="space-y-3 leading-relaxed text-slate-300">${rows}</ol></div></details>`;
     }
     function hbErrChip(id) {
       const st = Store.stat(id);
       return st.w ? `<span data-ec class="ml-auto font-mono ${st.d ? 'text-rose-400' : 'text-slate-500'}">ошибок: ${st.w}</span>` : '';
     }
     function hbCard(f) {
-      return `<article data-id="${f.id}" class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+      return `<article data-id="${f.id}" data-c="${f.category}" class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
         <div class="eyebrow flex flex-wrap items-center gap-2 text-xs"><span>${esc(CAT_ALL[f.category])}</span><span class="eb-dot" aria-hidden="true">·</span><span>${esc(f.subCategory)}</span>${hbErrChip(f.id)}</div>
         <h3 class="mt-2 text-base font-semibold text-slate-100">${esc(f.title)}</h3>
         <div class="mt-3 ${FORMULA_BOX} text-lg">$$${f.latex}$$</div>
         <details class="mt-3 text-sm"><summary class="${SUM} border-slate-800 text-slate-300 hover:text-cyan-400"><span>Величины и единицы СИ</span>${CHEV}</summary>
-          <ul class="mt-2 space-y-2">${f.variables.map((v) => `<li class="flex gap-3"><span class="w-20 shrink-0 text-slate-100">$${v.symbol}$</span><span class="text-slate-400">${esc(v.name)} <span class="font-mono text-xs text-sky-400">[${esc(v.unit)}]</span></span></li>`).join('')}</ul></details>${hbDerivation(f)}
+          <ul class="mt-2 space-y-2 lz">${f.variables.map((v) => `<li class="flex gap-3"><span class="w-20 shrink-0 text-slate-100">$${v.symbol}$</span><span class="text-slate-400">${esc(v.name)} <span class="font-mono text-xs text-sky-400">[${esc(v.unit)}]</span></span></li>`).join('')}</ul></details>${hbDerivation(f)}
         <p class="mt-3 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs leading-relaxed text-slate-400"><span class="font-medium text-slate-300">Условия: </span>${esc(f.conditions)}</p>
         <div class="hb-act"><button type="button" data-act="copy" data-id="${f.id}" class="hb-copy" aria-label="Скопировать LaTeX" title="Скопировать LaTeX">${ICON_COPY}${ICON_OK}</button>${hbLearnBtn(f.id)}</div>
       </article>`;
@@ -4027,11 +5040,27 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       const pool = HBD().filter((f) => (HB.cat === 'all' || f.category === HB.cat) && (HB.sub === 'all' || f.subCategory === HB.sub));
       const n = pool.filter((f) => Store.has(f.id)).length;
       const key = HB.cat + '/' + HB.sub, num = `<span class="rn"><span class="rn-n">${n}</span></span>`;
-      $('hb-progress').innerHTML = num + '<span class="pg-t">из ' + pool.length + ' выучено' + (HB.sub !== 'all' ? ' · ' + esc(HB.sub) : '') + '</span>';
+      $('hb-progress').innerHTML = num + '<span class="pg-t">/ ' + pool.length + '</span><span class="pg-l">выучено' + (HB.sub !== 'all' ? ' · ' + esc(HB.sub) : '') + '</span>';
       if (window.fx2 && hbPrev.key === key) fx2.roll($('hb-progress').querySelector('.rn'), hbPrev.n, n);
       hbPrev = { key, n };
       $('hb-bar').style.width = (pool.length ? n / pool.length * 100 : 0) + '%';
     }
+    // Блоки «Величины и единицы СИ» и «Вывод» (класс lz) занимают ~80% разметки KaTeX и почти не открываются:
+    // карточка рисуется без них, а их формулы рисуются при первом раскрытии
+    const HB_LAZY = { ignoredClasses: ['lz'] };
+    function hbLazyOpen(d) {
+      d.querySelectorAll('.lz').forEach((z) => { if (!z.dataset.r) { z.dataset.r = '1'; renderMath(z); } });
+    }
+    // click в фазе перехвата идёт раньше самого раскрытия: формулы готовы до первого кадра, «сырого» $...$ не видно
+    document.addEventListener('click', (e) => {
+      const sm = e.target.closest && e.target.closest('#hb-list summary');
+      if (sm && sm.parentElement && sm.parentElement.tagName === 'DETAILS') hbLazyOpen(sm.parentElement);
+    }, true);
+    // страховка: раскрытие не кликом (программно); toggle не всплывает, поэтому слушаем в фазе перехвата
+    document.addEventListener('toggle', (e) => {
+      const d = e.target;
+      if (d && d.tagName === 'DETAILS' && d.open && d.closest('#hb-list')) hbLazyOpen(d);
+    }, true);
     // Карточки строятся один раз; формулы рисуются, когда карточка подъезжает к экрану
     let hbIO = null, hbWarmT = 0;
     function hbBuild() {
@@ -4040,10 +5069,10 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       list.innerHTML = HBD().map(hbCard).join('') + '<p id="hb-empty" class="hidden col-span-full rounded-xl border border-dashed border-slate-800 p-8 text-center text-sm text-slate-500">Ничего не найдено. Попробуйте другой запрос.</p>';
       if ('IntersectionObserver' in window) {
         hbIO = new IntersectionObserver((es) => es.forEach((en) => {
-          if (en.isIntersecting) { hbIO.unobserve(en.target); if (!en.target.dataset.r) { en.target.dataset.r = '1'; renderMath(en.target); } }
+          if (en.isIntersecting) { hbIO.unobserve(en.target); if (!en.target.dataset.r) { en.target.dataset.r = '1'; renderMath(en.target, HB_LAZY); } }
         }), { rootMargin: '600px 0px' });
         list.querySelectorAll('article').forEach((a) => hbIO.observe(a));
-      } else { renderMath(list); list.querySelectorAll('article').forEach((a) => { a.dataset.r = '1'; }); }
+      } else { renderMath(list, HB_LAZY); list.querySelectorAll('article').forEach((a) => { a.dataset.r = '1'; }); }
       hbPreStart();
     }
     // Когда Справочник уходит с экрана, верх списка дорисовывается заранее: при свайпе к нему не будет рывка
@@ -4052,7 +5081,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       for (const a of $('hb-list').querySelectorAll('article:not(.hidden)')) {
         if (++n > 10) break;
         if (a.dataset.r) continue;
-        a.dataset.r = '1'; if (hbIO) hbIO.unobserve(a); renderMath(a);
+        a.dataset.r = '1'; if (hbIO) hbIO.unobserve(a); renderMath(a, HB_LAZY);
       }
     }
     function hbWarmLater() { clearTimeout(hbWarmT); hbWarmT = setTimeout(hbWarm, 300); }
@@ -4079,7 +5108,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           while (i < q.length && (n === 0 || dl.timeRemaining() > 6)) {
             const a = q[i++];
             if (!a.isConnected || a.dataset.r) continue;
-            a.dataset.r = '1'; if (hbIO) hbIO.unobserve(a); renderMath(a); n++;
+            a.dataset.r = '1'; if (hbIO) hbIO.unobserve(a); renderMath(a, HB_LAZY); n++;
           }
           if (i < q.length) hbIdle(step);
         };
@@ -4453,10 +5482,10 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       if (f.id === 'kin_rupd_mean_velocity' && !have.has('(v_0 + v)')) tr.push('(v_0 + v)');
       for (const t of shuffle(same)) { if (tr.length >= 3) break; if (!tr.includes(t)) tr.push(t); }
       for (const t of shuffle(any)) { if (tr.length >= 4) break; if (!tr.includes(t)) tr.push(t); }
-      return shuffle([...need, ...tr].map((tex) => ({ k: 'v', tex })));
+      return shuffle([...need, ...tr]).map((tex, id) => ({ k: 'v', tex, id }));
     }
     // Экран конструктора: CT.skel = true по умолчанию («Скелет / Слоты»), левая часть CT.lhs даётся сразу
-    const CT = { f: null, lhs: '', ref: [], validKeys: [], bank: [], root: [], z: 'r', at: 0, done: false, skel: true, halfOk: false };
+    const CT = { f: null, lhs: '', ref: [], validKeys: [], bank: [], root: [], z: 'r', at: 0, done: false, skel: true, pref: true, halfOk: false };
     const ctZ = (z) => { let a = CT.root; for (const s of z.split('/').slice(1)) { const [i, k] = s.split('.'); a = a[+i][k]; } return a; };
     function ctResetRoot() {
       if (CT.skel) {
@@ -4484,6 +5513,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       CT.validKeys = [ctKey(CT.ref), ...sp.alt.map((a) => ctKey(ctParse(a)))];
       CT.halfOk = ctHalfOk(CT.ref, sp.alt);
       CT.done = false;
+      CT.skel = CT.pref;   // каркас, случайно выключенный дробью/корнем/знаком, к следующей формуле возвращается
       CT.bank = ctBank(f, CT.ref);
       ctResetRoot();
       trPaint(`<div class="mx-auto max-w-xl space-y-4">
@@ -4514,14 +5544,14 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           x.c.forEach((y, j) => {
             const yid = sz + '#' + j;
             if (y.t === 'p') sh += `<sup class="ct-el ct-p" data-i="${yid}">${y.e === '2' || y.e === '3' ? y.e : '½'}</sup>`;
-            else sh += `<span class="ct-el" data-i="${yid}">$${y.tex}$</span>`;
+            else sh += `<span class="ct-el" data-i="${yid}">${texH(y.tex)}</span>`;
           });
           const rem = Math.max(0, x.cap - x.c.length);
           for (let k = 0; k < rem; k++) {
             sh += `<span class="ct-box${sAct && k === 0 ? ' on' : ''}" data-z="${sz}">?</span>`;
           }
           h += `<span class="ct-slot${sAct ? ' on' : ''}" data-z="${sz}">${sh}</span>`;
-        } else if (x.t === 'l' || x.t === 'o') h += `<span class="ct-el" data-i="${id}">$${x.tex}$</span>`;
+        } else if (x.t === 'l' || x.t === 'o') h += `<span class="ct-el" data-i="${id}">${texH(x.tex)}</span>`;
         else if (x.t === 'p') h += `<sup class="ct-el ct-p" data-i="${id}">${x.e === '2' || x.e === '3' ? x.e : '½'}</sup>`;
         else if (x.t === 'f') h += `<span class="ct-f"><span class="ct-n">${ctR(x.n, zi + '.n')}</span><span class="ct-bar" data-i="${id}"></span><span class="ct-d">${ctR(x.d, zi + '.d')}</span></span>`;
         else h += `<span class="ct-r"><span class="ct-rs" data-i="${id}">${CT_RAD}</span><span class="ct-rc">${ctR(x.c, zi + '.c')}</span></span>`;
@@ -4531,25 +5561,20 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       return `<span class="ct-l">${h}${endBox}</span>`;
     }
     function ctBankHTML() {
-      const used = {}, seen = {};
-      (function w(A) { for (const x of A) { if (x.t === 'l') used[x.tex] = (used[x.tex] || 0) + 1; else if (x.t === 's') w(x.c); else if (x.t === 'f') { w(x.n); w(x.d); } else if (x.t === 'r') w(x.c); } })(CT.root);
-      const opsHTML = CT_OPS.map((op, idx) => `<button type="button" class="ct-tile ct-op-tile" data-op="${idx}" title="${op.title}">${op.icon.startsWith('<svg') ? op.icon : '$' + op.icon + '$'}</button>`).join('');
-      const varsHTML = CT.bank.map((b, k) => {
-        const r = seen[b.tex] = (seen[b.tex] || 0); seen[b.tex]++;
-        const off = r < (used[b.tex] || 0);
-        return `<button type="button" class="ct-tile ct-var-tile" data-b="${k}"${off ? ' disabled' : ''}>$${b.tex}$</button>`;
-      }).join('');
+      const used = new Set();   // номера плиток банка, уже стоящие в формуле (по номеру, а не по тексту: после x² текст — «v^2»)
+      (function w(A) { for (const x of A) { if (x.t === 'l') { if (x.src != null) used.add(x.src); } else if (x.t === 's') w(x.c); else if (x.t === 'f') { w(x.n); w(x.d); } else if (x.t === 'r') w(x.c); } })(CT.root);
+      const opsHTML = CT_OPS.map((op, idx) => `<button type="button" class="ct-tile ct-op-tile" data-op="${idx}" title="${op.title}">${op.icon.startsWith('<svg') ? op.icon : texH(op.icon)}</button>`).join('');
+      const varsHTML = CT.bank.map((b, k) => `<button type="button" class="ct-tile ct-var-tile" data-b="${k}"${used.has(b.id) ? ' disabled' : ''}>${texH(b.tex)}</button>`).join('');
       return `<div class="ct-ops-row" role="group" aria-label="Математические действия">${opsHTML}</div><div class="ct-vars-grid" role="group" aria-label="Физические величины">${varsHTML}</div>`;
     }
     function ctPaint() {
       const hasAny = ctHasTiles(CT.root);
       const bksp = CT.done ? '' : `<button type="button" data-ct="back" class="ct-bksp" aria-label="Стереть последнее" title="Стереть последнее"${hasAny || (!CT.skel && CT.root.length) ? '' : ' disabled'}>⌫</button>`;
-      $('ct-line').innerHTML = `<div class="ct-expr"><span class="ct-lhs">$${CT.lhs} =$</span>${ctR(CT.root, 'r')}</div>${bksp}`;
+      $('ct-line').innerHTML = `<div class="ct-expr"><span class="ct-lhs">${texH(CT.lhs + " =")}</span>${ctR(CT.root, 'r')}</div>${bksp}`;
       $('ct-bank').innerHTML = CT.done ? '' : ctBankHTML();
       $('ct-actions').innerHTML = CT.done ? '' : `<div class="ct-act"><button type="button" data-ct="check" class="ct-check-btn"${hasAny ? '' : ' disabled'}>Проверить</button></div><div class="ct-act2"><button type="button" data-ct="names" class="ct-ghost">Какие величины?</button><button type="button" data-ct="giveup" class="ct-ghost">Сдаюсь</button></div>`;
       const mb = document.querySelector('[data-ct="mode"]');
       if (mb) mb.textContent = CT.skel ? 'Каркас: вкл' : 'Каркас: выкл';
-      renderMath($('ct-line')); renderMath($('ct-bank'));
     }
     function ctFly(from) {
       try {
@@ -4619,8 +5644,8 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
             if (!prev || prev.t !== 'l') { ctMsg('Сначала выберите величину, чтобы возвести её в квадрат'); buzz([20, 30, 20]); return; }
             prev.tex = prev.tex.includes('^') ? prev.tex : prev.tex + '^' + tile.tex;
           } else if (tile.k === 'v') {
-            if (A.length >= curSlot.node.cap) A[A.length - 1] = { t: 'l', tex: tile.tex };
-            else A.push({ t: 'l', tex: tile.tex });
+            if (A.length >= curSlot.node.cap) A[A.length - 1] = { t: 'l', tex: tile.tex, src: tile.id };
+            else A.push({ t: 'l', tex: tile.tex, src: tile.id });
           }
           if (curSlot.node.c.length >= curSlot.node.cap) {
             const nextOpen = sl.find((s) => s.node.c.length < s.node.cap);
@@ -4631,7 +5656,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         }
       }
       const A = ctZ(CT.z), at = CT.at; let it;
-      if (tile.k === 'v' || tile.k === 'o') it = { t: tile.k === 'v' ? 'l' : 'o', tex: tile.tex };
+      if (tile.k === 'v' || tile.k === 'o') { it = { t: tile.k === 'v' ? 'l' : 'o', tex: tile.tex }; if (tile.k === 'v') it.src = tile.id; }
       else if (tile.k === 'p') {
         const prev = A[at - 1];
         if (!prev || prev.t === 'o' || prev.t === 'p') { ctMsg('Степень ставится сразу после величины, скобки или дроби'); buzz([20, 30, 20]); return; }
@@ -4694,7 +5719,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         else if (x === 'giveup') ctCheck(true);
         else if (x === 'back') { if (!CT.done) ctBack(); }
         else if (x === 'names') ctNames();
-        else if (x === 'mode') { if (!CT.done) { CT.skel = !CT.skel; ctResetRoot(); ctMsg(CT.skel ? 'Заполните пустые ячейки каркаса. Умножение склеивается автоматически' : 'Свободный ввод: собирайте правую часть формулы без точки умножения'); ctPaint(); } }
+        else if (x === 'mode') { if (!CT.done) { CT.skel = !CT.skel; CT.pref = CT.skel; ctResetRoot(); ctMsg(CT.skel ? 'Заполните пустые ячейки каркаса. Умножение склеивается автоматически' : 'Свободный ввод: собирайте правую часть формулы без точки умножения'); ctPaint(); } }
         else ctNext();
         return true;
       }
@@ -4702,7 +5727,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       if (CT.done) return true;
       if (b) ctPut(CT.bank[+b.dataset.b], b);
       else if (op) ctPut(CT_OPS[+op.dataset.op], op);
-      else if (i) { const [zz, ix] = i.dataset.i.split('#'); ctZ(zz).splice(+ix, 1); CT.z = zz; CT.at = +ix; if (CT.skel && !ctHasTiles(CT.root)) ctResetRoot(); ctPaint(); }
+      else if (i) { const [zz, ix] = i.dataset.i.split('#'); if (CT.skel && ctZ(zz)[+ix].t !== 'l') return true; ctZ(zz).splice(+ix, 1); CT.z = zz; CT.at = +ix; if (CT.skel && !ctHasTiles(CT.root)) ctResetRoot(); ctPaint(); }
       else { CT.z = z.dataset.z; CT.at = ctZ(CT.z).length; ctPaint(); }
       return true;
     }
@@ -4826,7 +5851,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       BL.maxLives = modeObj.lives;
       BL.lives = modeObj.lives;
       BL.score = 0; BL.mistakes = []; BL.last = null; BL.running = true; BL.n = 0; BL.anim = null;
-      BL.end = Date.now() + BL.durationMs;
+      BL.end = Date.now() + BL.durationMs; BL.pausedLeft = null;
       $('bl-root').innerHTML = `<div class="bl-arena mx-auto max-w-xl"><i id="bl-e-l" class="bl-edge l"></i><i id="bl-e-r" class="bl-edge r"></i>
         <div class="space-y-3">
           <div class="font-mono text-xs"><button type="button" data-act="menu" class="bl-back text-slate-400 hover:text-cyan-400">← Назад</button></div><div class="flex items-center justify-between font-mono text-sm"><span class="text-cyan-400">Счёт <span id="bl-score">0</span></span>${batHTML(BL.lives, BL.maxLives, 'bl-bat')}<span id="bl-time" class="text-slate-300">${BL.cfg.time.toFixed(1)}</span></div>
@@ -4836,9 +5861,9 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           <div class="bl-deck"><div id="bl-card" class="bl-card rounded-2xl border border-slate-800 bg-slate-900/50 p-5"></div></div>
           
         </div>
-        <div class="bl-controls bl-dir" aria-hidden="true">
-          <span class="bl-dir-bad"><i>←</i> Влево — неверно</span>
-          <span class="bl-dir-ok">Вправо — верно <i>→</i></span>
+        <div class="bl-controls bl-dir">
+          <button type="button" class="bl-dir-bad" data-ans="bad" aria-label="Неверно"><i>←</i> Влево — неверно</button>
+          <button type="button" class="bl-dir-ok" data-ans="ok" aria-label="Верно">Вправо — верно <i>→</i></button>
         </div>
       </div>`;
       blInitCardSwipe();
@@ -4950,6 +5975,17 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       if (ar) ar.classList.toggle('bl-low', left > 0 && left <= ((window.fx2 && fx2.cfg.warnSec) || 10) * 1000);
       if (left <= 0) blFinish();
     }
+    // Ответ кнопкой: карточка улетает так же, как при свайпе
+    function blTap(ans) {
+      const card = $('bl-card');
+      if (!BL.running || BL.answering || !card) return;
+      BL.answering = true;
+      if (BL.anim) { BL.anim.cancel(); BL.anim = null; }
+      const dir = ans === 'ok' ? 1 : -1;
+      card.style.transition = 'transform .18s ease-out, opacity .18s ease-out';
+      card.style.transform = `translate3d(${dir * 340}px, 0, 0) rotate(${dir * 16}deg)`;
+      BL.ansTimer = setTimeout(() => { BL.ansTimer = null; blAnswer(ans); }, 140);
+    }
     function blAnswer(ans) {
       if (!BL.running) return;
       const right = (ans === 'bad') === BL.bad;
@@ -5004,17 +6040,27 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
           blMenu(); return;
         }
         const a = e.target.closest('[data-ans]'), b = e.target.closest('[data-act]');
-        if (a) blAnswer(a.dataset.ans);
+        if (a) blTap(a.dataset.ans);
         else if (b) { if (b.dataset.act === 'start') blStart(); else if (b.dataset.act === 'review') { switchTab('trainer'); trStartErrors(); } else blMenu(); }
       });
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (!$('fsheet').hidden) { fSheet(false); return; }
+        if (!$('ssheet').hidden) { sSheet(false); return; }
       }
       if (!BL.running || BL.answering || activeTab !== 'blitz' || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
       e.preventDefault();
       blAnswer(e.key === 'ArrowRight' ? 'ok' : 'bad');
+    });
+    // Приложение свернули или заблокировали экран: время раунда стоит, по возвращении идёт дальше
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (BL.running && BL.timer && BL.pausedLeft == null) { BL.pausedLeft = Math.max(0, BL.end - Date.now()); clearInterval(BL.timer); BL.timer = null; }
+      } else if (BL.pausedLeft != null) {
+        const left = BL.pausedLeft; BL.pausedLeft = null;
+        if (BL.running) { BL.end = Date.now() + left; clearInterval(BL.timer); BL.timer = setInterval(blTick, 100); }
+      }
     });
     // Ушли с вкладки: останавливаем таймер и возвращаем стартовый экран
     document.addEventListener('mechcore:tabchange', (e) => { if (e.detail.prev === 'blitz') blMenu(); });
@@ -5148,6 +6194,26 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
         btn.classList.remove(...(on ? TAB_CLASS_IDLE : TAB_CLASS_ACTIVE));
         btn.classList.add(...(on ? TAB_CLASS_ACTIVE : TAB_CLASS_IDLE));
       });
+      paintTitle(name);
+    }
+    // Название в шапке: на Тренажёре и Блице — раздел физики (Механика, МКТ…), на Справочнике центр пустой.
+    // Следует за кнопками вкладок (и при свайпе, и при нажатии), плавно гаснет и проявляется;
+    // между Тренажёром и Блицем текст тот же, поэтому не мигает
+    const HDT = { timer: 0 };
+    function secTitle() {
+      const b = document.querySelector('[data-phys-sec="' + SEC + '"]');
+      return (b && b.textContent.trim()) || (SECTIONS[SEC] && SECTIONS[SEC].name) || '';
+    }
+    function paintTitle(name) {
+      const el = $('hd-title'); if (!el) return;
+      const t = name === 'handbook' ? '' : secTitle();
+      if (el.dataset.key === t) return;
+      el.dataset.key = t;
+      clearTimeout(HDT.timer);
+      const show = () => { el.textContent = t; el.classList.toggle('on', !!t); };
+      if (!el.classList.contains('on') || reducedMotion()) { show(); return; }
+      el.classList.remove('on');
+      HDT.timer = setTimeout(show, 150);
     }
     function applyTab(name) {
       const prev = activeTab;
@@ -5172,7 +6238,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       let g = null;          // текущий жест
 
       // Блокируем свайп, когда он помешал бы: открыт выбор темы, идёт блиц или собирается формула
-      const blocked = () => !!document.getElementById('splash') || !$('fsheet').hidden || (activeTab === 'blitz' && (BL.running || BL.endTimer)) || (activeTab === 'trainer' && TR.mode === 'ctor' && !CT.done);
+      const blocked = () => !!document.getElementById('splash') || !$('fsheet').hidden || !$('ssheet').hidden || (activeTab === 'blitz' && (BL.running || BL.endTimer)) || (activeTab === 'trainer' && TR.mode === 'ctor' && !CT.done);
       const selecting = () => { const sel = window.getSelection && window.getSelection(); return !!(sel && String(sel).length); };
 
       // Касание началось там, где горизонтальный жест нужен самому элементу:
@@ -5234,6 +6300,7 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       const same = id === SEC; SEC = id;
       Store.s.sec = id; Store.save();
       document.body.dataset.psec = id;
+      if (window.fxSection) fxSection(id);
       HB.cat = 'all'; HB.sub = 'all'; HB.q = ''; $('hb-search').value = ''; hbPrev = { key: '', n: 0 };
       document.querySelectorAll('[data-phys-sec]').forEach((b) => {
         const k = b.dataset.physSec, n = SECTIONS[k].data.length, on = k === id;
@@ -5272,10 +6339,65 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
       document.addEventListener('focusout', () => { setTimeout(() => { if (!isText(document.activeElement)) document.body.classList.remove('kb-open'); }, 80); });
     }
 
+    // Переключатель темы в шапке: выбранная тема запоминается; пока не выбрана вручную, приложение следует за системой
+    function initTheme() {
+      const sw = $('theme-sw');
+      if (!sw || !window.fxTheme) return;
+      const R = document.documentElement;
+      const paint = () => {
+        const dark = fxTheme.get() === 'dark';
+        sw.setAttribute('aria-pressed', String(dark));
+        sw.setAttribute('aria-label', dark ? 'Включить светлую тему' : 'Включить тёмную тему');
+      };
+      // Смена темы: страница плавно перетекает из одного вида в другой (View Transitions), иначе — мягкая смена цветов
+      const swap = (t) => {
+        const run = () => { Store.s.ui.theme = t; Store.save(); fxTheme.apply(t); };
+        if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return run();
+        if (document.startViewTransition) { try { document.startViewTransition(run); return; } catch (e) { /* ниже запасной путь */ } }
+        R.classList.add('theme-fade'); run(); setTimeout(() => R.classList.remove('theme-fade'), 750);
+      };
+      sw.addEventListener('click', () => { swap(fxTheme.get() === 'dark' ? 'light' : 'dark'); buzz(8); });
+      document.addEventListener('fx:theme', paint);
+      paint();
+    }
+
+    // ───────── Настройки: размер шрифта, вибрация, сброс прогресса ─────────
+    const FS_PX = ['', '17px', '19px'];   // '' — обычный размер из стилей (15px)
+    function applyFont() { document.documentElement.style.fontSize = FS_PX[Store.s.ui.fs] || ''; }
+    function sPaint() {
+      document.querySelectorAll('#s-sz [data-sz]').forEach((b) => { const on = +b.dataset.sz === Store.s.ui.fs; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    }
+    function sConfirm(show) { $('s-conf').hidden = !show; $('s-reset').hidden = show; }
+    function sSheet(open) {
+      $('ssheet').hidden = !open;
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) { sPaint(); sConfirm(false); }
+    }
+    // Сброс: стираются выученные формулы, статистика и рекорды; тема, шрифт и выбранный раздел остаются
+    function resetProgress() {
+      Store.s.learned = []; Store.s.blitzBest = 0; Store.s.streakBest = 0; Store.s.stats = {};
+      Store.save();
+      location.reload();
+    }
+    function initSettings() {
+      applyFont();
+      $('set-btn').addEventListener('click', () => { sSheet(true); buzz(8); });
+      $('ssheet').addEventListener('click', (e) => {
+        if (e.target === $('ssheet') || e.target.closest('[data-s="close"]')) { sSheet(false); return; }
+        const z = e.target.closest('[data-sz]');
+        if (z) { Store.s.ui.fs = +z.dataset.sz; Store.save(); applyFont(); sPaint(); buzz(8); }
+        else if (e.target.closest('#s-reset')) sConfirm(true);
+        else if (e.target.closest('#s-no')) sConfirm(false);
+        else if (e.target.closest('#s-yes')) resetProgress();
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       initTabs();
       initSwipe();
       initNav();
+      initTheme();
+      initSettings();
 
       const libs = {
         katex: !!window.katex,
@@ -5296,57 +6418,17 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
   <script id="fx-js">
   (function () {
     try {
-      var C = Object.assign({ startDelay: 700, probeMs: 2500, badFrameMs: 34, badShare: 0.22 }, window.FX_CFG || {});
-      var root = document.documentElement;
-      var rm = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
-      var st = { started: false, low: false, probed: false, probing: false, tok: 0, held: false };
-      // Фон движется, только если: заставка прошла, телефон тянет, анимации не отключены,
-      // приложение на экране и сейчас не идёт раунд Блица
-      var canRun = function () { return st.started && !st.low && !rm.matches && !document.hidden && !st.held; };
-      var apply = function () {
-        var on = canRun();
-        root.classList.toggle('fx-run', on);
-        if (on && !st.probed && !st.probing) probe();
+      var C = Object.assign({ startDelay: 700 }, window.FX_CFG || {});
+      // Фон теперь статичный (один источник цвета), проверять плавность не нужно. Сообщаем справочнику, что можно дорисовывать формулы заранее.
+      var wait = function () {
+        if (document.getElementById('splash')) { setTimeout(wait, 120); return; }
+        setTimeout(function () { window.fxProbed = true; document.dispatchEvent(new Event('fx:probed')); }, C.startDelay);
       };
-      var restart = function () { st.tok++; st.probing = false; apply(); };
-      function probe() {
-        st.probing = true;
-        var tok = ++st.tok, last = 0, t0 = 0, n = 0, bad = 0, skip = 3;
-        var f = function (ts) {
-          if (tok !== st.tok) return;                       // проверку прервали: начнём заново при следующем запуске
-          if (!t0) t0 = ts;
-          if (last && skip-- <= 0) { n++; if (ts - last > C.badFrameMs) bad++; }
-          last = ts;
-          if (ts - t0 < C.probeMs) { requestAnimationFrame(f); return; }
-          st.probing = false; st.probed = true;
-          if (n > 20 && bad / n > C.badShare) { st.low = true; apply(); }   // не держит плавность: фон замирает
-          window.fxProbed = true; document.dispatchEvent(new Event('fx:probed'));
-        };
-        requestAnimationFrame(f);
-      }
-      var hueGoal = 'all', hueT = 0;
-      window.fxHue = function (c) {
-        c = c || 'all'; hueGoal = c;
-        var d = root.dataset;
-        if ((d.hue || 'all') === c && !hueT) return;
-        if (rm.matches || !root.classList.contains('fx-run')) { clearTimeout(hueT); hueT = 0; root.classList.remove('fx-dim'); d.hue = c; return; }
-        if (hueT) return;                                   // гашение уже идёт: подхватит последнюю тему
-        root.classList.add('fx-dim');
-        hueT = setTimeout(function () { hueT = 0; root.dataset.hue = hueGoal; root.classList.remove('fx-dim'); }, 240);
-      };
-      document.addEventListener('mechcore:tabchange', function (e) { if (!e.detail || e.detail.tab !== 'handbook') window.fxHue('all'); });
-      document.addEventListener('visibilitychange', restart);
-      if (rm.addEventListener) rm.addEventListener('change', apply); else if (rm.addListener) rm.addListener(apply);
-      new MutationObserver(function () {
-        var h = document.body.classList.contains('no-nav');
-        if (h !== st.held) { st.held = h; restart(); }
-      }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-      var waitSplash = function () {
-        if (document.getElementById('splash')) { setTimeout(waitSplash, 120); return; }
-        setTimeout(function () { st.started = true; apply(); }, C.startDelay);
-      };
-      waitSplash();
-    } catch (e) { /* фон остаётся неподвижным, приложение работает как раньше */ }
+      wait();
+      // Цвет источника пока не привязан к теме и разделу: эти вызовы оставлены, чтобы остальной код не менялся.
+      window.fxHue = function () {};
+      window.fxSection = function () {};
+    } catch (e) { /* приложение работает как раньше */ }
   })();
   </script>
 <script id="fx2-js">
@@ -5414,6 +6496,55 @@ article.rounded-2xl{box-shadow:0 0 0 1px var(--fx-glass-line),inset 0 1px 0 rgba
     o.animate([{ translate: '0 0', opacity: 1 }, { translate: '0 ' + (-d * 100) + '%', opacity: 0 }], opt).onfinish = function () { o.remove(); };
   }
   window.fx2 = { cfg: C, rm: rm, riseHB: function () { riseTab('handbook'); }, learned: learned, roll: roll };
+})();
+</script>
+<script id="redesign-js">
+/* Редизайн: только внешний вид. Цвет раздела и сдвиг ±14° по подтемам; на ПК рейка слева (те же элементы, перенесённые в #rail) */
+(function () {
+  var R = document.documentElement, B = document.body;
+  var BASE = { mechanics: 220, mkt: 28, electro: 270, oscillations: 145, optics: 50, quantum: 5 }, base = 220, off = 0;
+  function paint(ms) { R.style.setProperty('--hue-dur', ms + 'ms'); R.style.setProperty('--section-hue', String(base + off)); }
+  function cats() { return [].map.call(document.querySelectorAll('#hb-chips [data-hc]'), function (b) { return b.dataset.hc; }).filter(function (c) { return c !== 'all'; }); }
+  function drift() { /* цвет задаёт только раздел физики, темы его не сдвигают */ }
+  window.fxSection = function (id) { base = BASE[id] || 162; off = 0; paint(250); };
+  var io = null;
+  function watch() {
+    if (!('IntersectionObserver' in window)) return;
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (es) {
+      var hit = null; es.forEach(function (e) { if (e.isIntersecting) hit = e.target; });
+      if (hit && hit.dataset.c) drift(hit.dataset.c);
+    }, { rootMargin: '-20% 0px -75% 0px' });
+    document.querySelectorAll('#hb-list article').forEach(function (a) { io.observe(a); });
+  }
+  var list = document.getElementById('hb-list'), chips = document.getElementById('hb-chips');
+  if (list) new MutationObserver(watch).observe(list, { childList: true });
+  if (chips) chips.addEventListener('click', function (e) { var b = e.target.closest('[data-hc]'); if (b && b.dataset.hc !== 'all') drift(b.dataset.hc); });
+  watch();
+
+  /* рейка на ПК */
+  var mq = window.matchMedia('(min-width:1100px)'), rail = null, items = null;
+  function build() {
+    rail = document.createElement('aside'); rail.id = 'rail'; rail.setAttribute('aria-label', 'Навигация');
+    function grp(cls, title) {
+      var g = document.createElement('div'); g.className = 'rail-g ' + cls;
+      if (title) { var h = document.createElement('div'); h.className = 'rail-h'; h.textContent = title; g.appendChild(h); }
+      rail.appendChild(g); return g;
+    }
+    var g1 = grp('', ''), g2 = grp('rail-hb', 'Разделы'), g3 = grp('rail-hb', 'Темы');
+    items = [[document.getElementById('tabs'), g1], [document.querySelector('.hb-stick'), g2], [chips, g3]];
+    items.forEach(function (it) { it.push(document.createComment('rail')); it[0].parentNode.insertBefore(it[2], it[0]); });
+    B.insertBefore(rail, document.querySelector('header.hd'));
+  }
+  function sync() {
+    if (mq.matches) { if (!rail) build(); items.forEach(function (it) { it[1].appendChild(it[0]); }); }
+    else if (items) items.forEach(function (it) { it[2].parentNode.insertBefore(it[0], it[2]); });
+  }
+  if (mq.addEventListener) mq.addEventListener('change', sync); else if (mq.addListener) mq.addListener(sync);
+  sync();
+  var hb = document.getElementById('tab-handbook');
+  function flag() { B.classList.toggle('on-hb', !hb.classList.contains('hidden')); }
+  if (hb) { new MutationObserver(flag).observe(hb, { attributes: true, attributeFilter: ['class'] }); flag(); }
 })();
 </script>
 </body>
