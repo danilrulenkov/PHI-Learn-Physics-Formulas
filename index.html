@@ -188,18 +188,16 @@ article button.rounded-lg:not([class*="emerald"]){background:var(--sf2)}
 .prog .bar,.prog i{height:5px}
 .sheet-card{border-radius:24px 24px 0 0}
 /* Заставка: 3-секундная каллиграфическая подпись φHI */
-#splash{position:fixed;inset:0;z-index:100;background:#01072c;display:grid;place-items:center;transition:opacity .42s ease,background-color .48s ease}
+#splash{position:fixed;inset:0;z-index:100;background:#0a1040;display:grid;place-items:center;transition:opacity .42s ease,background-color .48s ease}
 #splash.sp-out{opacity:0;pointer-events:none}
 #splash .sp-stage{display:flex;align-items:center;justify-content:center;width:min(84vw,420px);will-change:transform}
 #splash .sp-svg{width:100%;height:auto;overflow:visible;display:block}
 #splash{overflow:hidden}
 #splash .sp-stage{position:relative;z-index:1}
-.sp-bg{position:absolute;width:130vmax;height:130vmax;border-radius:50%;pointer-events:none;opacity:0;will-change:transform,opacity}
-.sp-bg.a{left:-48vmax;top:-48vmax;background:radial-gradient(closest-side,rgba(64,160,255,.34),rgba(64,160,255,0) 70%);animation:sp-in 1.4s ease-out forwards,sp-da 9s ease-in-out infinite alternate}
-.sp-bg.b{right:-52vmax;bottom:-52vmax;background:radial-gradient(closest-side,rgba(96,84,235,.36),rgba(43,116,234,0) 70%);animation:sp-in 1.4s .25s ease-out forwards,sp-db 11s ease-in-out infinite alternate}
+.sp-bg{position:absolute;width:130vmax;height:130vmax;border-radius:50%;pointer-events:none;opacity:0;will-change:opacity;contain:strict}
+.sp-bg.a{left:-48vmax;top:-48vmax;background:radial-gradient(closest-side,rgba(64,160,255,.34),rgba(64,160,255,0) 70%);animation:sp-in 1.4s ease-out forwards}
+.sp-bg.b{right:-52vmax;bottom:-52vmax;background:radial-gradient(closest-side,rgba(96,84,235,.36),rgba(43,116,234,0) 70%);animation:sp-in 1.4s .25s ease-out forwards}
 @keyframes sp-in{to{opacity:1}}
-@keyframes sp-da{from{transform:translate3d(0,0,0)}to{transform:translate3d(16vmax,12vmax,0)}}
-@keyframes sp-db{from{transform:translate3d(0,0,0)}to{transform:translate3d(-14vmax,-16vmax,0)}}
 .sp-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;filter:blur(7px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:42% 100%;mask-size:42% 100%;-webkit-mask-image:linear-gradient(100deg,transparent,#000 50%,transparent);mask-image:linear-gradient(100deg,transparent,#000 50%,transparent)}
 .sp-glow.sp-glow-tag{filter:blur(2.6px)}
 #sp-tag,#sg-tag{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-weight:500;font-size:23px;letter-spacing:2.07px;text-rendering:geometricPrecision}
@@ -577,7 +575,7 @@ nav.bnav button.tb.tab-on{padding:0 1.1rem 0 .85rem;background:rgba(64,170,255,.
   --fx-stack-rgb:10,16,76;
   --fx-dot-rgb:170,200,255;
 }
-#splash{background:#0C0C0D}
+#splash{background:#0a1040}
 .hd::before{background:linear-gradient(to bottom,rgba(7,14,72,.93) 0,rgba(7,14,72,.93) calc(100% - 24px),rgba(7,14,72,0) 100%)}
 
 /* Карточки: лёгкий верхний блик */
@@ -737,13 +735,6 @@ html[data-theme="light"] .fsb{color:var(--tx)}
 html[data-theme="light"] .fcb:active,html[data-theme="light"] .fsb:active{background:rgba(45,91,220,.08)}
 html[data-theme="light"] .fcnt{background:rgba(38,56,140,.08)}
 
-/* заставка: светлый фон, тёмно-синие буквы */
-html[data-theme="light"] #splash{background:#F4F4F5}
-html[data-theme="light"] #sp-mark{fill:#12205f}
-html[data-theme="light"] #sp-tag,html[data-theme="light"] #sp-tag text{fill:#4a5fa8}
-html[data-theme="light"] .sp-glow g,html[data-theme="light"] #sg-tag{fill:#6f93ff}
-html[data-theme="light"] .sp-bg.a{background:radial-gradient(closest-side,rgba(90,130,255,.22),rgba(90,130,255,0) 70%)}
-html[data-theme="light"] .sp-bg.b{background:radial-gradient(closest-side,rgba(120,110,255,.16),rgba(120,110,255,0) 70%)}
 </style>
 <style id="redesign">
 /* ═══════════════ РЕДИЗАЙН: Палитра «Графит + мята» ═══════════════
@@ -847,12 +838,16 @@ html:root[data-theme] #bg-src{display:none!important;background:none!important}
 html:root[data-theme] ::selection{background:var(--acc-soft-hi);color:var(--t1)}
 html:root[data-theme] :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
-/* Заставка в спокойных тонах палитры */
-html:root[data-theme] #splash{background:var(--bg)}
-html:root[data-theme] #sp-mark{fill:var(--t1)}
-html:root[data-theme] .sp-bg.a,html:root[data-theme] .sp-bg.b{background:radial-gradient(closest-side,var(--acc-soft),transparent 70%)}
-html:root[data-theme] .sp-glow g,html:root[data-theme] #sg-tag{fill:var(--acc)}
-html:root[data-theme] #sp-tag,html:root[data-theme] #sp-tag text{fill:var(--mu)}
+/* Заставка: фон и цвета берутся из темы приложения (тёмная — графит, светлая — светлый фон) */
+html:root[data-theme="dark"]{--sp-mark:#F1F4FF;--sp-tag:#9AA8E0;--sp-glow:#8FA2FF;--sp-glow2:rgba(56,189,248,.55);--sp-vig:#1A2346}
+html:root[data-theme="light"]{--sp-mark:#0B1020;--sp-tag:#5B6480;--sp-glow:#6A7DFF;--sp-glow2:rgba(56,189,248,.45);--sp-vig:#FFFFFF}
+html:root[data-theme] #splash{background:radial-gradient(ellipse 60% 50% at 50% 46%,var(--sp-vig) 0,var(--bg) 100%);transition:opacity .42s ease}
+html:root[data-theme] .sp-glow{filter:blur(7px) drop-shadow(0 0 14px var(--sp-glow2))}
+html:root[data-theme] .sp-glow.sp-glow-tag{filter:blur(2.6px)}
+html:root[data-theme] #sp-mark{fill:var(--sp-mark)}
+html:root[data-theme] .sp-bg{display:none}
+html:root[data-theme] .sp-glow g,html:root[data-theme] #sg-tag{fill:var(--sp-glow)}
+html:root[data-theme] #sp-tag,html:root[data-theme] #sp-tag text{fill:var(--sp-tag)}
 
 /* Приглушённый белый для формул и заголовков в тёмной теме (#E6E9F0 вместо #FFFFFF) */
 html:root[data-theme] .fbox,
@@ -1564,6 +1559,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
     box-shadow:none}
 }
 </style>
+<style id="katex-cal-font">/* каллиграфическая ℰ (ЭДС) в электродинамике */@font-face{font-display:block;font-family:KaTeX_Caligraphic;font-style:normal;font-weight:400;src:url(data:font/woff2;base64,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) format("woff2")}</style>
 </head>
 
 <body class="flex min-h-[100dvh] flex-col bg-zinc-950 font-sans text-slate-200 antialiased">
@@ -1572,8 +1568,8 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
   <div id="splash" aria-hidden="true">
     <i class="sp-bg a"></i><i class="sp-bg b"></i>
     <div class="sp-stage" id="sp-stage">
-      <svg class="sp-svg sp-glow" id="sp-glow" viewBox="-20 -8 504 312"><g fill="#4FD1A5"><g id="sg-L0"><path id="sg-phi" d=""/></g><g id="sg-L1"><path id="sg-h1" d=""/><path id="sg-h2" d=""/><path id="sg-h3" d=""/></g><g id="sg-L2"><path id="sg-i1" d=""/></g></g></svg>
-      <svg class="sp-svg sp-glow sp-glow-tag" id="sp-glow-tag" viewBox="-20 -8 504 312"><g id="sg-tag" fill="#4FD1A5"></g></svg>
+      <svg class="sp-svg sp-glow" id="sp-glow" viewBox="-20 -8 504 312"><g fill="#9DB4E0"><g id="sg-L0"><path id="sg-phi" d=""/></g><g id="sg-L1"><path id="sg-h1" d=""/><path id="sg-h2" d=""/><path id="sg-h3" d=""/></g><g id="sg-L2"><path id="sg-i1" d=""/></g></g></svg>
+      <svg class="sp-svg sp-glow sp-glow-tag" id="sp-glow-tag" viewBox="-20 -8 504 312"><g id="sg-tag" fill="#9DB4E0"></g></svg>
       <svg class="sp-svg" viewBox="-20 -8 504 312">
         <g id="sp-mark" fill="#E6E9F0" transform="translate(93,-18) scale(1.16)">
           <g id="sp-L0"><path id="sp-phi" d=""/></g>
@@ -1623,10 +1619,12 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         var vy = 3 * u2 * (seg[1][1] - seg[0][1]) + 6 * u * t * (seg[2][1] - seg[1][1]) + 3 * t2 * (seg[3][1] - seg[2][1]);
         return [x, y, vx, vy];
       }
+      // Определяем, является ли устройство маломощным (мобильное/планшет)
+      var isLowPower = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) || (window.screen && screen.width < 800);
       function buildSpline(segs, N, radFn) {
         var raw = [], arc = [0], i, s, t, p, dx, dy;
         for (s = 0; s < segs.length; s++) {
-          var steps = 120;
+          var steps = isLowPower ? 60 : 120;
           for (i = 0; i < steps || (s === segs.length - 1 && i === steps); i++) {
             p = evalBez(segs[s], i / steps);
             if (raw.length) {
@@ -1669,14 +1667,14 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
             r: A.r + (B.r - A.r) * fr
           });
         }
-        var m = sub.length, i, p, a, c, s, out = [];
+        var m = sub.length, i, p, a, c, s, out = [], tipSegs = isLowPower ? 5 : 8;
         for (i = 0; i < m; i++) {
           p = sub[i];
           out.push((p.x + p.nx * p.r).toFixed(1) + ',' + (p.y + p.ny * p.r).toFixed(1));
         }
         var pe = sub[m - 1];
-        for (i = 1; i < 8; i++) {
-          a = (i / 8) * Math.PI; c = Math.cos(a); s = Math.sin(a);
+        for (i = 1; i < tipSegs; i++) {
+          a = (i / tipSegs) * Math.PI; c = Math.cos(a); s = Math.sin(a);
           out.push((pe.x + pe.r * (c * pe.nx + s * pe.tx)).toFixed(1) + ',' + (pe.y + pe.r * (c * pe.ny + s * pe.ty)).toFixed(1));
         }
         for (i = m - 1; i >= 0; i--) {
@@ -1684,8 +1682,8 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
           out.push((p.x - p.nx * p.r).toFixed(1) + ',' + (p.y - p.ny * p.r).toFixed(1));
         }
         var ps = sub[0];
-        for (i = 1; i < 8; i++) {
-          a = (i / 8) * Math.PI; c = Math.cos(a); s = Math.sin(a);
+        for (i = 1; i < tipSegs; i++) {
+          a = (i / tipSegs) * Math.PI; c = Math.cos(a); s = Math.sin(a);
           out.push((ps.x + ps.r * (-c * ps.nx - s * ps.tx)).toFixed(1) + ',' + (ps.y + ps.r * (-c * ps.ny - s * ps.ty)).toFixed(1));
         }
         return 'M' + out.join('L') + 'Z';
@@ -1698,14 +1696,14 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         [[223, 55], [223, 4], [144, -2], [118, 78]],
         [[118, 78], [102, 127.2], [80, 215], [61.5, 290]]
       ];
-      var phiPts = buildSpline(phiSegs, 140, function (s) {
+      var phiPts = buildSpline(phiSegs, isLowPower ? 80 : 140, function (s) {
         var wBowl = ss(0, 0.11, s) * (1 - ss(0.14, 0.28, s));
         var wStem = ss(0.58, 0.72, s) * (1 - 0.30 * ss(0.90, 1.0, s));
         return 5.0 + 5.6 * Math.min(1, wBowl + wStem) + 1.6 * (1 - ss(0, 0.08, s));
       });
 
       function mkLine(p0, p1, p2, p3, r0, rm, r1) {
-        return buildSpline([[p0, p1, p2, p3]], 28, function (s) {
+        return buildSpline([[p0, p1, p2, p3]], isLowPower ? 16 : 28, function (s) {
           return (1 - s) * r0 + s * r1 + (rm - 0.5 * (r0 + r1)) * Math.sin(Math.PI * s);
         });
       }
@@ -1803,9 +1801,12 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
           if (sgTag) sgTag.innerHTML = '';
           tag = [];
         }
-        var f0 = null, T_PHI = 1100, T_SHIFT0 = 1000, T_SHIFT1 = 1560, T_TOTAL = 4410;
+        var f0 = null, T_PHI = 1100, T_SHIFT0 = 1000, T_SHIFT1 = 1560, T_TOTAL = 4410, lastFrame = 0;
         function frame(ts) {
           if (done) return;
+          // На слабых устройствах пропускаем кадры: не чаще ~30 fps
+          if (isLowPower && ts - lastFrame < 30) { requestAnimationFrame(frame); return; }
+          lastFrame = ts;
           if (f0 === null) f0 = ts;
           var t = (ts - f0) * 1.47; // скорость ×1.47: раскадровка на 4410 мс проходит за ~3 с
           // 1. Рисование прописной буквы φ по центру (0 .. 1600 мс)
@@ -1960,8 +1961,8 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
           <nav id="hb-rail" class="hb-rail" aria-label="Раздел физики">
             <button type="button" class="hb-sec on" data-phys-sec="mechanics">Механика</button>
             <button type="button" class="hb-sec" data-phys-sec="mkt">МКТ</button>
-            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="electro" style="--sc:#8a5cff">Электродинамика</button>
-            <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="oscillations" style="--sc:#1fc26a">Колебания и волны</button>
+            <button type="button" class="hb-sec" data-phys-sec="electro">Электродинамика</button>
+            <button type="button" class="hb-sec" data-phys-sec="oscillations">Колебания и волны</button>
             <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="optics" style="--sc:#f5c400">Оптика</button>
             <button type="button" class="hb-sec" disabled aria-disabled="true" title="Скоро" data-future="quantum" style="--sc:#ff4a4a">Квантовая и ядерная</button>
           </nav>
@@ -4870,12 +4871,1118 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
 ]);
     const MKT_TESTS = {"mkt_amount": {"latexMasked": "\\nu = \\dfrac{N}{[\\; ? \\;]} = \\dfrac{m}{M}", "correctSymbol": "N_A", "distractors": ["V", "k", "R"]}, "mkt_molecule_mass": {"latexMasked": "m_0 = \\dfrac{[\\; ? \\;]}{N_A} = \\dfrac{m}{N}", "correctSymbol": "M", "distractors": ["\\rho", "\\nu", "V"]}, "mkt_concentration": {"latexMasked": "n = \\dfrac{N}{V} = \\dfrac{[\\; ? \\;]}{m_0}", "correctSymbol": "\\rho", "distractors": ["m", "M", "p"]}, "mkt_basic": {"latexMasked": "p = \\dfrac{1}{3}\\, n\\, m_0\\, [\\; ? \\;]", "correctSymbol": "\\overline{v^2}", "distractors": ["\\overline{v}", "v", "\\overline{E_k}"]}, "mkt_pressure_energy": {"latexMasked": "p = \\dfrac{2}{3}\\, n\\, [\\; ? \\;]", "correctSymbol": "\\overline{E_k}", "distractors": ["\\overline{v^2}", "m_0", "T"]}, "mkt_pressure_nkt": {"latexMasked": "p = n\\,[\\; ? \\;]\\,T", "correctSymbol": "k", "distractors": ["R", "m_0", "N_A"]}, "mkt_energy_temperature": {"latexMasked": "\\overline{E_k} = \\dfrac{3}{2}\\,[\\; ? \\;]\\,T", "correctSymbol": "k", "distractors": ["R", "N_A", "m_0"]}, "mkt_rms_speed": {"latexMasked": "v_{\\text{кв}} = \\sqrt{\\dfrac{3[\\; ? \\;]T}{m_0}} = \\sqrt{\\dfrac{3RT}{M}}", "correctSymbol": "k", "distractors": ["R", "M", "\\nu"]}, "gas_clapeyron": {"latexMasked": "pV = \\dfrac{m}{M}\\,[\\; ? \\;]T = \\nu R T", "correctSymbol": "R", "distractors": ["k", "N_A", "\\nu"]}, "gas_isothermal": {"latexMasked": "p_1 V_1 = p_2 [\\; ? \\;]", "correctSymbol": "V_2", "distractors": ["V_1", "T_2", "p_1"]}, "gas_isobaric": {"latexMasked": "\\dfrac{V_1}{T_1} = \\dfrac{V_2}{[\\; ? \\;]}", "correctSymbol": "T_2", "distractors": ["T_1", "p_2", "V_1"]}, "gas_isochoric": {"latexMasked": "\\dfrac{p_1}{T_1} = \\dfrac{[\\; ? \\;]}{T_2}", "correctSymbol": "p_2", "distractors": ["V_2", "p_1", "T_1"]}, "gas_combined": {"latexMasked": "\\dfrac{p_1 V_1}{T_1} = \\dfrac{p_2 [\\; ? \\;]}{T_2}", "correctSymbol": "V_2", "distractors": ["V_1", "p_1", "T_1"]}, "gas_dalton": {"latexMasked": "p = p_1 [\\; ? \\;] p_2 + \\dots + p_k", "correctSymbol": "+", "distractors": ["-", "\\cdot", "/"], "kind": "знак"}, "gas_density": {"latexMasked": "p = \\dfrac{\\rho [\\; ? \\;] T}{M}", "correctSymbol": "R", "distractors": ["k", "g", "N_A"]}, "vapor_humidity": {"latexMasked": "\\varphi = \\dfrac{p}{[\\; ? \\;]}\\cdot 100\\% = \\dfrac{\\rho}{\\rho_{\\text{н}}}\\cdot 100\\%", "correctSymbol": "p_{\\text{н}}", "distractors": ["p_0", "\\rho", "V"]}, "liq_surface_tension": {"latexMasked": "\\sigma = \\dfrac{F}{[\\; ? \\;]} = \\dfrac{A}{\\Delta S}", "correctSymbol": "l", "distractors": ["S", "m", "r"]}, "liq_capillary": {"latexMasked": "h = \\dfrac{2\\sigma\\cos\\theta}{\\rho\\, [\\; ? \\;]\\, r}", "correctSymbol": "g", "distractors": ["G", "k", "R"]}, "solid_stress": {"latexMasked": "\\sigma_{\\text{м}} = \\dfrac{F}{[\\; ? \\;]}", "correctSymbol": "S", "distractors": ["l_0", "V", "m"]}, "solid_young": {"latexMasked": "\\sigma_{\\text{м}} = [\\; ? \\;]\\,|\\varepsilon|,\\quad \\varepsilon = \\dfrac{\\Delta l}{l_0}", "correctSymbol": "E", "distractors": ["k", "G", "\\alpha"]}, "solid_linear_expansion": {"latexMasked": "l = l_0\\,(1 + [\\; ? \\;]\\,\\Delta t)", "correctSymbol": "\\alpha", "distractors": ["\\beta", "\\lambda", "k"]}, "solid_volume_expansion": {"latexMasked": "V = V_0\\,(1 + \\beta\\,[\\; ? \\;])", "correctSymbol": "\\Delta t", "distractors": ["t", "\\Delta V", "T"]}, "thermo_internal_energy": {"latexMasked": "U = \\dfrac{3}{2}\\,[\\; ? \\;] R T = \\dfrac{3}{2}\\,pV", "correctSymbol": "\\nu", "distractors": ["N", "m", "n"]}, "thermo_gas_work": {"latexMasked": "A = p\\,[\\; ? \\;] = p\\,(V_2 - V_1)", "correctSymbol": "\\Delta V", "distractors": ["V", "\\Delta p", "\\Delta T"]}, "thermo_first_law": {"latexMasked": "Q = [\\; ? \\;] + A", "correctSymbol": "\\Delta U", "distractors": ["U", "\\Delta T", "p"]}, "thermo_isothermal": {"latexMasked": "Q = [\\; ? \\;],\\quad \\Delta U = 0", "correctSymbol": "A", "distractors": ["U", "p", "T"]}, "thermo_isochoric": {"latexMasked": "Q = \\Delta U = \\dfrac{3}{2}\\,\\nu R\\,[\\; ? \\;]", "correctSymbol": "\\Delta T", "distractors": ["T", "\\Delta V", "\\Delta p"]}, "thermo_isobaric": {"latexMasked": "Q = \\dfrac{[\\; ? \\;]}{2}\\,\\nu R\\,\\Delta T", "correctSymbol": "5", "distractors": ["1", "3", "7"], "kind": "коэффициент"}, "thermo_adiabatic": {"latexMasked": "A = -[\\; ? \\;] = -\\dfrac{3}{2}\\,\\nu R\\,\\Delta T", "correctSymbol": "\\Delta U", "distractors": ["Q", "\\Delta T", "U"]}, "thermo_mayer": {"latexMasked": "C_p = C_V + [\\; ? \\;]", "correctSymbol": "R", "distractors": ["k", "N_A", "\\nu"]}, "thermo_heating": {"latexMasked": "Q = c\\,[\\; ? \\;]\\,\\Delta T", "correctSymbol": "m", "distractors": ["M", "\\nu", "\\rho"]}, "thermo_combustion": {"latexMasked": "Q = [\\; ? \\;]\\,m", "correctSymbol": "q", "distractors": ["c", "L", "\\lambda"]}, "thermo_melting": {"latexMasked": "Q = [\\; ? \\;]\\,m", "correctSymbol": "\\lambda", "distractors": ["q", "L", "c"]}, "thermo_vaporization": {"latexMasked": "Q = [\\; ? \\;]\\,m", "correctSymbol": "L", "distractors": ["\\lambda", "q", "c"]}, "thermo_heat_balance": {"latexMasked": "Q_{\\text{отд}} = [\\; ? \\;]", "correctSymbol": "Q_{\\text{пол}}", "distractors": ["Q_{\\text{пл}}", "\\Delta U", "Q_{\\text{сгор}}"]}, "thermo_efficiency": {"latexMasked": "\\eta = \\dfrac{A}{[\\; ? \\;]} = \\dfrac{Q_{\\text{н}} - Q_{\\text{х}}}{Q_{\\text{н}}}", "correctSymbol": "Q_{\\text{н}}", "distractors": ["Q_{\\text{х}}", "Q", "T_{\\text{н}}"]}, "thermo_carnot": {"latexMasked": "\\eta_{\\max} = 1 - \\dfrac{T_{\\text{х}}}{[\\; ? \\;]}", "correctSymbol": "T_{\\text{н}}", "distractors": ["T", "T_0", "Q_{\\text{н}}"]}};
     const MKT_BLITZ = {"mkt_amount": {"corruptedLatex": "\\nu = \\dfrac{M}{m}", "explanation": "Количество вещества — число молей: массу делят на молярную массу, ν = m/M. Перевёрнутое отношение имеет размерность 1/моль."}, "mkt_molecule_mass": {"corruptedLatex": "m_0 = M\\,N_A", "explanation": "Масса одной молекулы ничтожно мала (порядка 10⁻²⁶ кг): молярную массу нужно делить на число Авогадро, а не умножать."}, "mkt_concentration": {"corruptedLatex": "n = \\rho\\,m_0", "explanation": "Концентрация — число молекул в единице объёма, поэтому плотность делят на массу молекулы: n = ρ/m₀. Произведение ρ·m₀ не имеет такого смысла."}, "mkt_basic": {"corruptedLatex": "p = \\dfrac{2}{3}\\, n\\, m_0\\, \\overline{v^2}", "explanation": "Перед n·m₀·v² стоит 1/3 (три равноправные оси). Коэффициент 2/3 относится к средней кинетической энергии: p = 2/3·n·E_k."}, "mkt_pressure_energy": {"corruptedLatex": "p = \\dfrac{1}{3}\\, n\\, \\overline{E_k}", "explanation": "Из E_k = m₀v²/2 следует m₀v² = 2E_k, поэтому p = 1/3·n·2E_k = 2/3·n·E_k. Коэффициент 1/3 здесь не подходит."}, "mkt_pressure_nkt": {"corruptedLatex": "p = \\dfrac{n\\,T}{k}", "explanation": "Давление растёт с концентрацией и температурой, а постоянная Больцмана стоит в числителе: p = nkT."}, "mkt_energy_temperature": {"corruptedLatex": "\\overline{E_k} = \\dfrac{3}{2}\\,R\\,T", "explanation": "Энергия одной молекулы выражается через постоянную Больцмана k. Газовая постоянная R относится к молю молекул (R = N_A·k)."}, "mkt_rms_speed": {"corruptedLatex": "v_{\\text{кв}} = \\sqrt{\\dfrac{3RM}{T}}", "explanation": "Скорость растёт с температурой и убывает с молярной массой: под корнем 3RT/M. Лёгкие молекулы движутся быстрее."}, "gas_clapeyron": {"corruptedLatex": "pV = \\dfrac{M}{m}\\,RT", "explanation": "Количество вещества ν = m/M. Перевёрнутое отношение M/m имеет размерность 1/моль, а не моль."}, "gas_isothermal": {"corruptedLatex": "\\dfrac{p_1}{V_1} = \\dfrac{p_2}{V_2}", "explanation": "При T = const давление и объём обратно пропорциональны: постоянно произведение pV, а не их отношение."}, "gas_isobaric": {"corruptedLatex": "V_1 T_1 = V_2 T_2", "explanation": "При p = const объём прямо пропорционален температуре, поэтому постоянно отношение V/T, а не произведение."}, "gas_isochoric": {"corruptedLatex": "\\dfrac{p_1}{T_2} = \\dfrac{p_2}{T_1}", "explanation": "При V = const постоянно отношение p/T: давление и температура относятся к одному состоянию, p₁/T₁ = p₂/T₂."}, "gas_combined": {"corruptedLatex": "\\dfrac{p_1 T_1}{V_1} = \\dfrac{p_2 T_2}{V_2}", "explanation": "Постоянна величина pV/T = νR: объём стоит в числителе, температура — в знаменателе."}, "gas_dalton": {"corruptedLatex": "p = \\dfrac{p_1 + p_2 + \\dots + p_k}{k}", "explanation": "Давление смеси идеальных газов равно сумме парциальных давлений, а не их среднему значению."}, "gas_density": {"corruptedLatex": "p = \\dfrac{\\rho\\, M}{R\\, T}", "explanation": "Из pV = (m/M)RT получаем p = ρRT/M: давление растёт с температурой, поэтому T стоит в числителе, а M — в знаменателе."}, "vapor_humidity": {"corruptedLatex": "\\varphi = \\dfrac{p_{\\text{н}}}{p}\\cdot 100\\%", "explanation": "Относительная влажность — доля давления насыщенного пара, достигнутая в воздухе: φ = p/p_н. Перевёрнутая дробь дала бы значения больше 100%."}, "liq_surface_tension": {"corruptedLatex": "\\sigma = F\\,l", "explanation": "Поверхностное натяжение — сила, приходящаяся на единицу длины границы: σ = F/l (Н/м). Произведение F·l имеет другую размерность."}, "liq_capillary": {"corruptedLatex": "h = \\dfrac{\\sigma\\cos\\theta}{\\rho\\, g\\, r}", "explanation": "Потеряна двойка: сила натяжения действует по окружности 2πr, а вес столба содержит πr², поэтому h = 2σcosθ/(ρgr)."}, "solid_stress": {"corruptedLatex": "\\sigma_{\\text{м}} = F\\,S", "explanation": "Механическое напряжение — сила на единицу площади сечения: σ = F/S (Па). Произведение F·S не имеет такого смысла."}, "solid_young": {"corruptedLatex": "\\sigma_{\\text{м}} = \\dfrac{E}{|\\varepsilon|}", "explanation": "Напряжение пропорционально относительному удлинению: σ = E·|ε|. Удлинение стоит в числителе, а не в знаменателе."}, "solid_linear_expansion": {"corruptedLatex": "l = l_0\\,\\alpha\\,\\Delta t", "explanation": "Тело сохраняет исходную длину и удлиняется на l₀αΔt, поэтому l = l₀(1 + αΔt). Без единицы в скобках длина получилась бы почти нулевой."}, "solid_volume_expansion": {"corruptedLatex": "V = V_0\\,(1 + \\beta\\,\\Delta t)^3", "explanation": "Коэффициент объёмного расширения β ≈ 3α уже учитывает три измерения, поэтому куб не нужен: V = V₀(1 + βΔt)."}, "thermo_internal_energy": {"corruptedLatex": "U = \\dfrac{5}{2}\\,\\nu R T = \\dfrac{5}{2}\\,pV", "explanation": "У одноатомного газа три поступательные степени свободы, поэтому коэффициент 3/2. Множитель 5/2 появляется в теплоте изобарного процесса."}, "thermo_gas_work": {"corruptedLatex": "A = \\dfrac{p}{\\Delta V}", "explanation": "Работа при постоянном давлении равна произведению силы давления на путь поршня: A = pΔV, а не отношению."}, "thermo_first_law": {"corruptedLatex": "Q = \\Delta U - A", "explanation": "Полученная теплота идёт и на рост внутренней энергии, и на работу газа: Q = ΔU + A. Работа входит со знаком плюс."}, "thermo_isothermal": {"corruptedLatex": "Q = \\Delta U,\\quad A = 0", "explanation": "При T = const внутренняя энергия идеального газа не меняется (ΔU = 0), поэтому всё тепло идёт на работу: Q = A."}, "thermo_isochoric": {"corruptedLatex": "Q = A = \\dfrac{3}{2}\\,\\nu R\\,\\Delta T", "explanation": "При V = const газ не совершает работу (A = 0), поэтому всё тепло идёт на изменение внутренней энергии: Q = ΔU."}, "thermo_isobaric": {"corruptedLatex": "Q = \\dfrac{3}{2}\\,\\nu R\\,\\Delta T", "explanation": "Это формула для изохорного процесса. При p = const часть тепла уходит на работу A = νRΔT, поэтому Q = ΔU + A = 5/2·νRΔT."}, "thermo_adiabatic": {"corruptedLatex": "A = \\Delta U = \\dfrac{3}{2}\\,\\nu R\\,\\Delta T", "explanation": "При адиабатном процессе Q = 0, поэтому 0 = ΔU + A и A = −ΔU: газ работает за счёт убыли внутренней энергии."}, "thermo_mayer": {"corruptedLatex": "C_p = C_V - R", "explanation": "При p = const часть тепла уходит на работу расширения, поэтому теплоёмкость при постоянном давлении больше: C_p = C_V + R."}, "thermo_heating": {"corruptedLatex": "Q = \\dfrac{c\\,m}{\\Delta T}", "explanation": "Теплота растёт с изменением температуры: Q = cmΔT. В знаменателе ΔT быть не может, ведь больший нагрев требует больше теплоты."}, "thermo_combustion": {"corruptedLatex": "Q = \\dfrac{q}{m}", "explanation": "Удельная теплота сгорания q — теплота на 1 кг топлива, поэтому при сгорании массы m выделяется Q = qm."}, "thermo_melting": {"corruptedLatex": "Q = \\lambda\\,\\Delta T", "explanation": "Плавление идёт при постоянной температуре, поэтому теплота зависит от массы вещества: Q = λm, а не от изменения температуры."}, "thermo_vaporization": {"corruptedLatex": "Q = L\\,m\\,\\Delta T", "explanation": "При кипении температура постоянна, поэтому множитель ΔT лишний: Q = Lm."}, "thermo_heat_balance": {"corruptedLatex": "Q_{\\text{отд}} = 2\\,Q_{\\text{пол}}", "explanation": "В теплоизолированной системе потерь нет: вся отданная горячими телами теплота получена холодными, поэтому Q_отд = Q_пол."}, "thermo_efficiency": {"corruptedLatex": "\\eta = \\dfrac{Q_{\\text{н}}}{A}", "explanation": "КПД — доля теплоты нагревателя, превращённая в работу: η = A/Q_н < 1. Перевёрнутое отношение больше единицы."}, "thermo_carnot": {"corruptedLatex": "\\eta_{\\max} = 1 - \\dfrac{T_{\\text{н}}}{T_{\\text{х}}}", "explanation": "Температура нагревателя выше температуры холодильника, поэтому T_х/T_н < 1. Перевёрнутое отношение дало бы отрицательный КПД."}};
+    // ═══════════════════════════════════════════════════════════════
+    // Раздел «Электродинамика» — справочник (49 формул, 6 тем)
+    // Формат — как у MKT_DATA. Вставлять после блока MKT_DATA.push(...).
+    // ═══════════════════════════════════════════════════════════════
+
+    const ED_LABELS = { estat: 'Электростатика', cap: 'Конденсаторы', dc: 'Постоянный ток', media: 'Ток в средах', magnet: 'Магнитное поле', induction: 'Электромагнитная индукция' };
+
+    const ED_DATA = [
+     {
+      "id": "es_conservation",
+      "category": "estat",
+      "subCategory": "Заряд и закон Кулона",
+      "title": "Закон сохранения электрического заряда",
+      "latex": "q_1 + q_2 + \\ldots + q_n = \\text{const}",
+      "variables": [
+       {"symbol": "q_1, q_2, \\ldots, q_n", "name": "Заряды тел замкнутой системы (со знаками)", "unit": "Кл"}
+      ],
+      "conditions": "Замкнутая система: заряды через её границу не проходят. Заряды складываются алгебраически, с учётом знаков. Два одинаковых проводящих шарика после соприкосновения делят суммарный заряд поровну: q = (q₁ + q₂)/2.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "фундаментальный закон природы, проверенный опытом: заряд не возникает из ничего и не исчезает, а только переходит от тела к телу"],
+       ["Следствие", "для двух тел до и после контакта $q_1 + q_2 = q_1' + q_2'$; у одинаковых шариков $q_1' = q_2' = \\dfrac{q_1 + q_2}{2}$"],
+       ["Знаки", "заряды разных знаков частично гасят друг друга: $+5 + (-3) = +2$ (в условных единицах)"]
+      ]}
+     },
+     {
+      "id": "es_coulomb",
+      "category": "estat",
+      "subCategory": "Заряд и закон Кулона",
+      "title": "Закон Кулона",
+      "latex": "F = k\\,\\dfrac{|q_1|\\,|q_2|}{\\varepsilon\\, r^2}",
+      "variables": [
+       {"symbol": "F", "name": "Сила взаимодействия зарядов", "unit": "Н"},
+       {"symbol": "k", "name": "Постоянная Кулона (9·10⁹)", "unit": "Н·м²/Кл²"},
+       {"symbol": "q_1, q_2", "name": "Модули зарядов", "unit": "Кл"},
+       {"symbol": "\\varepsilon", "name": "Диэлектрическая проницаемость среды (в вакууме и воздухе ε = 1)", "unit": "—"},
+       {"symbol": "r", "name": "Расстояние между зарядами", "unit": "м"}
+      ],
+      "conditions": "Точечные заряды (или шарики, размеры которых много меньше r), неподвижные. Сила направлена вдоль прямой, соединяющей заряды: одноимённые отталкиваются, разноимённые притягиваются. Силы равны по модулю (третий закон Ньютона). Для заряженных шаров r — расстояние между центрами.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "опытный закон (крутильные весы Кулона): сила прямо пропорциональна произведению зарядов и обратно пропорциональна квадрату расстояния"],
+       ["Смысл", "$k = \\dfrac{1}{4\\pi\\varepsilon_0} \\approx 9\\cdot10^9$ Н·м²/Кл²: два заряда по 1 Кл на расстоянии 1 м отталкивались бы с силой $9\\cdot10^9$ Н: кулон — очень крупная единица"],
+       ["Среда", "в среде с проницаемостью $\\varepsilon$ сила ослабляется в $\\varepsilon$ раз: заряды диэлектрика частично экранируют поле"]
+      ]}
+     },
+     {
+      "id": "es_field_def",
+      "category": "estat",
+      "subCategory": "Напряжённость поля",
+      "title": "Напряжённость электрического поля",
+      "latex": "E = \\dfrac{F}{q}",
+      "variables": [
+       {"symbol": "E", "name": "Напряжённость поля в точке", "unit": "Н/Кл"},
+       {"symbol": "F", "name": "Сила, действующая на пробный заряд", "unit": "Н"},
+       {"symbol": "q", "name": "Пробный заряд", "unit": "Кл"}
+      ],
+      "conditions": "Пробный заряд мал и положителен, чтобы не искажать поле. Вектор E направлен так же, как сила на положительный заряд; на отрицательный заряд сила направлена против E. Единица: 1 Н/Кл = 1 В/м.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "силовая характеристика поля: отношение силы к заряду не зависит от пробного заряда, а только от самого поля"],
+       ["Следствие", "сила на любой заряд в точке, где известна напряжённость: $\\vec F = q\\vec E$"],
+       ["Образ", "поле — как ветер в точке: ветер $E$ есть и без паруса, а парус $q$ только показывает, какая сила на него действует"]
+      ]}
+     },
+     {
+      "id": "es_field_point",
+      "category": "estat",
+      "subCategory": "Напряжённость поля",
+      "title": "Напряжённость поля точечного заряда",
+      "latex": "E = k\\,\\dfrac{|Q|}{\\varepsilon\\, r^2}",
+      "variables": [
+       {"symbol": "E", "name": "Напряжённость поля", "unit": "Н/Кл"},
+       {"symbol": "k", "name": "Постоянная Кулона (9·10⁹)", "unit": "Н·м²/Кл²"},
+       {"symbol": "Q", "name": "Заряд, создающий поле", "unit": "Кл"},
+       {"symbol": "\\varepsilon", "name": "Диэлектрическая проницаемость среды (в вакууме и воздухе ε = 1)", "unit": "—"},
+       {"symbol": "r", "name": "Расстояние от заряда до точки", "unit": "м"}
+      ],
+      "conditions": "Точечный заряд или заряженный шар (вне шара, r — от центра). От положительного заряда вектор E направлен от него, к отрицательному — к нему. Внутри проводящего заряженного шара E = 0.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "на пробный заряд $q$ действует сила Кулона $F = k\\dfrac{|Q|\\,q}{\\varepsilon r^2}$"],
+       ["Подстановка", "по определению $E = \\dfrac{F}{q}$, заряд $q$ сокращается"],
+       ["Итог", "$E = k\\dfrac{|Q|}{\\varepsilon r^2}$"]
+      ]}
+     },
+     {
+      "id": "es_superposition",
+      "category": "estat",
+      "subCategory": "Напряжённость поля",
+      "title": "Принцип суперпозиции полей",
+      "latex": "\\vec E = \\vec E_1 + \\vec E_2 + \\ldots + \\vec E_n",
+      "variables": [
+       {"symbol": "\\vec E", "name": "Результирующая напряжённость в точке", "unit": "Н/Кл"},
+       {"symbol": "\\vec E_i", "name": "Напряжённость поля i-го заряда в этой точке", "unit": "Н/Кл"}
+      ],
+      "conditions": "Складываются векторы, а не модули: поля могут ослаблять друг друга. Для двух полей под углом α: E = √(E₁² + E₂² + 2E₁E₂cosα). Для зарядов на одной прямой — со знаками, по проекциям на ось.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "опытный факт: каждый заряд создаёт своё поле независимо от остальных"],
+       ["Следствие", "силы на пробный заряд складываются как векторы: $q\\vec E_1 + q\\vec E_2 + \\ldots = q\\vec E$, а значит, складываются и поля"],
+       ["Границы", "поле в точке посередине между одинаковыми зарядами равно нулю: векторы равны по модулю и направлены в разные стороны"]
+      ]}
+     },
+     {
+      "id": "es_work_uniform",
+      "category": "estat",
+      "subCategory": "Работа и потенциал",
+      "title": "Работа поля в однородном поле",
+      "latex": "A = q\\,E\\,d",
+      "variables": [
+       {"symbol": "A", "name": "Работа поля", "unit": "Дж"},
+       {"symbol": "q", "name": "Перемещаемый заряд (со знаком)", "unit": "Кл"},
+       {"symbol": "E", "name": "Напряжённость однородного поля", "unit": "Н/Кл"},
+       {"symbol": "d", "name": "Проекция перемещения на направление линий поля", "unit": "м"}
+      ],
+      "conditions": "Однородное поле (E = const). Работа не зависит от формы траектории, а только от начальной и конечной точек. Положительный заряд, смещённый вдоль линий поля, получает A > 0; против линий — A < 0. На замкнутой траектории A = 0.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "сила $F = qE$ постоянна, работа $A = F\\,s\\cos\\alpha$"],
+       ["Подстановка", "$s\\cos\\alpha = d$ — проекция перемещения на линию поля"],
+       ["Итог", "$A = qEd$"]
+      ]}
+     },
+     {
+      "id": "es_work_potential",
+      "category": "estat",
+      "subCategory": "Работа и потенциал",
+      "title": "Работа поля через разность потенциалов",
+      "latex": "A = q\\,(\\varphi_1 - \\varphi_2) = q\\,U",
+      "variables": [
+       {"symbol": "A", "name": "Работа поля", "unit": "Дж"},
+       {"symbol": "q", "name": "Перемещаемый заряд (со знаком)", "unit": "Кл"},
+       {"symbol": "\\varphi_1, \\varphi_2", "name": "Потенциалы начальной и конечной точек", "unit": "В"},
+       {"symbol": "U", "name": "Напряжение (разность потенциалов) между точками", "unit": "В"}
+      ],
+      "conditions": "Любое электростатическое поле, любая траектория. U = φ₁ − φ₂ берётся от начальной точки к конечной. Если A > 0, потенциальная энергия заряда уменьшается.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Определение", "потенциал точки $\\varphi = \\dfrac{W_p}{q}$ — потенциальная энергия единичного положительного заряда"],
+       ["Работа", "электростатическое поле потенциально: $A = W_{p1} - W_{p2} = q\\varphi_1 - q\\varphi_2$"],
+       ["Итог", "$A = q(\\varphi_1 - \\varphi_2) = qU$"]
+      ]}
+     },
+     {
+      "id": "es_potential_point",
+      "category": "estat",
+      "subCategory": "Работа и потенциал",
+      "title": "Потенциал поля точечного заряда",
+      "latex": "\\varphi = k\\,\\dfrac{Q}{\\varepsilon\\, r}",
+      "variables": [
+       {"symbol": "\\varphi", "name": "Потенциал в точке поля", "unit": "В"},
+       {"symbol": "k", "name": "Постоянная Кулона (9·10⁹)", "unit": "Н·м²/Кл²"},
+       {"symbol": "Q", "name": "Заряд, создающий поле (со знаком)", "unit": "Кл"},
+       {"symbol": "\\varepsilon", "name": "Диэлектрическая проницаемость среды (в вакууме и воздухе ε = 1)", "unit": "—"},
+       {"symbol": "r", "name": "Расстояние от заряда до точки", "unit": "м"}
+      ],
+      "conditions": "Нуль потенциала выбран на бесконечности. Q берётся со знаком: у положительного заряда φ > 0, у отрицательного φ < 0. Потенциалы нескольких зарядов складываются как числа: φ = φ₁ + φ₂ + … Потенциал заряженного шара радиуса R на поверхности и внутри: φ = kQ/(εR).",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Смысл", "потенциал — работа поля по удалению единичного положительного заряда из точки в бесконечность"],
+       ["Вид", "потенциал убывает как $\\dfrac{1}{r}$, напряжённость — быстрее, как $\\dfrac{1}{r^2}$; точный вывод требует выше школьной математики, поэтому берётся готовый результат"],
+       ["Суперпозиция", "потенциал — число, а не вектор: потенциалы разных зарядов складываются как числа, со знаками"]
+      ]}
+     },
+     {
+      "id": "es_potential_energy",
+      "category": "estat",
+      "subCategory": "Работа и потенциал",
+      "title": "Потенциальная энергия заряда в поле",
+      "latex": "W_p = q\\,\\varphi",
+      "variables": [
+       {"symbol": "W_p", "name": "Потенциальная энергия заряда в поле", "unit": "Дж"},
+       {"symbol": "q", "name": "Заряд (со знаком)", "unit": "Кл"},
+       {"symbol": "\\varphi", "name": "Потенциал точки, где находится заряд", "unit": "В"}
+      ],
+      "conditions": "Значение зависит от выбора нуля потенциала; физический смысл имеет только изменение: ΔW_p = −A. Знак заряда учитывается: у отрицательного заряда в точке с φ > 0 энергия отрицательна.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "потенциал $\\varphi = \\dfrac{W_p}{q}$, откуда $W_p = q\\varphi$"],
+       ["Работа", "работа поля равна убыли энергии: $A = -\\Delta W_p$"],
+       ["Смысл", "положительный заряд стремится к меньшему потенциалу, отрицательный — к большему: в обоих случаях энергия падает"]
+      ]}
+     },
+     {
+      "id": "es_pair_energy",
+      "category": "estat",
+      "subCategory": "Работа и потенциал",
+      "title": "Энергия взаимодействия двух точечных зарядов",
+      "latex": "W = k\\,\\dfrac{q_1\\, q_2}{\\varepsilon\\, r}",
+      "variables": [
+       {"symbol": "W", "name": "Потенциальная энергия пары зарядов", "unit": "Дж"},
+       {"symbol": "k", "name": "Постоянная Кулона (9·10⁹)", "unit": "Н·м²/Кл²"},
+       {"symbol": "q_1, q_2", "name": "Заряды (со знаками)", "unit": "Кл"},
+       {"symbol": "\\varepsilon", "name": "Диэлектрическая проницаемость среды (в вакууме и воздухе ε = 1)", "unit": "—"},
+       {"symbol": "r", "name": "Расстояние между зарядами", "unit": "м"}
+      ],
+      "conditions": "Нуль энергии на бесконечности. Одноимённые заряды: W > 0, энергия растёт при сближении. Разноимённые: W < 0, энергия растёт при удалении. Для нескольких зарядов энергии считаются по каждой паре и складываются.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "заряд $q_2$ находится в поле заряда $q_1$, потенциал которого $\\varphi = k\\dfrac{q_1}{\\varepsilon r}$"],
+       ["Подстановка", "$W = q_2\\varphi$"],
+       ["Итог", "$W = k\\dfrac{q_1 q_2}{\\varepsilon r}$"]
+      ]}
+     },
+     {
+      "id": "es_voltage_field",
+      "category": "estat",
+      "subCategory": "Заряд в электрическом поле",
+      "title": "Связь напряжения и напряжённости",
+      "latex": "U = E\\,d",
+      "variables": [
+       {"symbol": "U", "name": "Напряжение между точками", "unit": "В"},
+       {"symbol": "E", "name": "Напряжённость однородного поля", "unit": "В/м"},
+       {"symbol": "d", "name": "Расстояние между точками вдоль линии поля", "unit": "м"}
+      ],
+      "conditions": "Только однородное поле (например, между пластинами плоского конденсатора). d отсчитывается вдоль линий поля. Поле направлено в сторону убывания потенциала. Отсюда единица напряжённости: 1 В/м = 1 Н/Кл.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "работа поля двумя способами: $A = qEd$ и $A = qU$"],
+       ["Преобразование", "приравниваем $qU = qEd$, заряд сокращается"],
+       ["Итог", "$U = Ed$, откуда $E = \\dfrac{U}{d}$"]
+      ]}
+     },
+     {
+      "id": "es_accel",
+      "category": "estat",
+      "subCategory": "Заряд в электрическом поле",
+      "title": "Разгон заряда в электрическом поле",
+      "latex": "q\\,U = \\dfrac{m v^2}{2} - \\dfrac{m v_0^2}{2}",
+      "variables": [
+       {"symbol": "q", "name": "Заряд частицы", "unit": "Кл"},
+       {"symbol": "U", "name": "Пройденная разность потенциалов", "unit": "В"},
+       {"symbol": "m", "name": "Масса частицы", "unit": "кг"},
+       {"symbol": "v", "name": "Конечная скорость", "unit": "м/с"},
+       {"symbol": "v_0", "name": "Начальная скорость", "unit": "м/с"}
+      ],
+      "conditions": "Скорости много меньше скорости света; силой тяжести пренебрегаем (для электрона и протона она ничтожна). При v₀ = 0: v = √(2qU/m). Для электрона |q| = e = 1,6·10⁻¹⁹ Кл.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Работа", "работа поля над частицей $A = qU$"],
+       ["Исходное", "по теореме о кинетической энергии $A = \\dfrac{m v^2}{2} - \\dfrac{m v_0^2}{2}$"],
+       ["Итог", "$qU = \\dfrac{m v^2}{2} - \\dfrac{m v_0^2}{2}$"]
+      ]}
+     },
+     {
+      "id": "cap_def",
+      "category": "cap",
+      "subCategory": "Ёмкость",
+      "title": "Электроёмкость конденсатора",
+      "latex": "C = \\dfrac{q}{U}",
+      "variables": [
+       {"symbol": "C", "name": "Электроёмкость", "unit": "Ф"},
+       {"symbol": "q", "name": "Заряд одной обкладки (модуль)", "unit": "Кл"},
+       {"symbol": "U", "name": "Напряжение между обкладками", "unit": "В"}
+      ],
+      "conditions": "q — заряд одной обкладки, а не сумма по обеим (суммарный заряд конденсатора равен нулю). Ёмкость определяется устройством конденсатора, а не q и U: при увеличении q напряжение растёт пропорционально. 1 Ф = 1 Кл/В; на практике мкФ, нФ, пФ.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "заряд на обкладке прямо пропорционален напряжению: $q \\sim U$"],
+       ["Смысл", "коэффициент пропорциональности — ёмкость: сколько заряда нужно «залить», чтобы напряжение выросло на 1 В"],
+       ["Образ", "конденсатор — как сосуд: ёмкость задаёт, сколько воды (заряда) войдёт при заданном уровне (напряжении)"]
+      ]}
+     },
+     {
+      "id": "cap_flat",
+      "category": "cap",
+      "subCategory": "Ёмкость",
+      "title": "Ёмкость плоского конденсатора",
+      "latex": "C = \\dfrac{\\varepsilon\\,\\varepsilon_0\\, S}{d}",
+      "variables": [
+       {"symbol": "C", "name": "Электроёмкость", "unit": "Ф"},
+       {"symbol": "\\varepsilon", "name": "Диэлектрическая проницаемость диэлектрика между обкладками", "unit": "—"},
+       {"symbol": "\\varepsilon_0", "name": "Электрическая постоянная (8,85·10⁻¹²)", "unit": "Ф/м"},
+       {"symbol": "S", "name": "Площадь одной обкладки", "unit": "м²"},
+       {"symbol": "d", "name": "Расстояние между обкладками", "unit": "м"}
+      ],
+      "conditions": "Расстояние d мало по сравнению с размерами обкладок (поле однородно). Больше S — больше C; больше d — меньше C. Диэлектрик увеличивает C в ε раз. Если конденсатор отключён от источника, q = const; если подключён, U = const.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "поле между обкладками однородно: $E = \\dfrac{q}{\\varepsilon\\varepsilon_0 S}$ (готовый результат для заряженных пластин) и $U = Ed$"],
+       ["Подстановка", "$C = \\dfrac{q}{U} = \\dfrac{q}{E d} = \\dfrac{q\\,\\varepsilon\\varepsilon_0 S}{q\\, d}$"],
+       ["Итог", "$C = \\dfrac{\\varepsilon\\varepsilon_0 S}{d}$"]
+      ]}
+     },
+     {
+      "id": "cap_energy",
+      "category": "cap",
+      "subCategory": "Энергия конденсатора",
+      "title": "Энергия заряженного конденсатора",
+      "latex": "W = \\dfrac{q U}{2} = \\dfrac{C U^2}{2} = \\dfrac{q^2}{2C}",
+      "variables": [
+       {"symbol": "W", "name": "Энергия электрического поля конденсатора", "unit": "Дж"},
+       {"symbol": "q", "name": "Заряд на обкладке", "unit": "Кл"},
+       {"symbol": "U", "name": "Напряжение на конденсаторе", "unit": "В"},
+       {"symbol": "C", "name": "Электроёмкость", "unit": "Ф"}
+      ],
+      "conditions": "Энергия сосредоточена в электрическом поле между обкладками. Если конденсатор отключён от источника (q = const), удобна форма q²/(2C); если подключён (U = const) — CU²/2. При разрядке через резистор вся энергия W выделяется теплотой.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "при зарядке напряжение растёт вместе с зарядом по прямой: $U = \\dfrac{q}{C}$"],
+       ["Работа", "работа по зарядке — площадь под графиком $U(q)$, это треугольник: $A = \\dfrac{1}{2}\\,q\\,U$"],
+       ["Итог", "$W = A = \\dfrac{qU}{2}$; с $q = CU$ получаем остальные формы"]
+      ]}
+     },
+     {
+      "id": "cap_parallel",
+      "category": "cap",
+      "subCategory": "Соединение конденсаторов",
+      "title": "Параллельное соединение конденсаторов",
+      "latex": "C = C_1 + C_2 + \\ldots + C_n",
+      "variables": [
+       {"symbol": "C", "name": "Общая ёмкость", "unit": "Ф"},
+       {"symbol": "C_i", "name": "Ёмкость i-го конденсатора", "unit": "Ф"}
+      ],
+      "conditions": "Обкладки соединены попарно: напряжение на всех одинаково (U = U₁ = U₂), заряды складываются (q = q₁ + q₂). Общая ёмкость больше любой из отдельных.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "напряжение $U$ общее, заряды складываются: $q = q_1 + q_2 + \\ldots$"],
+       ["Подстановка", "$q_i = C_i U$, поэтому $C\\,U = C_1 U + C_2 U + \\ldots$"],
+       ["Итог", "$C = C_1 + C_2 + \\ldots + C_n$"]
+      ]}
+     },
+     {
+      "id": "cap_series",
+      "category": "cap",
+      "subCategory": "Соединение конденсаторов",
+      "title": "Последовательное соединение конденсаторов",
+      "latex": "\\dfrac{1}{C} = \\dfrac{1}{C_1} + \\dfrac{1}{C_2} + \\ldots + \\dfrac{1}{C_n}",
+      "variables": [
+       {"symbol": "C", "name": "Общая ёмкость", "unit": "Ф"},
+       {"symbol": "C_i", "name": "Ёмкость i-го конденсатора", "unit": "Ф"}
+      ],
+      "conditions": "Конденсаторы идут цепочкой: заряд на всех одинаков (q = q₁ = q₂), напряжения складываются (U = U₁ + U₂). Общая ёмкость меньше любой из отдельных. Для двух: C = C₁C₂/(C₁ + C₂). Для n одинаковых: C = C₁/n.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "заряд $q$ общий, напряжения складываются: $U = U_1 + U_2 + \\ldots$"],
+       ["Подстановка", "$U_i = \\dfrac{q}{C_i}$, поэтому $\\dfrac{q}{C} = \\dfrac{q}{C_1} + \\dfrac{q}{C_2} + \\ldots$"],
+       ["Итог", "после сокращения $q$: $\\dfrac{1}{C} = \\dfrac{1}{C_1} + \\dfrac{1}{C_2} + \\ldots$"]
+      ]}
+     },
+     {
+      "id": "dc_current",
+      "category": "dc",
+      "subCategory": "Сила тока",
+      "title": "Сила тока",
+      "latex": "I = \\dfrac{q}{t}",
+      "variables": [
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "q", "name": "Заряд, прошедший через сечение проводника", "unit": "Кл"},
+       {"symbol": "t", "name": "Время", "unit": "с"}
+      ],
+      "conditions": "Ток постоянный: I не меняется со временем (при переменном I = Δq/Δt). За направление тока принято движение положительных зарядов, от плюса к минусу; электроны в металле движутся в обратную сторону. 1 А = 1 Кл/с.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "сила тока — заряд, проходящий через поперечное сечение проводника за единицу времени"],
+       ["Следствие", "за время $t$ через сечение проходит заряд $q = It$"],
+       ["Число частиц", "число электронов $N = \\dfrac{q}{e} = \\dfrac{It}{e}$, где $e = 1{,}6\\cdot10^{-19}$ Кл"]
+      ]}
+     },
+     {
+      "id": "dc_drift",
+      "category": "dc",
+      "subCategory": "Сила тока",
+      "title": "Сила тока через скорость движения зарядов",
+      "latex": "I = q_0\\, n\\, v\\, S",
+      "variables": [
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "q_0", "name": "Заряд одной частицы (для электрона e = 1,6·10⁻¹⁹)", "unit": "Кл"},
+       {"symbol": "n", "name": "Концентрация свободных зарядов", "unit": "м⁻³"},
+       {"symbol": "v", "name": "Скорость упорядоченного движения зарядов", "unit": "м/с"},
+       {"symbol": "S", "name": "Площадь поперечного сечения проводника", "unit": "м²"}
+      ],
+      "conditions": "Скорость упорядоченного движения электронов мала (доли миллиметра в секунду), но электрическое поле распространяется по проводнику почти со скоростью света, поэтому лампа загорается сразу после замыкания ключа.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "за время $t$ через сечение пройдут заряды из цилиндра длиной $vt$, его объём $V = Svt$"],
+       ["Подстановка", "число зарядов $N = nV = nSvt$, их общий заряд $q = q_0\\, n S v t$"],
+       ["Итог", "$I = \\dfrac{q}{t} = q_0\\, n\\, v\\, S$"]
+      ]}
+     },
+     {
+      "id": "dc_ohm",
+      "category": "dc",
+      "subCategory": "Закон Ома и сопротивление",
+      "title": "Закон Ома для участка цепи",
+      "latex": "I = \\dfrac{U}{R}",
+      "variables": [
+       {"symbol": "I", "name": "Сила тока на участке", "unit": "А"},
+       {"symbol": "U", "name": "Напряжение на участке", "unit": "В"},
+       {"symbol": "R", "name": "Сопротивление участка", "unit": "Ом"}
+      ],
+      "conditions": "Участок цепи без источника ЭДС. Для металлов при постоянной температуре R = const: график I(U) — прямая через начало координат. У лампы накаливания, диода, газа и полупроводников зависимость нелинейна. 1 Ом = 1 В/А.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "опытный закон: ток в металлическом проводнике прямо пропорционален напряжению"],
+       ["Определение", "коэффициент $R = \\dfrac{U}{I}$ называют сопротивлением: во сколько раз напряжение больше тока"],
+       ["Границы", "закон выполняется не для всех проводников: при нагревании нити лампы $R$ растёт, и прямая превращается в кривую"]
+      ]}
+     },
+     {
+      "id": "dc_resistance",
+      "category": "dc",
+      "subCategory": "Закон Ома и сопротивление",
+      "title": "Сопротивление проводника",
+      "latex": "R = \\rho\\,\\dfrac{l}{S}",
+      "variables": [
+       {"symbol": "R", "name": "Сопротивление проводника", "unit": "Ом"},
+       {"symbol": "\\rho", "name": "Удельное сопротивление вещества", "unit": "Ом·м"},
+       {"symbol": "l", "name": "Длина проводника", "unit": "м"},
+       {"symbol": "S", "name": "Площадь поперечного сечения", "unit": "м²"}
+      ],
+      "conditions": "Однородный проводник постоянного сечения. Длиннее — больше R, толще — меньше R. С ростом температуры сопротивление металлов растёт. Если проволоку растянуть в n раз при постоянном объёме, длина вырастет в n раз, сечение уменьшится в n раз, а R увеличится в n² раз.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "опытный факт: сопротивление прямо пропорционально длине и обратно пропорционально площади сечения"],
+       ["Образ", "длинная узкая труба сильнее мешает потоку воды, чем короткая и широкая: так и $R \\sim \\dfrac{l}{S}$"],
+       ["Смысл", "$\\rho$ — сопротивление проводника длиной 1 м и сечением 1 м²; зависит только от вещества (медь $\\approx 1{,}7\\cdot10^{-8}$ Ом·м)"]
+      ]}
+     },
+     {
+      "id": "dc_series",
+      "category": "dc",
+      "subCategory": "Соединение проводников",
+      "title": "Последовательное соединение проводников",
+      "latex": "R = R_1 + R_2 + \\ldots + R_n",
+      "variables": [
+       {"symbol": "R", "name": "Общее сопротивление", "unit": "Ом"},
+       {"symbol": "R_i", "name": "Сопротивление i-го проводника", "unit": "Ом"}
+      ],
+      "conditions": "Ток во всех проводниках одинаков (I = I₁ = I₂), напряжения складываются (U = U₁ + U₂), причём U₁/U₂ = R₁/R₂. Общее сопротивление больше любого из отдельных. Для n одинаковых: R = nR₁.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "ток $I$ общий, напряжения складываются: $U = U_1 + U_2 + \\ldots$"],
+       ["Подстановка", "$U_i = I R_i$, поэтому $I R = I R_1 + I R_2 + \\ldots$"],
+       ["Итог", "$R = R_1 + R_2 + \\ldots + R_n$"]
+      ]}
+     },
+     {
+      "id": "dc_parallel",
+      "category": "dc",
+      "subCategory": "Соединение проводников",
+      "title": "Параллельное соединение проводников",
+      "latex": "\\dfrac{1}{R} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\ldots + \\dfrac{1}{R_n}",
+      "variables": [
+       {"symbol": "R", "name": "Общее сопротивление", "unit": "Ом"},
+       {"symbol": "R_i", "name": "Сопротивление i-й ветви", "unit": "Ом"}
+      ],
+      "conditions": "Напряжение на всех ветвях одинаково (U = U₁ = U₂), токи складываются (I = I₁ + I₂), причём I₁/I₂ = R₂/R₁. Общее сопротивление меньше наименьшего из отдельных. Для двух: R = R₁R₂/(R₁ + R₂). Для n одинаковых: R = R₁/n.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "напряжение $U$ общее, токи складываются: $I = I_1 + I_2 + \\ldots$"],
+       ["Подстановка", "$I_i = \\dfrac{U}{R_i}$, поэтому $\\dfrac{U}{R} = \\dfrac{U}{R_1} + \\dfrac{U}{R_2} + \\ldots$"],
+       ["Итог", "после сокращения $U$: $\\dfrac{1}{R} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\ldots$"]
+      ]}
+     },
+     {
+      "id": "dc_work",
+      "category": "dc",
+      "subCategory": "Работа и мощность тока",
+      "title": "Работа электрического тока",
+      "latex": "A = U\\,I\\,t = I^2 R\\,t = \\dfrac{U^2}{R}\\,t",
+      "variables": [
+       {"symbol": "A", "name": "Работа тока", "unit": "Дж"},
+       {"symbol": "U", "name": "Напряжение на участке", "unit": "В"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "R", "name": "Сопротивление участка", "unit": "Ом"},
+       {"symbol": "t", "name": "Время", "unit": "с"}
+      ],
+      "conditions": "Первая форма верна всегда. Формулы с R — для участка с постоянным сопротивлением (резистор, нагреватель). При последовательном соединении удобнее I²Rt (ток один), при параллельном — U²t/R (напряжение одно). Бытовая единица: 1 кВт·ч = 3,6·10⁶ Дж.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "поле переносит заряд $q$ через участок с напряжением $U$: $A = qU$ (определение напряжения)"],
+       ["Подстановка", "заряд $q = It$, поэтому $A = UIt$"],
+       ["Итог", "по закону Ома $U = IR$: $A = I^2 R t = \\dfrac{U^2}{R}\\,t$"]
+      ]}
+     },
+     {
+      "id": "dc_power",
+      "category": "dc",
+      "subCategory": "Работа и мощность тока",
+      "title": "Мощность электрического тока",
+      "latex": "P = U\\,I = I^2 R = \\dfrac{U^2}{R}",
+      "variables": [
+       {"symbol": "P", "name": "Мощность тока", "unit": "Вт"},
+       {"symbol": "U", "name": "Напряжение", "unit": "В"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "R", "name": "Сопротивление", "unit": "Ом"}
+      ],
+      "conditions": "Мощность — работа за единицу времени. Формулы с R — для резистора. При последовательном соединении большая мощность выделяется на большем R, при параллельном — на меньшем R. Если R считать постоянным, мощность лампы при другом напряжении меняется как U²/R.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "$P = \\dfrac{A}{t}$"],
+       ["Подстановка", "$A = UIt$, время сокращается"],
+       ["Итог", "$P = UI = I^2 R = \\dfrac{U^2}{R}$"]
+      ]}
+     },
+     {
+      "id": "dc_joule",
+      "category": "dc",
+      "subCategory": "Работа и мощность тока",
+      "title": "Закон Джоуля — Ленца",
+      "latex": "Q = I^2 R\\,t",
+      "variables": [
+       {"symbol": "Q", "name": "Количество теплоты, выделившееся в проводнике", "unit": "Дж"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "R", "name": "Сопротивление проводника", "unit": "Ом"},
+       {"symbol": "t", "name": "Время", "unit": "с"}
+      ],
+      "conditions": "Неподвижный проводник: вся работа тока идёт на нагревание (нет механической работы, химических реакций). Для двигателя или электролиза Q меньше A. Для нагревателя и лампы Q = A = UIt.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "вся работа тока превращается в теплоту: $Q = A$"],
+       ["Подстановка", "$A = UIt$ и $U = IR$"],
+       ["Итог", "$Q = I^2 R t$"]
+      ]}
+     },
+     {
+      "id": "dc_emf",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "ЭДС источника тока",
+      "latex": "\\mathcal{E} = \\dfrac{A_{\\text{ст}}}{q}",
+      "variables": [
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "A_{\\text{ст}}", "name": "Работа сторонних сил по перемещению заряда внутри источника", "unit": "Дж"},
+       {"symbol": "q", "name": "Перенесённый заряд", "unit": "Кл"}
+      ],
+      "conditions": "Сторонние силы не электростатические (химические, магнитные и др.). ЭДС — работа сторонних сил на единицу заряда; она равна напряжению на зажимах разомкнутого источника. Единица — вольт.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "отношение работы сторонних сил к перенесённому заряду"],
+       ["Образ", "источник — насос в водяном контуре: ЭДС показывает, какую работу насос совершает над каждой порцией «воды», поднимая её против течения"],
+       ["Следствие", "источник отдаёт цепи энергию $A_{\\text{ст}} = \\mathcal{E}q$; при разомкнутой цепи напряжение на зажимах равно $\\mathcal{E}$"]
+      ]}
+     },
+     {
+      "id": "dc_ohm_full",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "Закон Ома для полной цепи",
+      "latex": "I = \\dfrac{\\mathcal{E}}{R + r}",
+      "variables": [
+       {"symbol": "I", "name": "Сила тока в цепи", "unit": "А"},
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "R", "name": "Сопротивление внешней цепи", "unit": "Ом"},
+       {"symbol": "r", "name": "Внутреннее сопротивление источника", "unit": "Ом"}
+      ],
+      "conditions": "Замкнутая цепь с одним источником. R — сопротивление всей внешней цепи (после упрощения соединений). При разомкнутой цепи I = 0. Для нескольких источников ЭДС складываются с учётом полярности.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "работа сторонних сил идёт на нагрев внешней и внутренней частей цепи: $\\mathcal{E} I t = I^2 R t + I^2 r t$"],
+       ["Преобразование", "сокращаем на $It$: $\\mathcal{E} = IR + Ir$"],
+       ["Итог", "$I = \\dfrac{\\mathcal{E}}{R + r}$"]
+      ]}
+     },
+     {
+      "id": "dc_terminal",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "Напряжение на зажимах источника",
+      "latex": "U = \\mathcal{E} - I\\,r = I\\,R",
+      "variables": [
+       {"symbol": "U", "name": "Напряжение на зажимах источника (на внешней цепи)", "unit": "В"},
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "r", "name": "Внутреннее сопротивление источника", "unit": "Ом"},
+       {"symbol": "R", "name": "Сопротивление внешней цепи", "unit": "Ом"}
+      ],
+      "conditions": "При разомкнутой цепи U = ℰ; при токе напряжение меньше ЭДС на падение напряжения Ir внутри источника. График U(I) — убывающая прямая: пересечение с осью U даёт ℰ, с осью I — ток короткого замыкания.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "закон Ома для полной цепи: $\\mathcal{E} = IR + Ir$"],
+       ["Преобразование", "$IR = U$ — напряжение на внешней части цепи"],
+       ["Итог", "$U = \\mathcal{E} - I r$"]
+      ]}
+     },
+     {
+      "id": "dc_short",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "Ток короткого замыкания",
+      "latex": "I_{\\text{кз}} = \\dfrac{\\mathcal{E}}{r}",
+      "variables": [
+       {"symbol": "I_{\\text{кз}}", "name": "Ток короткого замыкания", "unit": "А"},
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "r", "name": "Внутреннее сопротивление источника", "unit": "Ом"}
+      ],
+      "conditions": "Внешнее сопротивление R ≈ 0 (зажимы замкнуты проводом). Ток максимален и ограничен лишь внутренним сопротивлением; источник сильно греется и может выйти из строя. Напряжение на зажимах при этом U = 0.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "$I = \\dfrac{\\mathcal{E}}{R + r}$"],
+       ["Подстановка", "при замыкании $R = 0$"],
+       ["Итог", "$I_{\\text{кз}} = \\dfrac{\\mathcal{E}}{r}$"]
+      ]}
+     },
+     {
+      "id": "dc_efficiency",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "КПД источника тока",
+      "latex": "\\eta = \\dfrac{P_{\\text{полезн}}}{P_{\\text{полн}}} = \\dfrac{U}{\\mathcal{E}} = \\dfrac{R}{R + r}",
+      "variables": [
+       {"symbol": "\\eta", "name": "КПД источника", "unit": "—"},
+       {"symbol": "P_{\\text{полезн}}", "name": "Мощность на внешней цепи", "unit": "Вт"},
+       {"symbol": "P_{\\text{полн}}", "name": "Полная мощность источника", "unit": "Вт"},
+       {"symbol": "U", "name": "Напряжение на зажимах", "unit": "В"},
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "R", "name": "Сопротивление внешней цепи", "unit": "Ом"},
+       {"symbol": "r", "name": "Внутреннее сопротивление источника", "unit": "Ом"}
+      ],
+      "conditions": "Полезная мощность выделяется на внешней цепи, потери — на внутреннем сопротивлении. КПД растёт с увеличением R: при R ≫ r он близок к 1, но мощность при этом мала. При R = r КПД равен 50%.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "$P_{\\text{полезн}} = UI$, $P_{\\text{полн}} = \\mathcal{E}I$"],
+       ["Деление", "$\\eta = \\dfrac{UI}{\\mathcal{E}I} = \\dfrac{U}{\\mathcal{E}}$"],
+       ["Итог", "$U = IR$, $\\mathcal{E} = I(R + r)$, поэтому $\\eta = \\dfrac{R}{R + r}$"]
+      ]}
+     },
+     {
+      "id": "dc_pmax",
+      "category": "dc",
+      "subCategory": "Источник тока и полная цепь",
+      "title": "Максимальная мощность во внешней цепи",
+      "latex": "P_{\\max} = \\dfrac{\\mathcal{E}^2}{4\\,r}",
+      "variables": [
+       {"symbol": "P_{\\max}", "name": "Наибольшая мощность на внешней цепи", "unit": "Вт"},
+       {"symbol": "\\mathcal{E}", "name": "ЭДС источника", "unit": "В"},
+       {"symbol": "r", "name": "Внутреннее сопротивление источника", "unit": "Ом"}
+      ],
+      "conditions": "Источник с заданными ℰ и r, меняется внешнее сопротивление R. Мощность на внешней цепи максимальна при R = r; КПД при этом 50%. При R < r и при R > r мощность меньше.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "$P = I^2 R = \\dfrac{\\mathcal{E}^2 R}{(R + r)^2}$"],
+       ["Преобразование", "делим числитель и знаменатель на $R$: $P = \\dfrac{\\mathcal{E}^2}{R + 2r + \\dfrac{r^2}{R}}$; мощность наибольшая, когда сумма $R + \\dfrac{r^2}{R}$ наименьшая"],
+       ["Итог", "два положительных числа с постоянным произведением $r^2$ дают наименьшую сумму, когда равны: $R = r$; тогда $P_{\\max} = \\dfrac{\\mathcal{E}^2}{4r}$"]
+      ]}
+     },
+     {
+      "id": "media_faraday",
+      "category": "media",
+      "subCategory": "Электролиз",
+      "title": "Закон Фарадея для электролиза",
+      "latex": "m = k\\,I\\,t = \\dfrac{M}{F\\,n}\\,I\\,t",
+      "variables": [
+       {"symbol": "m", "name": "Масса вещества, выделившегося на электроде", "unit": "кг"},
+       {"symbol": "k", "name": "Электрохимический эквивалент вещества", "unit": "кг/Кл"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"},
+       {"symbol": "t", "name": "Время", "unit": "с"},
+       {"symbol": "M", "name": "Молярная масса вещества", "unit": "кг/моль"},
+       {"symbol": "n", "name": "Валентность (заряд иона в единицах e)", "unit": "—"},
+       {"symbol": "F", "name": "Постоянная Фарадея (9,65·10⁴)", "unit": "Кл/моль"}
+      ],
+      "conditions": "Электролит, постоянный ток. Масса пропорциональна заряду q = It, прошедшему через электролит. Валентность n — заряд иона в единицах e (для Cu²⁺ n = 2). Массу берём в килограммах, молярную массу — в кг/моль.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "ион несёт заряд $ne$; для выделения массы $m$ нужно $N = \\dfrac{m}{m_0}$ ионов, где $m_0 = \\dfrac{M}{N_A}$"],
+       ["Подстановка", "заряд $q = N\\,ne = \\dfrac{m N_A}{M}\\,ne = \\dfrac{m\\,nF}{M}$, где $F = e N_A$"],
+       ["Итог", "выражаем $m$ и подставляем $q = It$: $m = \\dfrac{M}{Fn}\\,It = kIt$"]
+      ]}
+     },
+     {
+      "id": "mag_ampere",
+      "category": "magnet",
+      "subCategory": "Силы в магнитном поле",
+      "title": "Сила Ампера",
+      "latex": "F_A = B\\, I\\, l \\sin\\alpha",
+      "variables": [
+       {"symbol": "F_A", "name": "Сила Ампера", "unit": "Н"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"},
+       {"symbol": "I", "name": "Сила тока в проводнике", "unit": "А"},
+       {"symbol": "l", "name": "Длина проводника в поле", "unit": "м"},
+       {"symbol": "\\alpha", "name": "Угол между направлением тока и вектором B", "unit": "—"}
+      ],
+      "conditions": "Прямой проводник в однородном поле. Направление силы — по правилу левой руки: линии B входят в ладонь, четыре пальца вдоль тока, отогнутый большой палец показывает силу. При α = 90° сила максимальна (F = BIl), при α = 0 равна нулю. Отсюда определение индукции: B = F_max/(Il); 1 Тл = 1 Н/(А·м).",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "на каждый движущийся заряд в проводнике действует сила Лоренца $F_{\\text{Л}} = q_0 v B \\sin\\alpha$"],
+       ["Суммирование", "зарядов в проводнике $N = nSl$, поэтому $F_A = N q_0 v B\\sin\\alpha = (q_0 n v S)\\, l\\, B \\sin\\alpha$"],
+       ["Итог", "$q_0 n v S = I$, поэтому $F_A = B I l \\sin\\alpha$"]
+      ]}
+     },
+     {
+      "id": "mag_lorentz",
+      "category": "magnet",
+      "subCategory": "Силы в магнитном поле",
+      "title": "Сила Лоренца",
+      "latex": "F_{\\text{Л}} = |q|\\, v\\, B \\sin\\alpha",
+      "variables": [
+       {"symbol": "F_{\\text{Л}}", "name": "Сила Лоренца", "unit": "Н"},
+       {"symbol": "q", "name": "Заряд частицы", "unit": "Кл"},
+       {"symbol": "v", "name": "Скорость частицы", "unit": "м/с"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"},
+       {"symbol": "\\alpha", "name": "Угол между скоростью и вектором B", "unit": "—"}
+      ],
+      "conditions": "Сила действует только на движущийся заряд и направлена перпендикулярно и скорости, и вектору B. Для отрицательного заряда направление силы противоположно (в правиле левой руки четыре пальца направляют против скорости). При v ∥ B сила равна нулю.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "основной опытный закон о действии магнитного поля на движущийся заряд"],
+       ["Смысл", "сила Ампера — это сумма сил Лоренца, действующих на все носители тока в проводнике"],
+       ["Следствие", "сила перпендикулярна скорости, значит её работа $A = 0$: скорость частицы меняет направление, но не модуль"]
+      ]}
+     },
+     {
+      "id": "mag_radius",
+      "category": "magnet",
+      "subCategory": "Движение заряда в магнитном поле",
+      "title": "Радиус траектории заряда в магнитном поле",
+      "latex": "R = \\dfrac{m\\, v}{|q|\\, B}",
+      "variables": [
+       {"symbol": "R", "name": "Радиус окружности", "unit": "м"},
+       {"symbol": "m", "name": "Масса частицы", "unit": "кг"},
+       {"symbol": "v", "name": "Скорость частицы", "unit": "м/с"},
+       {"symbol": "q", "name": "Заряд частицы", "unit": "Кл"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"}
+      ],
+      "conditions": "Скорость перпендикулярна однородному полю (α = 90°): частица движется по окружности. Если скорость направлена под углом, движение идёт по спирали: радиус определяется составляющей v·sinα, вдоль поля частица летит равномерно со скоростью v·cosα. Для частицы, разогнанной напряжением U из состояния покоя: R = (1/B)·√(2mU/q).",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "сила Лоренца перпендикулярна скорости и играет роль центростремительной: $|q| v B = \\dfrac{m v^2}{R}$"],
+       ["Преобразование", "сокращаем $v$ и выражаем $R$"],
+       ["Итог", "$R = \\dfrac{m v}{|q| B}$"]
+      ]}
+     },
+     {
+      "id": "mag_period",
+      "category": "magnet",
+      "subCategory": "Движение заряда в магнитном поле",
+      "title": "Период обращения заряда в магнитном поле",
+      "latex": "T = \\dfrac{2\\pi\\, m}{|q|\\, B}",
+      "variables": [
+       {"symbol": "T", "name": "Период обращения", "unit": "с"},
+       {"symbol": "m", "name": "Масса частицы", "unit": "кг"},
+       {"symbol": "q", "name": "Заряд частицы", "unit": "Кл"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"}
+      ],
+      "conditions": "Скорость перпендикулярна полю. Период не зависит ни от скорости, ни от радиуса: быстрая частица описывает большую окружность, но за то же время (на этом основан циклотрон). Частота f = |q|B/(2πm).",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "период — время одного оборота: $T = \\dfrac{2\\pi R}{v}$"],
+       ["Подстановка", "$R = \\dfrac{m v}{|q| B}$, скорость сокращается"],
+       ["Итог", "$T = \\dfrac{2\\pi m}{|q| B}$"]
+      ]}
+     },
+     {
+      "id": "mag_selector",
+      "category": "magnet",
+      "subCategory": "Движение заряда в магнитном поле",
+      "title": "Прямолинейное движение в скрещённых полях",
+      "latex": "v = \\dfrac{E}{B}",
+      "variables": [
+       {"symbol": "v", "name": "Скорость частицы", "unit": "м/с"},
+       {"symbol": "E", "name": "Напряжённость электрического поля", "unit": "В/м"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"}
+      ],
+      "conditions": "Электрическое и магнитное поля взаимно перпендикулярны, скорость перпендикулярна обоим. Прямолинейное равномерное движение возможно, когда электрическая сила уравновешена магнитной. Скорость не зависит ни от заряда, ни от массы: сквозь такой «фильтр» проходят только частицы с v = E/B, остальные отклоняются.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Равновесие", "электрическая сила $qE$ и сила Лоренца $q v B$ направлены противоположно: $qE = q v B$"],
+       ["Преобразование", "заряд $q$ сокращается"],
+       ["Итог", "$v = \\dfrac{E}{B}$"]
+      ]}
+     },
+     {
+      "id": "mag_wire",
+      "category": "magnet",
+      "subCategory": "Поле токов",
+      "title": "Индукция поля прямого тока",
+      "latex": "B = \\dfrac{\\mu_0\\, \\mu\\, I}{2\\pi\\, r}",
+      "variables": [
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"},
+       {"symbol": "\\mu_0", "name": "Магнитная постоянная (4π·10⁻⁷)", "unit": "Гн/м"},
+       {"symbol": "\\mu", "name": "Магнитная проницаемость среды (в вакууме и воздухе μ = 1)", "unit": "—"},
+       {"symbol": "I", "name": "Сила тока в проводе", "unit": "А"},
+       {"symbol": "r", "name": "Расстояние от провода до точки", "unit": "м"}
+      ],
+      "conditions": "Длинный прямой провод. Линии B — окружности вокруг провода; направление по правилу буравчика: если поступательное движение буравчика направлено вдоль тока, то вращение рукоятки показывает направление линий. Поле убывает как 1/r.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "готовый результат закона Био — Савара — Лапласа для длинного провода; вывод требует математики выше школьной"],
+       ["Смысл", "$B \\sim \\dfrac{I}{r}$: больше ток — сильнее поле, дальше от провода — слабее"],
+       ["Направление", "правая рука: большой палец по току, согнутые пальцы показывают, как идут линии $B$"]
+      ]}
+     },
+     {
+      "id": "mag_loop",
+      "category": "magnet",
+      "subCategory": "Поле токов",
+      "title": "Индукция поля в центре кругового тока",
+      "latex": "B = \\dfrac{\\mu_0\\, \\mu\\, I}{2R}",
+      "variables": [
+       {"symbol": "B", "name": "Индукция магнитного поля в центре витка", "unit": "Тл"},
+       {"symbol": "\\mu_0", "name": "Магнитная постоянная (4π·10⁻⁷)", "unit": "Гн/м"},
+       {"symbol": "\\mu", "name": "Магнитная проницаемость среды (в вакууме и воздухе μ = 1)", "unit": "—"},
+       {"symbol": "I", "name": "Сила тока в витке", "unit": "А"},
+       {"symbol": "R", "name": "Радиус витка", "unit": "м"}
+      ],
+      "conditions": "Один круговой виток, точка в его центре. Для катушки из N плотно намотанных витков: B = μ₀μNI/(2R). Направление — по правилу буравчика: вращение рукоятки по току, поступательное движение — вдоль B.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "готовый результат закона Био — Савара — Лапласа: все участки витка находятся на одном расстоянии $R$ от центра и вносят вклад в одну сторону"],
+       ["Смысл", "поле растёт с ростом тока и с уменьшением радиуса"],
+       ["Следствие", "для $N$ витков вклады складываются: $B = \\dfrac{\\mu_0\\mu N I}{2R}$"]
+      ]}
+     },
+     {
+      "id": "mag_solenoid",
+      "category": "magnet",
+      "subCategory": "Поле токов",
+      "title": "Индукция поля внутри соленоида",
+      "latex": "B = \\mu_0\\, \\mu\\, n\\, I = \\dfrac{\\mu_0\\, \\mu\\, N\\, I}{l}",
+      "variables": [
+       {"symbol": "B", "name": "Индукция магнитного поля внутри соленоида", "unit": "Тл"},
+       {"symbol": "\\mu_0", "name": "Магнитная постоянная (4π·10⁻⁷)", "unit": "Гн/м"},
+       {"symbol": "\\mu", "name": "Магнитная проницаемость среды (в вакууме и воздухе μ = 1)", "unit": "—"},
+       {"symbol": "n", "name": "Число витков на единицу длины", "unit": "м⁻¹"},
+       {"symbol": "N", "name": "Число витков", "unit": "—"},
+       {"symbol": "l", "name": "Длина соленоида", "unit": "м"},
+       {"symbol": "I", "name": "Сила тока", "unit": "А"}
+      ],
+      "conditions": "Длинный соленоид (длина много больше диаметра): внутри поле однородно, снаружи почти равно нулю. Направление — по правилу буравчика для витка; правая рука: четыре пальца по току, большой палец указывает на северный полюс. Железный сердечник увеличивает поле в μ раз.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "готовый результат для длинной катушки: вывод через циркуляцию поля выходит за школьную программу"],
+       ["Смысл", "витки внутри складывают свои поля, а снаружи гасят: получается почти однородное поле, как у полосового магнита"],
+       ["Следствие", "при $n = \\dfrac{N}{l}$: $B = \\mu_0\\mu\\, nI$; поле зависит от плотности намотки, а не от диаметра"]
+      ]}
+     },
+     {
+      "id": "mag_parallel",
+      "category": "magnet",
+      "subCategory": "Поле токов",
+      "title": "Сила взаимодействия параллельных токов",
+      "latex": "F = \\dfrac{\\mu_0\\, \\mu\\, I_1\\, I_2}{2\\pi\\, d}\\, l",
+      "variables": [
+       {"symbol": "F", "name": "Сила взаимодействия участков проводов", "unit": "Н"},
+       {"symbol": "\\mu_0", "name": "Магнитная постоянная (4π·10⁻⁷)", "unit": "Гн/м"},
+       {"symbol": "\\mu", "name": "Магнитная проницаемость среды (в вакууме и воздухе μ = 1)", "unit": "—"},
+       {"symbol": "I_1, I_2", "name": "Силы токов в проводах", "unit": "А"},
+       {"symbol": "d", "name": "Расстояние между проводами", "unit": "м"},
+       {"symbol": "l", "name": "Длина взаимодействующего участка", "unit": "м"}
+      ],
+      "conditions": "Два длинных параллельных провода. Токи одного направления притягиваются, противоположных — отталкиваются. Силы, действующие на провода, равны по модулю (третий закон Ньютона). Для вакуума при I₁ = I₂ = 1 А, d = 1 м на каждый метр длины действует сила 2·10⁻⁷ Н — так исторически определяли ампер.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "ток $I_1$ создаёт на расстоянии $d$ поле $B_1 = \\dfrac{\\mu_0\\mu I_1}{2\\pi d}$"],
+       ["Подстановка", "на участок второго провода длиной $l$ действует сила Ампера $F = B_1 I_2 l \\sin 90^\\circ$"],
+       ["Итог", "$F = \\dfrac{\\mu_0\\mu I_1 I_2}{2\\pi d}\\, l$"]
+      ]}
+     },
+     {
+      "id": "ind_flux",
+      "category": "induction",
+      "subCategory": "Магнитный поток и ЭДС индукции",
+      "title": "Магнитный поток",
+      "latex": "\\Phi = B\\, S \\cos\\alpha",
+      "variables": [
+       {"symbol": "\\Phi", "name": "Магнитный поток", "unit": "Вб"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"},
+       {"symbol": "S", "name": "Площадь контура", "unit": "м²"},
+       {"symbol": "\\alpha", "name": "Угол между вектором B и нормалью к плоскости контура", "unit": "—"}
+      ],
+      "conditions": "Однородное поле, плоский контур. Нормаль перпендикулярна плоскости контура: при α = 0 (линии B пронизывают контур насквозь) поток максимален, при α = 90° (линии скользят вдоль плоскости) равен нулю. Если дан угол между B и плоскостью контура, в формуле стоит синус. 1 Вб = 1 Тл·м².",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Определение", "поток — «число линий индукции», пронизывающих контур (в условных единицах)"],
+       ["Проекция", "считается только составляющая $B_n = B\\cos\\alpha$, перпендикулярная контуру: линии вдоль плоскости контур не пронизывают"],
+       ["Итог", "$\\Phi = B_n S = B S \\cos\\alpha$; для катушки из $N$ витков поток через все витки равен $N\\Phi$"]
+      ]}
+     },
+     {
+      "id": "ind_faraday",
+      "category": "induction",
+      "subCategory": "Магнитный поток и ЭДС индукции",
+      "title": "Закон электромагнитной индукции Фарадея",
+      "latex": "\\mathcal{E}_i = -N\\,\\dfrac{\\Delta\\Phi}{\\Delta t}",
+      "variables": [
+       {"symbol": "\\mathcal{E}_i", "name": "ЭДС индукции", "unit": "В"},
+       {"symbol": "N", "name": "Число витков (для одного витка N = 1)", "unit": "—"},
+       {"symbol": "\\Delta\\Phi", "name": "Изменение магнитного потока через один виток", "unit": "Вб"},
+       {"symbol": "\\Delta t", "name": "Время изменения потока", "unit": "с"}
+      ],
+      "conditions": "Среднее значение ЭДС за интервал Δt. Знак «минус» выражает правило Ленца: индукционный ток направлен так, чтобы его поле противодействовало изменению потока. Для модуля: |ℰ_i| = N|ΔΦ|/Δt. ЭДС возникает при любом изменении потока: меняются B, S или угол α. Ток в контуре: I = ℰ_i/R.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "основной опытный закон Фарадея: ЭДС определяется скоростью изменения потока, а не его величиной"],
+       ["Смысл", "на графике $\\Phi(t)$ ЭДС — наклон графика: поток постоянный — ЭДС равна нулю, даже если он очень большой"],
+       ["Правило Ленца", "индукционный ток противодействует причине, которая его вызвала; иначе энергия бралась бы из ничего"]
+      ]}
+     },
+     {
+      "id": "ind_moving",
+      "category": "induction",
+      "subCategory": "Магнитный поток и ЭДС индукции",
+      "title": "ЭДС индукции в движущемся проводнике",
+      "latex": "\\mathcal{E}_i = B\\, l\\, v \\sin\\alpha",
+      "variables": [
+       {"symbol": "\\mathcal{E}_i", "name": "ЭДС индукции", "unit": "В"},
+       {"symbol": "B", "name": "Индукция магнитного поля", "unit": "Тл"},
+       {"symbol": "l", "name": "Длина проводника в поле", "unit": "м"},
+       {"symbol": "v", "name": "Скорость проводника", "unit": "м/с"},
+       {"symbol": "\\alpha", "name": "Угол между скоростью проводника и вектором B", "unit": "—"}
+      ],
+      "conditions": "Прямой проводник движется в однородном поле, при этом l ⟂ v и l ⟂ B. Направление индукционного тока — по правилу правой руки: линии B входят в ладонь, отогнутый большой палец вдоль скорости, четыре пальца показывают направление тока. У разомкнутого проводника на концах возникает разность потенциалов, равная ℰ_i.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "за время $\\Delta t$ проводник проходит путь $v\\Delta t$ и «заметает» площадь $\\Delta S = l v \\Delta t$"],
+       ["Подстановка", "поток через заметённую площадь $\\Delta\\Phi = B\\,\\Delta S \\sin\\alpha = B l v \\sin\\alpha\\,\\Delta t$"],
+       ["Итог", "$|\\mathcal{E}_i| = \\dfrac{\\Delta\\Phi}{\\Delta t} = B l v \\sin\\alpha$"]
+      ]}
+     },
+     {
+      "id": "ind_charge",
+      "category": "induction",
+      "subCategory": "Магнитный поток и ЭДС индукции",
+      "title": "Заряд, прошедший по контуру при индукции",
+      "latex": "q = \\dfrac{|\\Delta\\Phi|}{R}",
+      "variables": [
+       {"symbol": "q", "name": "Заряд, прошедший по контуру", "unit": "Кл"},
+       {"symbol": "\\Delta\\Phi", "name": "Изменение магнитного потока", "unit": "Вб"},
+       {"symbol": "R", "name": "Сопротивление контура", "unit": "Ом"}
+      ],
+      "conditions": "Замкнутый контур с постоянным сопротивлением R (для N витков: q = N|ΔΦ|/R). Заряд зависит только от изменения потока и сопротивления, но не от скорости изменения: при быстром изменении ток больше, но течёт меньше времени.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "ток в контуре $I = \\dfrac{|\\mathcal{E}_i|}{R} = \\dfrac{|\\Delta\\Phi|}{R\\,\\Delta t}$"],
+       ["Подстановка", "заряд $q = I\\,\\Delta t$"],
+       ["Итог", "$q = \\dfrac{|\\Delta\\Phi|}{R}$"]
+      ]}
+     },
+     {
+      "id": "ind_self_flux",
+      "category": "induction",
+      "subCategory": "Самоиндукция",
+      "title": "Индуктивность контура",
+      "latex": "\\Phi = L\\, I",
+      "variables": [
+       {"symbol": "\\Phi", "name": "Магнитный поток собственного поля через контур", "unit": "Вб"},
+       {"symbol": "L", "name": "Индуктивность контура", "unit": "Гн"},
+       {"symbol": "I", "name": "Сила тока в контуре", "unit": "А"}
+      ],
+      "conditions": "Среда без ферромагнетика: поток собственного поля пропорционален току. Индуктивность зависит от формы и размеров контура и от среды, но не от тока. 1 Гн = 1 Вб/А. Катушка с железным сердечником имеет много большую L.",
+      "derivation": {"kind": "meaning", "steps": [
+       ["Постулат", "поле тока пропорционально току, $B \\sim I$, значит и поток $\\Phi \\sim I$"],
+       ["Определение", "коэффициент пропорциональности $L = \\dfrac{\\Phi}{I}$ называют индуктивностью"],
+       ["Образ", "индуктивность — масса электрической цепи: чем она больше, тем труднее менять ток, как труднее менять скорость тяжёлого тела"]
+      ]}
+     },
+     {
+      "id": "ind_self_emf",
+      "category": "induction",
+      "subCategory": "Самоиндукция",
+      "title": "ЭДС самоиндукции",
+      "latex": "\\mathcal{E}_{si} = -L\\,\\dfrac{\\Delta I}{\\Delta t}",
+      "variables": [
+       {"symbol": "\\mathcal{E}_{si}", "name": "ЭДС самоиндукции", "unit": "В"},
+       {"symbol": "L", "name": "Индуктивность контура", "unit": "Гн"},
+       {"symbol": "\\Delta I", "name": "Изменение силы тока", "unit": "А"},
+       {"symbol": "\\Delta t", "name": "Время изменения тока", "unit": "с"}
+      ],
+      "conditions": "Индуктивность L = const. ЭДС возникает только при изменении тока и противодействует этому изменению (правило Ленца): при росте тока тормозит его рост, при убывании поддерживает ток. Поэтому при размыкании цепи с катушкой возникает искра.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "закон Фарадея для собственного потока: $\\mathcal{E}_{si} = -\\dfrac{\\Delta\\Phi}{\\Delta t}$"],
+       ["Подстановка", "$\\Phi = LI$, при $L = \\text{const}$: $\\Delta\\Phi = L\\,\\Delta I$"],
+       ["Итог", "$\\mathcal{E}_{si} = -L\\,\\dfrac{\\Delta I}{\\Delta t}$"]
+      ]}
+     },
+     {
+      "id": "ind_energy",
+      "category": "induction",
+      "subCategory": "Самоиндукция",
+      "title": "Энергия магнитного поля катушки",
+      "latex": "W = \\dfrac{L\\, I^2}{2}",
+      "variables": [
+       {"symbol": "W", "name": "Энергия магнитного поля катушки", "unit": "Дж"},
+       {"symbol": "L", "name": "Индуктивность катушки", "unit": "Гн"},
+       {"symbol": "I", "name": "Сила тока в катушке", "unit": "А"}
+      ],
+      "conditions": "Энергия заключена в магнитном поле катушки. При размыкании цепи она выделяется (искра, нагрев резистора). Аналогия с механикой: W = mv²/2, индуктивность играет роль массы, ток — роль скорости.",
+      "derivation": {"kind": "derivation", "steps": [
+       ["Исходное", "при малом изменении тока на $\\Delta I$ источник совершает работу против ЭДС самоиндукции: $\\Delta A = I\\,|\\mathcal{E}_{si}|\\,\\Delta t = L I\\,\\Delta I$"],
+       ["Суммирование", "работа при росте тока от $0$ до $I$ — площадь под графиком $LI$ как функции $I$, это треугольник: $A = \\dfrac{1}{2}\\,L I \\cdot I$"],
+       ["Итог", "$W = A = \\dfrac{L I^2}{2}$"]
+      ]}
+     }
+    ];
+
+    // ═══════════════════════════════════════════════════════════════
+    // Электродинамика: тесты тренажёра и ошибки для блица (49 формул)
+    // Формат — как у MKT_TESTS / MKT_BLITZ.
+    // ═══════════════════════════════════════════════════════════════
+    const ED_TESTS = {
+      "es_conservation": {"latexMasked":"q_1 + q_2 + \\ldots + q_n = [\\; ? \\;]","correctSymbol":"\\text{const}","distractors":["0","q_n","\\Delta q"]},
+      "es_coulomb": {"latexMasked":"F = k\\,\\dfrac{|q_1|\\,|q_2|}{[\\; ? \\;]\\, r^2}","correctSymbol":"\\varepsilon","distractors":["\\varepsilon_0","\\mu","\\rho"]},
+      "es_field_def": {"latexMasked":"E = \\dfrac{F}{[\\; ? \\;]}","correctSymbol":"q","distractors":["Q","m","U"]},
+      "es_field_point": {"latexMasked":"E = k\\,\\dfrac{|[\\; ? \\;]|}{\\varepsilon\\, r^2}","correctSymbol":"Q","distractors":["q","F","U"]},
+      "es_superposition": {"latexMasked":"\\vec E = \\vec E_1 + [\\; ? \\;] + \\ldots + \\vec E_n","correctSymbol":"\\vec E_2","distractors":["E_2","\\vec F_2","\\vec B_2"]},
+      "es_work_uniform": {"latexMasked":"A = q\\,[\\; ? \\;]\\,d","correctSymbol":"E","distractors":["U","F","\\varphi"]},
+      "es_work_potential": {"latexMasked":"A = q\\,(\\varphi_1 - \\varphi_2) = q\\,[\\; ? \\;]","correctSymbol":"U","distractors":["E","\\varphi","W"]},
+      "es_potential_point": {"latexMasked":"\\varphi = [\\; ? \\;]\\,\\dfrac{Q}{\\varepsilon\\, r}","correctSymbol":"k","distractors":["G","R","C"]},
+      "es_potential_energy": {"latexMasked":"W_p = q\\,[\\; ? \\;]","correctSymbol":"\\varphi","distractors":["E","U","F"]},
+      "es_pair_energy": {"latexMasked":"W = k\\,\\dfrac{q_1\\, q_2}{\\varepsilon\\,[\\; ? \\;]}","correctSymbol":"r","distractors":["r^2","d","l"]},
+      "es_voltage_field": {"latexMasked":"U = [\\; ? \\;]\\,d","correctSymbol":"E","distractors":["F","B","\\varphi"]},
+      "es_accel": {"latexMasked":"q\\,[\\; ? \\;] = \\dfrac{m v^2}{2} - \\dfrac{m v_0^2}{2}","correctSymbol":"U","distractors":["E","\\varphi","d"]},
+      "cap_def": {"latexMasked":"C = \\dfrac{q}{[\\; ? \\;]}","correctSymbol":"U","distractors":["E","d","W"]},
+      "cap_flat": {"latexMasked":"C = \\dfrac{\\varepsilon\\,\\varepsilon_0\\, S}{[\\; ? \\;]}","correctSymbol":"d","distractors":["l","r","S"]},
+      "cap_energy": {"latexMasked":"W = \\dfrac{q U}{2} = \\dfrac{[\\; ? \\;]\\, U^2}{2} = \\dfrac{q^2}{2C}","correctSymbol":"C","distractors":["q","R","L"]},
+      "cap_parallel": {"kind":"знак","latexMasked":"C = C_1 [\\; ? \\;] C_2 + \\ldots + C_n","correctSymbol":"+","distractors":["-","\\cdot","/"]},
+      "cap_series": {"latexMasked":"\\dfrac{1}{[\\; ? \\;]} = \\dfrac{1}{C_1} + \\dfrac{1}{C_2} + \\ldots + \\dfrac{1}{C_n}","correctSymbol":"C","distractors":["C_1","U","q"]},
+      "dc_current": {"latexMasked":"I = \\dfrac{q}{[\\; ? \\;]}","correctSymbol":"t","distractors":["U","R","S"]},
+      "dc_drift": {"latexMasked":"I = q_0\\,[\\; ? \\;]\\, v\\, S","correctSymbol":"n","distractors":["N","l","\\rho"]},
+      "dc_ohm": {"latexMasked":"I = \\dfrac{U}{[\\; ? \\;]}","correctSymbol":"R","distractors":["r","\\rho","\\mathcal{E}"]},
+      "dc_resistance": {"latexMasked":"R = \\rho\\,\\dfrac{l}{[\\; ? \\;]}","correctSymbol":"S","distractors":["V","d","r"]},
+      "dc_series": {"kind":"знак","latexMasked":"R = R_1 [\\; ? \\;] R_2 + \\ldots + R_n","correctSymbol":"+","distractors":["-","\\cdot","/"]},
+      "dc_parallel": {"latexMasked":"\\dfrac{1}{[\\; ? \\;]} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\ldots + \\dfrac{1}{R_n}","correctSymbol":"R","distractors":["R_1","\\rho","r"]},
+      "dc_work": {"latexMasked":"A = U\\,I\\,t = [\\; ? \\;]^2 R\\,t = \\dfrac{U^2}{R}\\,t","correctSymbol":"I","distractors":["U","R","P"]},
+      "dc_power": {"latexMasked":"P = U\\,I = I^2 R = \\dfrac{[\\; ? \\;]^2}{R}","correctSymbol":"U","distractors":["I","P","\\mathcal{E}"]},
+      "dc_joule": {"latexMasked":"Q = [\\; ? \\;]^2 R\\,t","correctSymbol":"I","distractors":["U","P","q"]},
+      "dc_emf": {"latexMasked":"\\mathcal{E} = \\dfrac{A_{\\text{ст}}}{[\\; ? \\;]}","correctSymbol":"q","distractors":["t","U","R"]},
+      "dc_ohm_full": {"latexMasked":"I = \\dfrac{\\mathcal{E}}{R + [\\; ? \\;]}","correctSymbol":"r","distractors":["R","\\rho","U"]},
+      "dc_terminal": {"latexMasked":"U = \\mathcal{E} - I\\,[\\; ? \\;] = I\\,R","correctSymbol":"r","distractors":["R","\\rho","P"]},
+      "dc_short": {"latexMasked":"I_{\\text{кз}} = \\dfrac{\\mathcal{E}}{[\\; ? \\;]}","correctSymbol":"r","distractors":["R","\\rho","U"]},
+      "dc_efficiency": {"latexMasked":"\\eta = \\dfrac{P_{\\text{полезн}}}{P_{\\text{полн}}} = \\dfrac{U}{\\mathcal{E}} = \\dfrac{[\\; ? \\;]}{R + r}","correctSymbol":"R","distractors":["r","\\mathcal{E}","U"]},
+      "dc_pmax": {"kind":"коэффициент","latexMasked":"P_{\\max} = \\dfrac{\\mathcal{E}^2}{[\\; ? \\;]\\,r}","correctSymbol":"4","distractors":["2","8","1"]},
+      "media_faraday": {"latexMasked":"m = k\\,I\\,t = \\dfrac{M}{[\\; ? \\;]\\,n}\\,I\\,t","correctSymbol":"F","distractors":["N_A","e","R"]},
+      "mag_ampere": {"latexMasked":"F_A = B\\, I\\, l [\\; ? \\;]","correctSymbol":"\\sin\\alpha","distractors":["\\cos\\alpha","\\operatorname{tg}\\alpha","1"]},
+      "mag_lorentz": {"latexMasked":"F_{\\text{Л}} = |[\\; ? \\;]|\\, v\\, B \\sin\\alpha","correctSymbol":"q","distractors":["Q","m","I"]},
+      "mag_radius": {"latexMasked":"R = \\dfrac{m\\,[\\; ? \\;]}{|q|\\, B}","correctSymbol":"v","distractors":["v^2","a","E"]},
+      "mag_period": {"latexMasked":"T = \\dfrac{2\\pi\\,[\\; ? \\;]}{|q|\\, B}","correctSymbol":"m","distractors":["v","R","M"]},
+      "mag_selector": {"latexMasked":"v = \\dfrac{E}{[\\; ? \\;]}","correctSymbol":"B","distractors":["F","q","U"]},
+      "mag_wire": {"kind":"коэффициент","latexMasked":"B = \\dfrac{\\mu_0\\, \\mu\\, I}{[\\; ? \\;]\\, r}","correctSymbol":"2\\pi","distractors":["4\\pi","\\pi","2"]},
+      "mag_loop": {"latexMasked":"B = \\dfrac{[\\; ? \\;]\\, \\mu\\, I}{2R}","correctSymbol":"\\mu_0","distractors":["\\varepsilon_0","k","\\rho"]},
+      "mag_solenoid": {"latexMasked":"B = \\mu_0\\, \\mu\\,[\\; ? \\;]\\, I = \\dfrac{\\mu_0\\, \\mu\\, N\\, I}{l}","correctSymbol":"n","distractors":["N","l","R"]},
+      "mag_parallel": {"latexMasked":"F = \\dfrac{\\mu_0\\, \\mu\\, I_1\\, I_2}{2\\pi\\,[\\; ? \\;]}\\, l","correctSymbol":"d","distractors":["l","r","R"]},
+      "ind_flux": {"latexMasked":"\\Phi = B\\, S [\\; ? \\;]","correctSymbol":"\\cos\\alpha","distractors":["\\sin\\alpha","\\operatorname{tg}\\alpha","1"]},
+      "ind_faraday": {"kind":"знак","latexMasked":"\\mathcal{E}_i = [\\; ? \\;]N\\,\\dfrac{\\Delta\\Phi}{\\Delta t}","correctSymbol":"-","distractors":["+","\\cdot","/"]},
+      "ind_moving": {"latexMasked":"\\mathcal{E}_i = B\\,[\\; ? \\;]\\, v \\sin\\alpha","correctSymbol":"l","distractors":["S","d","r"]},
+      "ind_charge": {"latexMasked":"q = \\dfrac{|\\Delta\\Phi|}{[\\; ? \\;]}","correctSymbol":"R","distractors":["t","\\mathcal{E}","L"]},
+      "ind_self_flux": {"latexMasked":"\\Phi = [\\; ? \\;]\\, I","correctSymbol":"L","distractors":["C","R","B"]},
+      "ind_self_emf": {"latexMasked":"\\mathcal{E}_{si} = -L\\,\\dfrac{[\\; ? \\;]}{\\Delta t}","correctSymbol":"\\Delta I","distractors":["I","\\Delta\\Phi","\\Delta q"]},
+      "ind_energy": {"latexMasked":"W = \\dfrac{L\\,[\\; ? \\;]^2}{2}","correctSymbol":"I","distractors":["U","\\Phi","q"]}
+    };
+    const ED_BLITZ = {
+      "es_conservation": {"corruptedLatex":"q_1 + q_2 + \\ldots + q_n = 0","explanation":"Закон сохранения заряда утверждает постоянство суммы зарядов замкнутой системы, а не её равенство нулю: система может быть и заряженной."},
+      "es_coulomb": {"corruptedLatex":"F = k\\,\\dfrac{|q_1|\\,|q_2|}{\\varepsilon\\, r}","explanation":"Сила Кулона убывает как 1/r² (закон обратных квадратов). Первая степень r относится к потенциалу и энергии взаимодействия."},
+      "es_field_def": {"corruptedLatex":"E = F\\,q","explanation":"Напряжённость — сила, действующая на единичный пробный заряд: E = F/q (Н/Кл). Произведение Fq такой характеристикой поля не является."},
+      "es_field_point": {"corruptedLatex":"E = k\\,\\dfrac{|Q|\\,\\varepsilon}{r^2}","explanation":"Диэлектрик ослабляет поле, поэтому ε стоит в знаменателе: E = k|Q|/(εr²). В числителе поле в среде росло бы."},
+      "es_superposition": {"corruptedLatex":"E = E_1 + E_2 + \\ldots + E_n","explanation":"Напряжённость — вектор, поля складываются геометрически (по правилу параллелограмма). Арифметическая сумма модулей верна лишь для полей одного направления."},
+      "es_work_uniform": {"corruptedLatex":"A = \\dfrac{q\\,E}{d}","explanation":"Работа равна произведению силы qE на перемещение d вдоль поля: A = qEd. Отношение qE/d имеет размерность Н/м, а не джоуль."},
+      "es_work_potential": {"corruptedLatex":"A = q\\,(\\varphi_1 + \\varphi_2) = q\\,U","explanation":"Работа определяется разностью потенциалов начальной и конечной точек: φ₁ − φ₂ = U. Сумма потенциалов физического смысла не имеет."},
+      "es_potential_point": {"corruptedLatex":"\\varphi = k\\,\\dfrac{Q}{\\varepsilon\\, r^2}","explanation":"Потенциал точечного заряда убывает как 1/r. Квадрат расстояния стоит в напряжённости: именно она убывает как 1/r²."},
+      "es_potential_energy": {"corruptedLatex":"W_p = \\dfrac{q}{\\varphi}","explanation":"Потенциал — энергия, приходящаяся на единичный заряд: φ = W_p/q, поэтому энергия равна произведению W_p = qφ, а не отношению."},
+      "es_pair_energy": {"corruptedLatex":"W = k\\,\\dfrac{q_1 + q_2}{\\varepsilon\\, r}","explanation":"Энергия взаимодействия зависит от произведения зарядов q₁q₂: если один из них равен нулю, взаимодействия нет, а сумма дала бы ненулевую энергию."},
+      "es_voltage_field": {"corruptedLatex":"U = \\dfrac{E}{d}","explanation":"В однородном поле напряжение — работа на единичный заряд: U = Ed. Отношение E/d имело бы размерность В/м², а не вольт."},
+      "es_accel": {"corruptedLatex":"q\\,U = \\dfrac{m v^2}{2} + \\dfrac{m v_0^2}{2}","explanation":"Работа поля равна приращению кинетической энергии: конечная минус начальная. Сумма энергий приращения не выражает."},
+      "cap_def": {"corruptedLatex":"C = q\\,U","explanation":"Ёмкость — заряд на единицу напряжения: C = q/U (Ф = Кл/В). Произведение qU равно удвоенной энергии конденсатора (Дж), а не ёмкости."},
+      "cap_flat": {"corruptedLatex":"C = \\dfrac{\\varepsilon\\,\\varepsilon_0\\, d}{S}","explanation":"Ёмкость растёт с площадью пластин S и убывает с расстоянием d между ними: S в числителе, d в знаменателе."},
+      "cap_energy": {"corruptedLatex":"W = q\\,U = \\dfrac{C U^2}{2} = \\dfrac{q^2}{2C}","explanation":"Множитель ½ обязателен: при зарядке напряжение растёт от 0 до U, поэтому энергия равна площади треугольника qU/2, а не прямоугольника qU."},
+      "cap_parallel": {"corruptedLatex":"\\dfrac{1}{C} = \\dfrac{1}{C_1} + \\dfrac{1}{C_2} + \\ldots + \\dfrac{1}{C_n}","explanation":"Так считают последовательное соединение. При параллельном соединении площади обкладок складываются, поэтому складываются и сами ёмкости."},
+      "cap_series": {"corruptedLatex":"C = C_1 + C_2 + \\ldots + C_n","explanation":"Так складываются ёмкости при параллельном соединении. При последовательном общая ёмкость меньше наименьшей, поэтому складываются обратные величины."},
+      "dc_current": {"corruptedLatex":"I = q\\,t","explanation":"Сила тока — заряд, проходящий через сечение за единицу времени: I = q/t (А = Кл/с). Произведение qt силой тока не является."},
+      "dc_drift": {"corruptedLatex":"I = \\dfrac{q_0\\, n\\, S}{v}","explanation":"Чем быстрее движутся заряды, тем больший заряд проходит через сечение за секунду: скорость стоит в числителе, I = q₀nvS."},
+      "dc_ohm": {"corruptedLatex":"I = U\\,R","explanation":"Ток прямо пропорционален напряжению и обратно пропорционален сопротивлению: I = U/R. Чем больше R, тем меньше ток."},
+      "dc_resistance": {"corruptedLatex":"R = \\rho\\,\\dfrac{S}{l}","explanation":"Сопротивление растёт с длиной проводника и убывает с площадью сечения: длинный тонкий провод сопротивляется сильнее, поэтому l в числителе."},
+      "dc_series": {"corruptedLatex":"\\dfrac{1}{R} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2} + \\ldots + \\dfrac{1}{R_n}","explanation":"Так считают параллельное соединение. При последовательном ток один и тот же, а напряжения складываются, поэтому складываются сами сопротивления."},
+      "dc_parallel": {"corruptedLatex":"R = R_1 + R_2 + \\ldots + R_n","explanation":"Так складываются сопротивления при последовательном соединении. При параллельном общее сопротивление меньше наименьшего: складываются проводимости 1/R."},
+      "dc_work": {"corruptedLatex":"A = U\\,I\\,t = I\\,R\\,t = \\dfrac{U^2}{R}\\,t","explanation":"Из U = IR получаем A = UIt = I²Rt: сила тока входит в квадрате. Выражение IRt равно Ut и не имеет размерности энергии."},
+      "dc_power": {"corruptedLatex":"P = U\\,I = I^2 R = \\dfrac{I^2}{R}","explanation":"Подстановка I = U/R в P = UI даёт U²/R: в последней форме в числителе стоит напряжение, а не сила тока."},
+      "dc_joule": {"corruptedLatex":"Q = I\\,R^2\\,t","explanation":"Количество теплоты пропорционально квадрату силы тока, а сопротивление входит в первой степени: Q = I²Rt."},
+      "dc_emf": {"corruptedLatex":"\\mathcal{E} = A_{\\text{ст}}\\,q","explanation":"ЭДС — работа сторонних сил на единицу заряда: ℰ = A_ст/q (Дж/Кл = В). Произведение работы на заряд такого смысла не имеет."},
+      "dc_ohm_full": {"corruptedLatex":"I = \\dfrac{\\mathcal{E}}{R}","explanation":"Ток в полной цепи ограничивают и внешнее сопротивление R, и внутреннее сопротивление источника r: I = ℰ/(R + r)."},
+      "dc_terminal": {"corruptedLatex":"U = \\mathcal{E} + I\\,r","explanation":"Часть ЭДС теряется на внутреннем сопротивлении источника, поэтому напряжение на его зажимах меньше ЭДС: U = ℰ − Ir."},
+      "dc_short": {"corruptedLatex":"I_{\\text{кз}} = \\dfrac{\\mathcal{E}}{R}","explanation":"При коротком замыкании внешнее сопротивление R ≈ 0, и ток ограничивает только внутреннее сопротивление источника: I = ℰ/r."},
+      "dc_efficiency": {"corruptedLatex":"\\eta = \\dfrac{r}{R + r}","explanation":"КПД — доля мощности, выделяющаяся во внешней цепи: η = R/(R + r). Доля r/(R + r) — это потери внутри источника."},
+      "dc_pmax": {"corruptedLatex":"P_{\\max} = \\dfrac{\\mathcal{E}^2}{2\\,r}","explanation":"При R = r ток равен ℰ/(2r), и P = I²R = ℰ²/(4r). Двойка в знаменателе получилась бы, если забыть, что полное сопротивление цепи равно 2r."},
+      "media_faraday": {"corruptedLatex":"m = k\\,I\\,t = \\dfrac{M\\,n}{F}\\,I\\,t","explanation":"Валентность n стоит в знаменателе: чем больший заряд несёт ион, тем меньше ионов переносит один и тот же заряд It, и тем меньше масса: m = MIt/(Fn)."},
+      "mag_ampere": {"corruptedLatex":"F_A = B\\, I\\, l \\cos\\alpha","explanation":"Сила Ампера максимальна, когда проводник перпендикулярен полю (α = 90°), и равна нулю вдоль линий поля. Это синус, а не косинус."},
+      "mag_lorentz": {"corruptedLatex":"F_{\\text{Л}} = \\dfrac{|q|\\, v}{B}\\sin\\alpha","explanation":"Сила Лоренца растёт с индукцией поля, поэтому B стоит в числителе: F = |q|vB·sinα."},
+      "mag_radius": {"corruptedLatex":"R = \\dfrac{m\\, v}{|q|}\\, B","explanation":"Из qvB = mv²/R получаем R = mv/(qB): чем сильнее поле, тем круче поворот и меньше радиус, поэтому B стоит в знаменателе."},
+      "mag_period": {"corruptedLatex":"T = \\dfrac{2\\pi\\, m\\, v}{|q|\\, B}","explanation":"Период обращения не зависит от скорости: быстрая частица описывает окружность большего радиуса, но и движется быстрее. Множителя v в формуле нет."},
+      "mag_selector": {"corruptedLatex":"v = E\\,B","explanation":"В скрещённых полях силы уравновешены: qE = qvB, откуда v = E/B. Заряд и масса сокращаются, а произведение EB имело бы другую размерность."},
+      "mag_wire": {"corruptedLatex":"B = \\dfrac{\\mu_0\\, \\mu\\, I}{2\\pi\\, r^2}","explanation":"Индукция поля прямого тока убывает как 1/r, а не 1/r². Закон обратных квадратов характерен для точечного заряда."},
+      "mag_loop": {"corruptedLatex":"B = \\dfrac{\\mu_0\\, \\mu\\, I}{2\\pi R}","explanation":"В центре кругового тока множитель π не возникает: B = μ₀μI/(2R). Форма с 2πr относится к прямому току."},
+      "mag_solenoid": {"corruptedLatex":"B = \\mu_0\\, \\mu\\, N\\, I","explanation":"Индукция в соленоиде зависит от числа витков на единицу длины n = N/l, а не от полного числа витков N: растянув катушку, мы ослабим поле."},
+      "mag_parallel": {"corruptedLatex":"F = \\dfrac{\\mu_0\\, \\mu\\, I_1\\, I_2}{2\\pi\\, d}","explanation":"Без множителя l получена сила, приходящаяся на единицу длины (Н/м). Сила на участок длиной l равна F = μ₀μI₁I₂l/(2πd)."},
+      "ind_flux": {"corruptedLatex":"\\Phi = B\\, S \\sin\\alpha","explanation":"Угол α отсчитывают от нормали к контуру: поток максимален, когда линии поля идут вдоль нормали (α = 0). Это косинус, а не синус."},
+      "ind_faraday": {"corruptedLatex":"\\mathcal{E}_i = N\\,\\dfrac{\\Delta\\Phi}{\\Delta t}","explanation":"Знак «−» выражает правило Ленца: индукционный ток направлен так, чтобы противодействовать изменению потока."},
+      "ind_moving": {"corruptedLatex":"\\mathcal{E}_i = \\dfrac{B\\, l}{v}\\sin\\alpha","explanation":"Чем быстрее движется проводник, тем большую площадь он «заметает» за секунду и тем больше ЭДС: скорость стоит в числителе."},
+      "ind_charge": {"corruptedLatex":"q = \\dfrac{|\\Delta\\Phi|}{R}\\,\\Delta t","explanation":"Заряд не зависит от времени изменения потока: при быстром изменении ток большой, но короткий, при медленном — малый, но долгий, а q = |ΔΦ|/R остаётся тем же."},
+      "ind_self_flux": {"corruptedLatex":"\\Phi = \\dfrac{L}{I}","explanation":"Магнитный поток через контур пропорционален току в нём: Φ = LI. Индуктивность L = Φ/I — коэффициент пропорциональности."},
+      "ind_self_emf": {"corruptedLatex":"\\mathcal{E}_{si} = -L\\,\\dfrac{\\Delta\\Phi}{\\Delta t}","explanation":"ЭДС самоиндукции определяется скоростью изменения тока ΔI/Δt: произведение L·ΔΦ/Δt не имеет размерности вольта."},
+      "ind_energy": {"corruptedLatex":"W = L\\, I^2","explanation":"Множитель ½ обязателен: ток нарастает от 0 до I, поэтому энергия равна площади треугольника под графиком Φ(I): W = LI²/2."}
+    };
+    ED_DATA.forEach((f) => { f.testMask = ED_TESTS[f.id]; f.blitzError = ED_BLITZ[f.id]; });
+
     MKT_DATA.forEach((f) => { f.testMask = MKT_TESTS[f.id]; f.blitzError = MKT_BLITZ[f.id]; });
-    const CAT_ALL = Object.assign({}, CAT_LABELS, MKT_LABELS);
+    // ═══════════════════════════════════════════════════════════════
+    // Раздел «Колебания и волны» — справочник (47 формул, 4 темы)
+    // Шесть формул механических колебаний берутся из механики по id (они остаются и там), остальные 41 — новые.
+    // Тренажёр и блиц для этого раздела пока не подключены (noTrain).
+    // ═══════════════════════════════════════════════════════════════
+    const OSC_LABELS = { oscillations: 'Колебания', waves: 'Механические волны и звук', emo: 'Электромагнитные колебания и ток', emw: 'Электромагнитные волны' };
+    const OSC_NEW = [
+      {"id":"osc_period_freq","category":"oscillations","subCategory":"Гармонические колебания","title":"Период и частота колебаний","latex":"T = \\frac{t}{N} = \\frac{1}{\\nu}","variables":[{"symbol":"T","name":"Период колебаний","unit":"с"},{"symbol":"t","name":"Время, за которое совершено N колебаний","unit":"с"},{"symbol":"N","name":"Число полных колебаний","unit":"—"},{"symbol":"\\nu","name":"Частота колебаний","unit":"Гц"}],"conditions":"Период — время одного полного колебания, частота — число колебаний за 1 с. 1 Гц = 1 с⁻¹. Например, T = 0,02 с даёт ν = 50 Гц.","derivation":{"kind":"derivation","steps":[["Исходное","за время $t$ совершено $N$ колебаний, каждое длится $T$"],["Подстановка","$t = N\\,T$, откуда $T = \\dfrac{t}{N}$; частота — число колебаний в единицу времени: $\\nu = \\dfrac{N}{t}$"],["Итог","$T = \\dfrac{t}{N} = \\dfrac{1}{\\nu}$"]]}},
+      {"id":"osc_omega","category":"oscillations","subCategory":"Гармонические колебания","title":"Циклическая частота","latex":"\\omega_0 = \\frac{2\\pi}{T} = 2\\pi\\nu","variables":[{"symbol":"\\omega_0","name":"Циклическая частота","unit":"рад/с"},{"symbol":"T","name":"Период колебаний","unit":"с"},{"symbol":"\\nu","name":"Частота колебаний","unit":"Гц"}],"conditions":"Циклическая частота — число колебаний за 2π секунд, то есть скорость изменения фазы. Не путать с ν: ω₀ в 2π раз больше. Для сети ν = 50 Гц получаем ω ≈ 314 рад/с.","derivation":{"kind":"derivation","steps":[["Исходное","за один период $T$ фаза $\\omega_0 t + \\varphi_0$ возрастает на $2\\pi$"],["Подстановка","$\\omega_0 T = 2\\pi$"],["Итог","$\\omega_0 = \\dfrac{2\\pi}{T} = 2\\pi\\nu$"]]}},
+      {"id":"osc_velocity_x","category":"oscillations","subCategory":"Гармонические колебания","title":"Скорость в точке с координатой x","latex":"v = \\pm\\omega_0\\sqrt{A^2 - x^2}","variables":[{"symbol":"v","name":"Скорость","unit":"м/с"},{"symbol":"\\omega_0","name":"Циклическая частота","unit":"рад/с"},{"symbol":"A","name":"Амплитуда колебаний","unit":"м"},{"symbol":"x","name":"Координата (смещение от положения равновесия)","unit":"м"}],"conditions":"Гармонические колебания; знак зависит от направления движения. При x = 0 скорость максимальна (v = ω₀A), в крайних точках x = ±A она равна нулю.","derivation":{"kind":"derivation","steps":[["Исходное","$x = A\\cos\\varphi$, $v = -\\omega_0 A\\sin\\varphi$, где $\\varphi = \\omega_0 t + \\varphi_0$"],["Подстановка","$v^2 = \\omega_0^2 A^2\\sin^2\\varphi = \\omega_0^2 A^2(1 - \\cos^2\\varphi) = \\omega_0^2(A^2 - x^2)$"],["Итог","$v = \\pm\\omega_0\\sqrt{A^2 - x^2}$"]]}},
+      {"id":"osc_accel_max","category":"oscillations","subCategory":"Гармонические колебания","title":"Амплитуда ускорения","latex":"a_{\\max} = \\omega_0^2\\,A","variables":[{"symbol":"a_{\\max}","name":"Амплитудное значение ускорения","unit":"м/с²"},{"symbol":"\\omega_0","name":"Циклическая частота","unit":"рад/с"},{"symbol":"A","name":"Амплитуда колебаний","unit":"м"}],"conditions":"Ускорение максимально в крайних точках (x = ±A) и равно нулю при прохождении положения равновесия. Также a_max = 4π²A/T².","derivation":{"kind":"derivation","steps":[["Исходное","$a(t) = -\\omega_0^2\\,x(t)$"],["Подстановка","модуль ускорения максимален при $|x| = A$"],["Итог","$a_{\\max} = \\omega_0^2 A$"]]}},
+      {"id":"osc_spring_omega","category":"oscillations","subCategory":"Маятники","title":"Циклическая частота пружинного маятника","latex":"\\omega_0 = \\sqrt{\\frac{k}{m}}","variables":[{"symbol":"\\omega_0","name":"Циклическая частота","unit":"рад/с"},{"symbol":"k","name":"Жёсткость пружины","unit":"Н/м"},{"symbol":"m","name":"Масса груза","unit":"кг"}],"conditions":"Малые колебания груза на пружине, трения нет. Частота растёт с жёсткостью и убывает с массой.","derivation":{"kind":"derivation","steps":[["Исходное","второй закон Ньютона: $ma = -kx$, то есть $a = -\\dfrac{k}{m}\\,x$"],["Подстановка","сравниваем с $a = -\\omega_0^2 x$"],["Итог","$\\omega_0 = \\sqrt{\\dfrac{k}{m}}$"]]}},
+      {"id":"osc_pendulum_omega","category":"oscillations","subCategory":"Маятники","title":"Циклическая частота математического маятника","latex":"\\omega_0 = \\sqrt{\\frac{g}{l}}","variables":[{"symbol":"\\omega_0","name":"Циклическая частота","unit":"рад/с"},{"symbol":"g","name":"Ускорение свободного падения","unit":"м/с²"},{"symbol":"l","name":"Длина нити","unit":"м"}],"conditions":"Малые углы (до примерно 10°), нить невесомая и нерастяжимая. От массы не зависит. В ускоренной системе вместо g берут эффективное g.","derivation":{"kind":"derivation","steps":[["Исходное","при малых углах возвращающая сила $F \\approx -\\dfrac{mg}{l}\\,x$, то есть $a = -\\dfrac{g}{l}\\,x$"],["Подстановка","сравниваем с $a = -\\omega_0^2 x$: $\\omega_0^2 = \\dfrac{g}{l}$"],["Итог","$\\omega_0 = \\sqrt{\\dfrac{g}{l}}$"]]}},
+      {"id":"osc_physical_pendulum","category":"oscillations","subCategory":"Маятники","title":"Период физического маятника","latex":"T = 2\\pi\\sqrt{\\frac{J}{m\\,g\\,d}}","variables":[{"symbol":"T","name":"Период колебаний","unit":"с"},{"symbol":"J","name":"Момент инерции маятника относительно оси подвеса","unit":"кг·м²"},{"symbol":"m","name":"Масса маятника","unit":"кг"},{"symbol":"g","name":"Ускорение свободного падения","unit":"м/с²"},{"symbol":"d","name":"Расстояние от оси подвеса до центра масс","unit":"м"}],"conditions":"Твёрдое тело качается вокруг горизонтальной оси, малые углы. Для математического маятника J = ml², d = l, и формула переходит в T = 2π√(l/g). Приведённая длина l = J/(md).","derivation":{"kind":"derivation","steps":[["Исходное","уравнение вращения $J\\varepsilon = M$; момент силы тяжести при малом угле $\\alpha$: $M = -mgd\\,\\alpha$"],["Подстановка","$\\varepsilon = -\\dfrac{mgd}{J}\\,\\alpha$ — гармонические колебания с $\\omega_0^2 = \\dfrac{mgd}{J}$"],["Итог","$T = \\dfrac{2\\pi}{\\omega_0} = 2\\pi\\sqrt{\\dfrac{J}{mgd}}$"]]}},
+      {"id":"osc_springs_series","category":"oscillations","subCategory":"Маятники","title":"Жёсткость при последовательном соединении пружин","latex":"\\frac{1}{k} = \\frac{1}{k_1} + \\frac{1}{k_2}","variables":[{"symbol":"k","name":"Жёсткость системы","unit":"Н/м"},{"symbol":"k_1","name":"Жёсткость первой пружины","unit":"Н/м"},{"symbol":"k_2","name":"Жёсткость второй пружины","unit":"Н/м"}],"conditions":"Пружины соединены цепочкой: сила в них одинакова, удлинения складываются. Общая жёсткость меньше наименьшей из k₁, k₂. Для n одинаковых пружин k = k₁/n.","derivation":{"kind":"derivation","steps":[["Исходное","через обе пружины передаётся одна сила $F$, удлинения складываются: $x = x_1 + x_2$"],["Подстановка","$x_1 = \\dfrac{F}{k_1}$, $x_2 = \\dfrac{F}{k_2}$, а $x = \\dfrac{F}{k}$"],["Итог","$\\dfrac{1}{k} = \\dfrac{1}{k_1} + \\dfrac{1}{k_2}$"]]}},
+      {"id":"osc_springs_parallel","category":"oscillations","subCategory":"Маятники","title":"Жёсткость при параллельном соединении пружин","latex":"k = k_1 + k_2","variables":[{"symbol":"k","name":"Жёсткость системы","unit":"Н/м"},{"symbol":"k_1","name":"Жёсткость первой пружины","unit":"Н/м"},{"symbol":"k_2","name":"Жёсткость второй пружины","unit":"Н/м"}],"conditions":"Пружины прикреплены к одному грузу рядом: удлинение у них одинаковое, силы складываются. Общая жёсткость больше каждой.","derivation":{"kind":"derivation","steps":[["Исходное","удлинение обеих пружин одно и то же ($x$), силы упругости складываются: $F = F_1 + F_2$"],["Подстановка","$kx = k_1 x + k_2 x$"],["Итог","$k = k_1 + k_2$"]]}},
+      {"id":"osc_energy_any","category":"oscillations","subCategory":"Энергия колебаний","title":"Закон сохранения энергии при колебаниях (в любой точке)","latex":"\\frac{m\\,v^2}{2} + \\frac{k\\,x^2}{2} = \\frac{k\\,A^2}{2}","variables":[{"symbol":"m","name":"Масса груза","unit":"кг"},{"symbol":"v","name":"Скорость груза","unit":"м/с"},{"symbol":"k","name":"Жёсткость пружины","unit":"Н/м"},{"symbol":"x","name":"Координата груза","unit":"м"},{"symbol":"A","name":"Амплитуда колебаний","unit":"м"}],"conditions":"Трения нет. Кинетическая E_k = mv²/2 и потенциальная E_p = kx²/2 переходят друг в друга, сумма постоянна. Энергия меняется с частотой 2ν, вдвое чаще, чем координата.","derivation":{"kind":"derivation","steps":[["Исходное","трения нет, полная энергия сохраняется: $E = E_k + E_p = \\text{const}$"],["Подстановка","в крайней точке $x = A$, $v = 0$, поэтому $E = \\dfrac{kA^2}{2}$; в произвольной точке $E = \\dfrac{mv^2}{2} + \\dfrac{kx^2}{2}$"],["Итог","$\\dfrac{mv^2}{2} + \\dfrac{kx^2}{2} = \\dfrac{kA^2}{2}$"]]}},
+      {"id":"osc_damped_amp","category":"oscillations","subCategory":"Затухающие и вынужденные колебания","title":"Амплитуда затухающих колебаний","latex":"A(t) = A_0\\,e^{-\\beta t}","variables":[{"symbol":"A(t)","name":"Амплитуда в момент времени t","unit":"м"},{"symbol":"A_0","name":"Начальная амплитуда","unit":"м"},{"symbol":"\\beta","name":"Коэффициент затухания","unit":"с⁻¹"},{"symbol":"t","name":"Время","unit":"с"}],"conditions":"Слабое затухание (β ≪ ω₀), сила сопротивления пропорциональна скорости: F = −rv, β = r/(2m). Амплитуда убывает по экспоненте; за время 1/β она уменьшается в e ≈ 2,7 раза.","derivation":{"kind":"derivation","steps":[["Исходное","$m\\ddot{x} = -kx - r\\dot{x}$, то есть $\\ddot{x} + 2\\beta\\dot{x} + \\omega_0^2 x = 0$, где $\\beta = \\dfrac{r}{2m}$"],["Подстановка","при $\\beta < \\omega_0$ решение имеет вид $x = A_0 e^{-\\beta t}\\cos(\\omega t + \\varphi_0)$"],["Итог","множитель перед косинусом — амплитуда: $A(t) = A_0 e^{-\\beta t}$"]]}},
+      {"id":"osc_damped_omega","category":"oscillations","subCategory":"Затухающие и вынужденные колебания","title":"Частота затухающих колебаний","latex":"\\omega = \\sqrt{\\omega_0^2 - \\beta^2}","variables":[{"symbol":"\\omega","name":"Циклическая частота затухающих колебаний","unit":"рад/с"},{"symbol":"\\omega_0","name":"Собственная циклическая частота","unit":"рад/с"},{"symbol":"\\beta","name":"Коэффициент затухания","unit":"с⁻¹"}],"conditions":"Затухание уменьшает частоту: ω < ω₀. При β ≥ ω₀ колебаний нет, движение апериодическое. При слабом затухании ω ≈ ω₀.","derivation":{"kind":"derivation","steps":[["Исходное","подставляем $x = e^{-\\beta t}\\cos\\omega t$ в $\\ddot{x} + 2\\beta\\dot{x} + \\omega_0^2 x = 0$"],["Подстановка","уравнение выполняется при $\\omega^2 = \\omega_0^2 - \\beta^2$"],["Итог","$\\omega = \\sqrt{\\omega_0^2 - \\beta^2}$"]]}},
+      {"id":"osc_resonance","category":"oscillations","subCategory":"Затухающие и вынужденные колебания","title":"Условие резонанса","latex":"\\omega = \\omega_0","variables":[{"symbol":"\\omega","name":"Частота вынуждающей силы","unit":"рад/с"},{"symbol":"\\omega_0","name":"Собственная частота системы","unit":"рад/с"}],"conditions":"Вынужденные колебания при малом затухании. Амплитуда резко растёт, когда частота внешнего воздействия совпадает с собственной. Чем меньше затухание, тем выше и уже пик. Резонанс вреден (мосты, детали машин) и полезен (радиоприёмник, качели).","derivation":{"kind":"derivation","steps":[["Исходное","вынуждающая сила $F\\cos\\omega t$ подталкивает систему; её работа за период наибольшая, если толчки совпадают по фазе со скоростью"],["Условие","это выполняется при совпадении периодов: $T = T_0$"],["Итог","$\\omega = \\omega_0$"]]}},
+      {"id":"wave_speed","category":"waves","subCategory":"Механические волны","title":"Скорость волны, длина волны и частота","latex":"v = \\lambda\\,\\nu = \\frac{\\lambda}{T}","variables":[{"symbol":"v","name":"Скорость распространения волны","unit":"м/с"},{"symbol":"\\lambda","name":"Длина волны","unit":"м"},{"symbol":"\\nu","name":"Частота","unit":"Гц"},{"symbol":"T","name":"Период","unit":"с"}],"conditions":"Длина волны — расстояние, на которое волна распространяется за один период (расстояние между ближайшими точками, колеблющимися в одной фазе). При переходе в другую среду частота не меняется, меняются v и λ.","derivation":{"kind":"derivation","steps":[["Исходное","за период $T$ волна проходит расстояние, равное длине волны $\\lambda$, с постоянной скоростью"],["Подстановка","$v = \\dfrac{\\lambda}{T}$, а $\\dfrac{1}{T} = \\nu$"],["Итог","$v = \\lambda\\nu = \\dfrac{\\lambda}{T}$"]]}},
+      {"id":"wave_equation","category":"waves","subCategory":"Механические волны","title":"Уравнение бегущей волны","latex":"\\xi(x,t) = A\\cos(\\omega\\,t - k\\,x + \\varphi_0)","variables":[{"symbol":"\\xi","name":"Смещение точки среды от положения равновесия","unit":"м"},{"symbol":"A","name":"Амплитуда волны","unit":"м"},{"symbol":"\\omega","name":"Циклическая частота","unit":"рад/с"},{"symbol":"k","name":"Волновое число (k = 2π/λ = ω/v)","unit":"рад/м"},{"symbol":"x","name":"Координата точки вдоль луча","unit":"м"},{"symbol":"t","name":"Время","unit":"с"},{"symbol":"\\varphi_0","name":"Начальная фаза","unit":"рад"}],"conditions":"Плоская гармоническая волна вдоль оси Ox, без затухания. Знак «−» — волна бежит в сторону +x, знак «+» — навстречу. Точка x повторяет колебание источника с запаздыванием x/v.","derivation":{"kind":"derivation","steps":[["Исходное","источник в точке $x = 0$ колеблется как $\\xi(0,t) = A\\cos(\\omega t + \\varphi_0)$"],["Подстановка","в точку $x$ колебание приходит с запаздыванием $\\dfrac{x}{v}$, значит $t \\to t - \\dfrac{x}{v}$"],["Итог","$\\xi = A\\cos\\left(\\omega t - \\dfrac{\\omega}{v}\\,x + \\varphi_0\\right)$, то есть $k = \\dfrac{\\omega}{v} = \\dfrac{2\\pi}{\\lambda}$"]]}},
+      {"id":"wave_phase_diff","category":"waves","subCategory":"Механические волны","title":"Разность фаз двух точек волны","latex":"\\Delta\\varphi = 2\\pi\\,\\frac{\\Delta x}{\\lambda}","variables":[{"symbol":"\\Delta\\varphi","name":"Разность фаз колебаний точек","unit":"рад"},{"symbol":"\\Delta x","name":"Расстояние между точками вдоль луча","unit":"м"},{"symbol":"\\lambda","name":"Длина волны","unit":"м"}],"conditions":"Две точки на одном луче. Δx = λ — колебания в одной фазе, Δx = λ/2 — в противофазе (Δφ = π).","derivation":{"kind":"derivation","steps":[["Исходное","точка на расстоянии $\\Delta x$ повторяет колебание с запаздыванием $\\Delta t = \\dfrac{\\Delta x}{v}$"],["Подстановка","$\\Delta\\varphi = \\omega\\,\\Delta t = \\dfrac{2\\pi}{T}\\cdot\\dfrac{\\Delta x}{v}$"],["Итог","так как $vT = \\lambda$, получаем $\\Delta\\varphi = 2\\pi\\dfrac{\\Delta x}{\\lambda}$"]]}},
+      {"id":"wave_string_speed","category":"waves","subCategory":"Механические волны","title":"Скорость поперечной волны в струне","latex":"v = \\sqrt{\\frac{F}{\\mu}}","variables":[{"symbol":"v","name":"Скорость волны","unit":"м/с"},{"symbol":"F","name":"Сила натяжения струны","unit":"Н"},{"symbol":"\\mu","name":"Линейная плотность (масса единицы длины, μ = m/l)","unit":"кг/м"}],"conditions":"Гибкая струна, малые смещения. Чем больше натяжение и меньше линейная плотность, тем быстрее волна. Скорость не зависит от частоты и амплитуды.","derivation":{"kind":"derivation","steps":[["Исходное","в системе отсчёта волны малый участок длиной $\\Delta l$ движется со скоростью $v$ по дуге радиуса $R$; силы натяжения на концах дают равнодействующую к центру $F\\dfrac{\\Delta l}{R}$"],["Подстановка","второй закон Ньютона: $\\mu\\,\\Delta l\\,\\dfrac{v^2}{R} = F\\dfrac{\\Delta l}{R}$"],["Итог","$v^2 = \\dfrac{F}{\\mu}$, $v = \\sqrt{\\dfrac{F}{\\mu}}$"]]}},
+      {"id":"wave_standing_nodes","category":"waves","subCategory":"Стоячие волны","title":"Расстояние между соседними узлами (пучностями) стоячей волны","latex":"d = \\frac{\\lambda}{2}","variables":[{"symbol":"d","name":"Расстояние между соседними узлами (или пучностями)","unit":"м"},{"symbol":"\\lambda","name":"Длина бегущей волны","unit":"м"}],"conditions":"Стоячая волна — сумма бегущей и отражённой волн. Узлы не колеблются, в пучностях амплитуда равна 2A. Между соседними узлами все точки колеблются в одной фазе, при переходе через узел фаза меняется на π.","derivation":{"kind":"derivation","steps":[["Исходное","сумма встречных волн: $A\\cos(\\omega t - kx) + A\\cos(\\omega t + kx) = 2A\\cos kx\\,\\cos\\omega t$"],["Подстановка","узлы там, где $\\cos kx = 0$, то есть $kx = \\dfrac{\\pi}{2} + \\pi n$; у соседних узлов $kx$ отличается на $\\pi$"],["Итог","$d = \\dfrac{\\pi}{k} = \\dfrac{\\lambda}{2}$"]]}},
+      {"id":"wave_string_freq","category":"waves","subCategory":"Стоячие волны","title":"Собственные частоты струны и открытой трубы","latex":"\\nu_n = \\frac{n\\,v}{2\\,l}","variables":[{"symbol":"\\nu_n","name":"Частота n-й гармоники","unit":"Гц"},{"symbol":"n","name":"Номер гармоники (1, 2, 3, …)","unit":"—"},{"symbol":"v","name":"Скорость волны","unit":"м/с"},{"symbol":"l","name":"Длина струны (трубы)","unit":"м"}],"conditions":"Струна, закреплённая с обоих концов (на концах узлы), или труба, открытая с обоих концов (на концах пучности). n = 1 — основной тон, n ≥ 2 — обертоны. На длине укладывается целое число полуволн: l = nλ/2.","derivation":{"kind":"derivation","steps":[["Исходное","на концах узлы, значит на длине $l$ укладывается целое число полуволн: $l = n\\dfrac{\\lambda}{2}$"],["Подстановка","$\\lambda = \\dfrac{2l}{n}$, а $\\nu = \\dfrac{v}{\\lambda}$"],["Итог","$\\nu_n = \\dfrac{n\\,v}{2\\,l}$"]]}},
+      {"id":"wave_closed_pipe","category":"waves","subCategory":"Стоячие волны","title":"Собственные частоты трубы, закрытой с одного конца","latex":"\\nu_n = \\frac{(2n - 1)\\,v}{4\\,l}","variables":[{"symbol":"\\nu_n","name":"Частота n-й гармоники","unit":"Гц"},{"symbol":"n","name":"Номер гармоники (1, 2, 3, …)","unit":"—"},{"symbol":"v","name":"Скорость звука","unit":"м/с"},{"symbol":"l","name":"Длина трубы","unit":"м"}],"conditions":"На закрытом конце узел, на открытом пучность; на длине укладывается нечётное число четвертей волны. Звучат только нечётные гармоники (1, 3, 5, …), основной тон вдвое ниже, чем у открытой трубы той же длины.","derivation":{"kind":"derivation","steps":[["Исходное","узел на закрытом конце и пучность на открытом: $l = (2n - 1)\\dfrac{\\lambda}{4}$"],["Подстановка","$\\lambda = \\dfrac{4l}{2n - 1}$, а $\\nu = \\dfrac{v}{\\lambda}$"],["Итог","$\\nu_n = \\dfrac{(2n - 1)\\,v}{4\\,l}$"]]}},
+      {"id":"wave_interf_max","category":"waves","subCategory":"Интерференция и эффект Доплера","title":"Условие интерференционного максимума","latex":"\\Delta = n\\,\\lambda","variables":[{"symbol":"\\Delta","name":"Разность хода волн","unit":"м"},{"symbol":"n","name":"Целое число (0, ±1, ±2, …)","unit":"—"},{"symbol":"\\lambda","name":"Длина волны","unit":"м"}],"conditions":"Когерентные источники (одинаковая частота, постоянная разность фаз), колеблющиеся в одной фазе. Волны приходят в точку в одной фазе и усиливают друг друга. Для источников в противофазе условия максимума и минимума меняются местами.","derivation":{"kind":"derivation","steps":[["Исходное","разность фаз волн в точке $\\Delta\\varphi = 2\\pi\\dfrac{\\Delta}{\\lambda}$"],["Подстановка","усиление при $\\Delta\\varphi = 2\\pi n$"],["Итог","$\\Delta = n\\lambda$"]]}},
+      {"id":"wave_interf_min","category":"waves","subCategory":"Интерференция и эффект Доплера","title":"Условие интерференционного минимума","latex":"\\Delta = (2n + 1)\\,\\frac{\\lambda}{2}","variables":[{"symbol":"\\Delta","name":"Разность хода волн","unit":"м"},{"symbol":"n","name":"Целое число (0, ±1, ±2, …)","unit":"—"},{"symbol":"\\lambda","name":"Длина волны","unit":"м"}],"conditions":"Когерентные источники в одной фазе. Волны приходят в противофазе и гасят друг друга; при равных амплитудах колебаний в точке нет.","derivation":{"kind":"derivation","steps":[["Исходное","разность фаз волн в точке $\\Delta\\varphi = 2\\pi\\dfrac{\\Delta}{\\lambda}$"],["Подстановка","ослабление при $\\Delta\\varphi = \\pi(2n + 1)$"],["Итог","$\\Delta = (2n + 1)\\dfrac{\\lambda}{2}$"]]}},
+      {"id":"wave_doppler","category":"waves","subCategory":"Интерференция и эффект Доплера","title":"Эффект Доплера для звука","latex":"\\nu' = \\nu\\,\\frac{v + v_o}{v - v_s}","variables":[{"symbol":"\\nu'","name":"Частота, воспринимаемая наблюдателем","unit":"Гц"},{"symbol":"\\nu","name":"Частота источника","unit":"Гц"},{"symbol":"v","name":"Скорость звука в среде","unit":"м/с"},{"symbol":"v_o","name":"Скорость наблюдателя","unit":"м/с"},{"symbol":"v_s","name":"Скорость источника","unit":"м/с"}],"conditions":"Движение вдоль прямой, соединяющей источник и наблюдателя. Скорости v_o и v_s положительны при сближении (наблюдатель к источнику, источник к наблюдателю) и отрицательны при удалении. При сближении частота выше, при удалении ниже.","derivation":{"kind":"derivation","steps":[["Исходное","движущийся источник излучает волны длиной $\\lambda' = \\dfrac{v - v_s}{\\nu}$; относительно наблюдателя волны бегут со скоростью $v + v_o$"],["Подстановка","частота приёма — число длин волн, проходящих мимо наблюдателя за секунду: $\\nu' = \\dfrac{v + v_o}{\\lambda'}$"],["Итог","$\\nu' = \\nu\\,\\dfrac{v + v_o}{v - v_s}$"]]}},
+      {"id":"snd_intensity","category":"waves","subCategory":"Звук","title":"Интенсивность волны","latex":"I = \\frac{P}{S}","variables":[{"symbol":"I","name":"Интенсивность волны","unit":"Вт/м²"},{"symbol":"P","name":"Мощность, переносимая волной через поверхность","unit":"Вт"},{"symbol":"S","name":"Площадь поверхности, перпендикулярной лучу","unit":"м²"}],"conditions":"Интенсивность — энергия, проходящая за 1 с через 1 м² площадки, перпендикулярной направлению волны: I = E/(St). Для точечного источника мощностью P₀ на расстоянии r: I = P₀/(4πr²), то есть убывает как 1/r². Порог слышимости I₀ = 10⁻¹² Вт/м².","derivation":{"kind":"derivation","steps":[["Исходное","по определению $I = \\dfrac{E}{S\\,t}$, где $E$ — энергия, прошедшая через площадку $S$ за время $t$"],["Подстановка","мощность $P = \\dfrac{E}{t}$"],["Итог","$I = \\dfrac{P}{S}$"]]}},
+      {"id":"snd_level","category":"waves","subCategory":"Звук","title":"Уровень интенсивности звука (децибелы)","latex":"L = 10\\,\\lg\\frac{I}{I_0}","variables":[{"symbol":"L","name":"Уровень интенсивности звука","unit":"дБ"},{"symbol":"I","name":"Интенсивность звука","unit":"Вт/м²"},{"symbol":"I_0","name":"Порог слышимости (10⁻¹² Вт/м²)","unit":"Вт/м²"}],"conditions":"Слух реагирует на отношение интенсивностей, поэтому шкала логарифмическая. Рост интенсивности в 10 раз даёт +10 дБ, в 2 раза примерно +3 дБ. Болевой порог около 120–130 дБ.","derivation":{"kind":"derivation","steps":[["Исходное","ощущаемая громкость пропорциональна логарифму интенсивности (закон Вебера–Фехнера)"],["Подстановка","за единицу (бел) берут $\\lg\\dfrac{I}{I_0}$; децибел — десятая часть бела"],["Итог","$L = 10\\,\\lg\\dfrac{I}{I_0}$"]]}},
+      {"id":"snd_echo","category":"waves","subCategory":"Звук","title":"Расстояние до преграды по времени эха","latex":"s = \\frac{v\\,t}{2}","variables":[{"symbol":"s","name":"Расстояние до преграды","unit":"м"},{"symbol":"v","name":"Скорость волны (звука; в радиолокации — света)","unit":"м/с"},{"symbol":"t","name":"Время от сигнала до приёма отражённого сигнала","unit":"с"}],"conditions":"Эхо, эхолот, радиолокатор. Сигнал проходит путь до преграды и обратно, поэтому делим пополам. Преграда неподвижна, скорость волны постоянна.","derivation":{"kind":"derivation","steps":[["Исходное","сигнал проходит путь $2s$ (туда и обратно) со скоростью $v$ за время $t$"],["Подстановка","$2s = v\\,t$"],["Итог","$s = \\dfrac{v\\,t}{2}$"]]}},
+      {"id":"emo_thomson","category":"emo","subCategory":"Электромагнитные колебания","title":"Формула Томсона (период колебательного контура)","latex":"T = 2\\pi\\sqrt{L\\,C}","variables":[{"symbol":"T","name":"Период свободных колебаний в контуре","unit":"с"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"}],"conditions":"Идеальный LC-контур: нет активного сопротивления и излучения. Аналогия с пружинным маятником: L ↔ m, 1/C ↔ k, q ↔ x, i ↔ v.","derivation":{"kind":"derivation","steps":[["Исходное","сумма напряжений в контуре без сопротивления: $L\\,q'' + \\dfrac{q}{C} = 0$, где $i = q'$"],["Подстановка","$q'' = -\\dfrac{1}{LC}\\,q$ — уравнение гармонических колебаний с $\\omega_0^2 = \\dfrac{1}{LC}$"],["Итог","$T = \\dfrac{2\\pi}{\\omega_0} = 2\\pi\\sqrt{LC}$"]]}},
+      {"id":"emo_omega","category":"emo","subCategory":"Электромагнитные колебания","title":"Собственная циклическая частота контура","latex":"\\omega_0 = \\frac{1}{\\sqrt{L\\,C}}","variables":[{"symbol":"\\omega_0","name":"Собственная циклическая частота","unit":"рад/с"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"}],"conditions":"Идеальный контур. Частота растёт при уменьшении L и C. Это частота, на которую настраивают радиоприёмник (резонанс).","derivation":{"kind":"derivation","steps":[["Исходное","$\\omega_0 = \\dfrac{2\\pi}{T}$ и $T = 2\\pi\\sqrt{LC}$"],["Подстановка","$\\omega_0 = \\dfrac{2\\pi}{2\\pi\\sqrt{LC}}$"],["Итог","$\\omega_0 = \\dfrac{1}{\\sqrt{LC}}$"]]}},
+      {"id":"emo_charge","category":"emo","subCategory":"Электромагнитные колебания","title":"Заряд конденсатора в контуре","latex":"q(t) = q_m\\cos(\\omega_0\\,t + \\varphi_0)","variables":[{"symbol":"q","name":"Заряд конденсатора","unit":"Кл"},{"symbol":"q_m","name":"Амплитуда заряда","unit":"Кл"},{"symbol":"\\omega_0","name":"Собственная циклическая частота","unit":"рад/с"},{"symbol":"t","name":"Время","unit":"с"},{"symbol":"\\varphi_0","name":"Начальная фаза","unit":"рад"}],"conditions":"Ток i = q′ = −ω₀q_m·sin(ω₀t + φ₀) опережает заряд по фазе на π/2: когда заряд максимален, ток равен нулю, и наоборот. Напряжение на конденсаторе u = q/C колеблется в фазе с зарядом.","derivation":{"kind":"derivation","steps":[["Исходное","уравнение контура $q'' = -\\omega_0^2 q$ совпадает с уравнением осциллятора $a = -\\omega_0^2 x$"],["Подстановка","по аналогии $x \\to q$, $A \\to q_m$"],["Итог","$q(t) = q_m\\cos(\\omega_0 t + \\varphi_0)$"]]}},
+      {"id":"emo_current_amp","category":"emo","subCategory":"Электромагнитные колебания","title":"Амплитуда тока в контуре","latex":"I_m = \\omega_0\\,q_m","variables":[{"symbol":"I_m","name":"Амплитуда силы тока","unit":"А"},{"symbol":"\\omega_0","name":"Собственная циклическая частота","unit":"рад/с"},{"symbol":"q_m","name":"Амплитуда заряда","unit":"Кл"}],"conditions":"Ток максимален, когда конденсатор полностью разряжен (вся энергия в катушке). Аналог v_max = ω₀A. Также I_m = q_m/√(LC).","derivation":{"kind":"derivation","steps":[["Исходное","$i = q' = -\\omega_0 q_m\\sin(\\omega_0 t + \\varphi_0)$"],["Подстановка","модуль синуса не больше 1"],["Итог","$I_m = \\omega_0 q_m$"]]}},
+      {"id":"emo_energy","category":"emo","subCategory":"Электромагнитные колебания","title":"Энергия колебательного контура","latex":"\\frac{q^2}{2\\,C} + \\frac{L\\,i^2}{2} = \\frac{q_m^2}{2\\,C} = \\frac{L\\,I_m^2}{2}","variables":[{"symbol":"q","name":"Заряд конденсатора","unit":"Кл"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"},{"symbol":"i","name":"Сила тока","unit":"А"},{"symbol":"q_m","name":"Амплитуда заряда","unit":"Кл"},{"symbol":"I_m","name":"Амплитуда силы тока","unit":"А"}],"conditions":"Потерь нет. Энергия электрического поля конденсатора q²/(2C) и магнитного поля катушки Li²/2 перетекают друг в друга, сумма постоянна. Энергия колеблется с частотой 2ν.","derivation":{"kind":"derivation","steps":[["Исходное","при $q = q_m$ ток $i = 0$: вся энергия в конденсаторе, $W = \\dfrac{q_m^2}{2C}$"],["Подстановка","при $q = 0$ ток максимален: $W = \\dfrac{L I_m^2}{2}$; потерь нет, энергия сохраняется"],["Итог","$\\dfrac{q^2}{2C} + \\dfrac{Li^2}{2} = \\dfrac{q_m^2}{2C} = \\dfrac{L I_m^2}{2}$"]]}},
+      {"id":"ac_voltage","category":"emo","subCategory":"Переменный ток","title":"Переменное напряжение (гармонический закон)","latex":"u(t) = U_m\\cos(\\omega\\,t + \\varphi_0)","variables":[{"symbol":"u","name":"Мгновенное значение напряжения","unit":"В"},{"symbol":"U_m","name":"Амплитуда напряжения","unit":"В"},{"symbol":"\\omega","name":"Циклическая частота","unit":"рад/с"},{"symbol":"t","name":"Время","unit":"с"},{"symbol":"\\varphi_0","name":"Начальная фаза","unit":"рад"}],"conditions":"Переменный ток создаёт генератор, в котором рамка вращается в магнитном поле. В сети ω = 2πν, при ν = 50 Гц ω ≈ 314 рад/с. Для тока аналогично: i = I_m cos(ωt + φ_i); сдвиг фаз между u и i зависит от цепи.","derivation":{"kind":"derivation","steps":[["Исходное","рамка из $N$ витков вращается с угловой скоростью $\\omega$ в поле $B$: поток $\\Phi = BS\\cos\\omega t$"],["Подстановка","закон Фарадея: $e = -N\\Phi' = NBS\\omega\\sin\\omega t$"],["Итог","ЭДС и напряжение меняются по гармоническому закону: $u = U_m\\cos(\\omega t + \\varphi_0)$, где $U_m = NBS\\omega$"]]}},
+      {"id":"ac_rms_u","category":"emo","subCategory":"Переменный ток","title":"Действующее значение напряжения","latex":"U = \\frac{U_m}{\\sqrt{2}}","variables":[{"symbol":"U","name":"Действующее (эффективное) напряжение","unit":"В"},{"symbol":"U_m","name":"Амплитуда напряжения","unit":"В"}],"conditions":"Равно напряжению постоянного тока, выделяющего в резисторе такую же мощность. Для тока так же: I = I_m/√2. Приборы показывают именно действующие значения: сеть 220 В означает U_m ≈ 311 В.","derivation":{"kind":"derivation","steps":[["Исходное","средняя мощность на резисторе: $\\overline{P} = \\dfrac{U_m^2}{R}\\,\\overline{\\cos^2\\omega t} = \\dfrac{U_m^2}{2R}$ (среднее от $\\cos^2$ равно $\\dfrac{1}{2}$)"],["Подстановка","приравниваем к мощности постоянного тока $\\dfrac{U^2}{R}$"],["Итог","$U = \\dfrac{U_m}{\\sqrt{2}}$"]]}},
+      {"id":"ac_xl","category":"emo","subCategory":"Переменный ток","title":"Индуктивное сопротивление","latex":"X_L = \\omega\\,L","variables":[{"symbol":"X_L","name":"Индуктивное сопротивление","unit":"Ом"},{"symbol":"\\omega","name":"Циклическая частота тока","unit":"рад/с"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"}],"conditions":"Чем выше частота, тем катушка «сопротивляется» сильнее (на постоянном токе X_L = 0). Напряжение на катушке опережает ток по фазе на π/2. Мощность не потребляется.","derivation":{"kind":"derivation","steps":[["Исходное","ток $i = I_m\\cos\\omega t$; напряжение на катушке уравновешивает ЭДС самоиндукции: $u = L\\,i'$"],["Подстановка","$u = -\\omega L I_m\\sin\\omega t$, амплитуда $U_m = \\omega L\\,I_m$"],["Итог","$X_L = \\dfrac{U_m}{I_m} = \\omega L$"]]}},
+      {"id":"ac_xc","category":"emo","subCategory":"Переменный ток","title":"Ёмкостное сопротивление","latex":"X_C = \\frac{1}{\\omega\\,C}","variables":[{"symbol":"X_C","name":"Ёмкостное сопротивление","unit":"Ом"},{"symbol":"\\omega","name":"Циклическая частота тока","unit":"рад/с"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"}],"conditions":"Конденсатор пропускает переменный ток тем лучше, чем выше частота (на постоянном токе X_C → ∞). Напряжение на конденсаторе отстаёт от тока по фазе на π/2. Мощность не потребляется.","derivation":{"kind":"derivation","steps":[["Исходное","напряжение на конденсаторе $u = U_m\\cos\\omega t$, заряд $q = Cu$"],["Подстановка","ток $i = q' = -\\omega C U_m\\sin\\omega t$, амплитуда $I_m = \\omega C\\,U_m$"],["Итог","$X_C = \\dfrac{U_m}{I_m} = \\dfrac{1}{\\omega C}$"]]}},
+      {"id":"ac_impedance","category":"emo","subCategory":"Переменный ток","title":"Полное сопротивление последовательной RLC-цепи","latex":"Z = \\sqrt{R^2 + \\left(\\omega L - \\frac{1}{\\omega C}\\right)^2}","variables":[{"symbol":"Z","name":"Полное сопротивление (импеданс)","unit":"Ом"},{"symbol":"R","name":"Активное сопротивление","unit":"Ом"},{"symbol":"\\omega","name":"Циклическая частота тока","unit":"рад/с"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"}],"conditions":"Резистор, катушка и конденсатор соединены последовательно. Закон Ома для амплитуд и действующих значений: I = U/Z. Реактивные сопротивления вычитаются (колеблются в противофазе). При ωL = 1/(ωC), то есть ω = 1/√(LC), Z = R минимально: резонанс напряжений.","derivation":{"kind":"derivation","steps":[["Исходное","через все элементы течёт один ток; амплитуды напряжений: $U_R = I_m R$, $U_L = I_m X_L$, $U_C = I_m X_C$, причём $U_L$ и $U_C$ в противофазе"],["Подстановка","векторная диаграмма и теорема Пифагора: $U_m^2 = U_R^2 + (U_L - U_C)^2 = I_m^2\\left[R^2 + (X_L - X_C)^2\\right]$"],["Итог","$Z = \\dfrac{U_m}{I_m} = \\sqrt{R^2 + \\left(\\omega L - \\dfrac{1}{\\omega C}\\right)^2}$"]]}},
+      {"id":"ac_power","category":"emo","subCategory":"Переменный ток","title":"Средняя мощность переменного тока","latex":"P = U\\,I\\cos\\varphi","variables":[{"symbol":"P","name":"Средняя мощность","unit":"Вт"},{"symbol":"U","name":"Действующее напряжение","unit":"В"},{"symbol":"I","name":"Действующая сила тока","unit":"А"},{"symbol":"\\varphi","name":"Сдвиг фаз между напряжением и током","unit":"рад"}],"conditions":"cos φ — коэффициент мощности. Для резистора φ = 0 и P = UI; для идеальных катушки и конденсатора φ = ±π/2 и P = 0 (энергия лишь перекачивается). В RLC-цепи cos φ = R/Z и P = I²R.","derivation":{"kind":"derivation","steps":[["Исходное","$u = U_m\\cos\\omega t$, $i = I_m\\cos(\\omega t - \\varphi)$, мгновенная мощность $p = ui$"],["Подстановка","среднее за период: $\\overline{\\cos\\omega t\\,\\cos(\\omega t - \\varphi)} = \\dfrac{1}{2}\\cos\\varphi$"],["Итог","$P = \\dfrac{U_m I_m}{2}\\cos\\varphi = UI\\cos\\varphi$"]]}},
+      {"id":"ac_transformer","category":"emo","subCategory":"Переменный ток","title":"Идеальный трансформатор","latex":"\\frac{U_1}{U_2} = \\frac{N_1}{N_2} = \\frac{I_2}{I_1}","variables":[{"symbol":"U_1","name":"Напряжение на первичной обмотке","unit":"В"},{"symbol":"U_2","name":"Напряжение на вторичной обмотке","unit":"В"},{"symbol":"N_1","name":"Число витков первичной обмотки","unit":"—"},{"symbol":"N_2","name":"Число витков вторичной обмотки","unit":"—"},{"symbol":"I_1","name":"Сила тока в первичной обмотке","unit":"А"},{"symbol":"I_2","name":"Сила тока во вторичной обмотке","unit":"А"}],"conditions":"Потерь нет: P₁ = P₂. Коэффициент трансформации N₁/N₂ > 1 — понижающий трансформатор, < 1 — повышающий. Повышение напряжения в n раз уменьшает ток в n раз (передача энергии на большие расстояния).","derivation":{"kind":"derivation","steps":[["Исходное","поток общий, ЭДС индукции в обмотках: $e_1 = N_1\\Phi'$, $e_2 = N_2\\Phi'$; в идеальном случае $U_1 = e_1$, $U_2 = e_2$"],["Подстановка","отсюда $\\dfrac{U_1}{U_2} = \\dfrac{N_1}{N_2}$; потерь нет, значит $U_1 I_1 = U_2 I_2$"],["Итог","$\\dfrac{U_1}{U_2} = \\dfrac{N_1}{N_2} = \\dfrac{I_2}{I_1}$"]]}},
+      {"id":"emw_speed","category":"emw","subCategory":"Электромагнитные волны","title":"Скорость электромагнитной волны в вакууме","latex":"c = \\lambda\\,\\nu = \\frac{1}{\\sqrt{\\varepsilon_0\\,\\mu_0}}","variables":[{"symbol":"c","name":"Скорость света в вакууме (≈ 3·10⁸ м/с)","unit":"м/с"},{"symbol":"\\lambda","name":"Длина волны","unit":"м"},{"symbol":"\\nu","name":"Частота","unit":"Гц"},{"symbol":"\\varepsilon_0","name":"Электрическая постоянная","unit":"Ф/м"},{"symbol":"\\mu_0","name":"Магнитная постоянная","unit":"Гн/м"}],"conditions":"В вакууме все электромагнитные волны (радио, свет, рентген) распространяются с одной скоростью c. Волны поперечные: векторы E и B перпендикулярны друг другу и направлению распространения. Равенство c = 1/√(ε₀μ₀) следует из уравнений Максвелла.","derivation":{"kind":"derivation","steps":[["Исходное","уравнения Максвелла дают для полей волновое уравнение со скоростью $c = \\dfrac{1}{\\sqrt{\\varepsilon_0\\mu_0}}$"],["Подстановка","$\\varepsilon_0 \\approx 8{,}85\\cdot10^{-12}$ Ф/м, $\\mu_0 = 4\\pi\\cdot10^{-7}$ Гн/м, получаем $c \\approx 3\\cdot10^{8}$ м/с"],["Итог","$c = \\lambda\\nu = \\dfrac{1}{\\sqrt{\\varepsilon_0\\mu_0}}$ (первое равенство — связь скорости, длины и частоты любой волны)"]]}},
+      {"id":"emw_medium","category":"emw","subCategory":"Электромагнитные волны","title":"Скорость электромагнитной волны в среде","latex":"v = \\frac{c}{\\sqrt{\\varepsilon\\,\\mu}} = \\frac{c}{n}","variables":[{"symbol":"v","name":"Скорость волны в среде","unit":"м/с"},{"symbol":"c","name":"Скорость света в вакууме","unit":"м/с"},{"symbol":"\\varepsilon","name":"Диэлектрическая проницаемость среды","unit":"—"},{"symbol":"\\mu","name":"Магнитная проницаемость среды","unit":"—"},{"symbol":"n","name":"Показатель преломления среды","unit":"—"}],"conditions":"Прозрачная среда. Для большинства прозрачных веществ μ ≈ 1, поэтому n ≈ √ε. При переходе в среду частота не меняется, длина волны уменьшается в n раз: λ = λ₀/n.","derivation":{"kind":"derivation","steps":[["Исходное","в среде $v = \\dfrac{1}{\\sqrt{\\varepsilon\\varepsilon_0\\mu\\mu_0}}$"],["Подстановка","делим на $c = \\dfrac{1}{\\sqrt{\\varepsilon_0\\mu_0}}$: $\\dfrac{v}{c} = \\dfrac{1}{\\sqrt{\\varepsilon\\mu}}$"],["Итог","$v = \\dfrac{c}{\\sqrt{\\varepsilon\\mu}}$; по определению $n = \\dfrac{c}{v} = \\sqrt{\\varepsilon\\mu}$"]]}},
+      {"id":"emw_lc_length","category":"emw","subCategory":"Электромагнитные волны","title":"Длина волны, излучаемой колебательным контуром","latex":"\\lambda = 2\\pi\\,c\\sqrt{L\\,C}","variables":[{"symbol":"\\lambda","name":"Длина излучаемой волны","unit":"м"},{"symbol":"c","name":"Скорость света в вакууме","unit":"м/с"},{"symbol":"L","name":"Индуктивность катушки","unit":"Гн"},{"symbol":"C","name":"Ёмкость конденсатора","unit":"Ф"}],"conditions":"Контур излучает и принимает волны с частотой собственных колебаний. Радиоприёмник настраивают изменением C (или L) до резонанса с нужной станцией. Длина волны растёт с L и C.","derivation":{"kind":"derivation","steps":[["Исходное","длина волны $\\lambda = cT$, период контура $T = 2\\pi\\sqrt{LC}$ (формула Томсона)"],["Подстановка","подставляем $T$ в $\\lambda = cT$"],["Итог","$\\lambda = 2\\pi c\\sqrt{LC}$"]]}}
+    ];
+    const OSC_ORDER = ["osc_period_freq","osc_omega","osc_coordinate","osc_velocity","osc_velocity_x","osc_acceleration","osc_accel_max","osc_spring_omega","osc_spring_period","osc_pendulum_omega","osc_pendulum_period","osc_physical_pendulum","osc_springs_series","osc_springs_parallel","osc_energy","osc_energy_any","osc_damped_amp","osc_damped_omega","osc_resonance","wave_speed","wave_equation","wave_phase_diff","wave_string_speed","wave_standing_nodes","wave_string_freq","wave_closed_pipe","wave_interf_max","wave_interf_min","wave_doppler","snd_intensity","snd_level","snd_echo","emo_thomson","emo_omega","emo_charge","emo_current_amp","emo_energy","ac_voltage","ac_rms_u","ac_xl","ac_xc","ac_impedance","ac_power","ac_transformer","emw_speed","emw_medium","emw_lc_length"];
+    const OSC_DATA = [...MECHANICS_DATA.filter((f) => f.category === 'oscillations'), ...OSC_NEW]
+      .sort((a, b) => { const i = OSC_ORDER.indexOf(a.id), j = OSC_ORDER.indexOf(b.id); return (i < 0 ? 999 : i) - (j < 0 ? 999 : j); });
+
+    const CAT_ALL = Object.assign({}, CAT_LABELS, MKT_LABELS, ED_LABELS, OSC_LABELS);
     const SECTIONS = {
       mechanics: { name: 'Механика', data: MECHANICS_DATA, cats: CAT_LABELS },
-      mkt: { name: 'МКТ и термодинамика', data: MKT_DATA, cats: MKT_LABELS }
+      mkt: { name: 'МКТ и термодинамика', data: MKT_DATA, cats: MKT_LABELS },
+      electro: { name: 'Электродинамика', data: ED_DATA, cats: ED_LABELS },
+      oscillations: { name: 'Колебания и волны', data: OSC_DATA, cats: OSC_LABELS, noTrain: true }   // noTrain: пока только справочник
     };
+    // Заглушка для разделов, у которых ещё нет тестов и блица
+    const noTrainHTML = () => `<div class="mx-auto max-w-xl"><p class="sec">Тренажёр и блиц для раздела «${esc(SECTIONS[SEC].name)}» появятся позже. Пока доступен справочник.</p></div>`;
     let SEC = 'mechanics';
     const HBD = () => SECTIONS[SEC].data;
     const plForm = (n) => (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'формулы' : 'формул';
@@ -5207,6 +6314,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
     const TR_SECS = [['constructor', 'Конструктор'], ['tests', 'Тесты']];
     function trMenu(quiet) {
       TR.mode = 'cat'; TR.streak = 0;
+      if (SECTIONS[SEC].noTrain) { trPaint(noTrainHTML(), quiet); return; }
       const seg = TR_SECS.map(([k, t]) => `<button type="button" role="tab" data-sec="${k}" aria-selected="${TR.sec === k}"${TR.sec === k ? ' class="on"' : ''}>${t}</button>`).join('');
       trPaint(`<div class="mx-auto max-w-xl space-y-4"><div class="seg" role="tablist" aria-label="Разделы тренажёра">${seg}</div>${TR.sec === 'constructor' ? trConstructorHTML() : trTestsHTML()}</div>`, quiet);
     }
@@ -5299,6 +6407,8 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
       osc_energy: { lhs: 'E', rhs: '\\frac{k\\,A^2}{2}', alt: ['\\frac{m\\,v_{\\max}^2}{2}', '\\frac{m\\,v_{\\max}^2}{2} = \\frac{k\\,A^2}{2}'] }
     };
     Object.assign(CT_MULTI, {"mkt_amount": {"lhs": "\\nu", "rhs": "\\frac{N}{N_A}", "alt": ["\\frac{m}{M}", "\\frac{N}{N_A} = \\frac{m}{M}"]}, "mkt_molecule_mass": {"lhs": "m_0", "rhs": "\\frac{M}{N_A}", "alt": ["\\frac{m}{N}", "\\frac{M}{N_A} = \\frac{m}{N}"]}, "mkt_concentration": {"lhs": "n", "rhs": "\\frac{N}{V}", "alt": ["\\frac{\\rho}{m_0}", "\\frac{N}{V} = \\frac{\\rho}{m_0}"]}, "mkt_rms_speed": {"lhs": "v_{\\text{кв}}", "rhs": "\\sqrt{\\frac{3kT}{m_0}}", "alt": ["\\sqrt{\\frac{3RT}{M}}", "\\sqrt{\\frac{3kT}{m_0}} = \\sqrt{\\frac{3RT}{M}}"]}, "gas_clapeyron": {"lhs": "pV", "rhs": "\\frac{m}{M}RT", "alt": ["\\nu RT", "\\frac{m}{M}RT = \\nu RT"]}, "vapor_humidity": {"lhs": "\\varphi", "rhs": "\\frac{p}{p_{\\text{н}}}\\cdot 100\\%", "alt": ["\\frac{\\rho}{\\rho_{\\text{н}}}\\cdot 100\\%", "\\frac{p}{p_{\\text{н}}}\\cdot 100\\% = \\frac{\\rho}{\\rho_{\\text{н}}}\\cdot 100\\%"]}, "liq_surface_tension": {"lhs": "\\sigma", "rhs": "\\frac{F}{l}", "alt": ["\\frac{A}{\\Delta S}", "\\frac{F}{l} = \\frac{A}{\\Delta S}"]}, "solid_young": {"lhs": "\\sigma_{\\text{м}}", "rhs": "E\\,\\varepsilon", "alt": ["E\\,\\frac{\\Delta l}{l_0}", "E\\,\\varepsilon = E\\,\\frac{\\Delta l}{l_0}"]}, "thermo_internal_energy": {"lhs": "U", "rhs": "\\frac{3}{2}\\,\\nu R T", "alt": ["\\frac{3}{2}\\,p V", "\\frac{3}{2}\\,\\nu R T = \\frac{3}{2}\\,p V"]}, "thermo_gas_work": {"lhs": "A", "rhs": "p\\,\\Delta V", "alt": ["p\\,(V_2 - V_1)", "p\\,\\Delta V = p\\,(V_2 - V_1)"]}, "thermo_isothermal": {"lhs": "Q", "rhs": "A", "alt": []}, "thermo_isochoric": {"lhs": "Q", "rhs": "\\frac{3}{2}\\,\\nu R\\,\\Delta T", "alt": ["\\Delta U", "\\Delta U = \\frac{3}{2}\\,\\nu R\\,\\Delta T"]}, "thermo_adiabatic": {"lhs": "A", "rhs": "-\\frac{3}{2}\\,\\nu R\\,\\Delta T", "alt": ["-\\Delta U", "-\\Delta U = -\\frac{3}{2}\\,\\nu R\\,\\Delta T"]}, "thermo_efficiency": {"lhs": "\\eta", "rhs": "\\frac{A}{Q_{\\text{н}}}", "alt": ["\\frac{Q_{\\text{н}} - Q_{\\text{х}}}{Q_{\\text{н}}}", "\\frac{A}{Q_{\\text{н}}} = \\frac{Q_{\\text{н}} - Q_{\\text{х}}}{Q_{\\text{н}}}"]}});
+    // Электродинамика: формулы, которые конструктору нужно разбирать по-своему (без знаков модуля, цепочки равенств, ℰ и векторы)
+    Object.assign(CT_MULTI, {"es_conservation":{"lhs":"\\text{const}","rhs":"q_1 + q_2 + \\ldots + q_n","alt":[]},"es_coulomb":{"lhs":"F","rhs":"k\\,\\frac{q_1\\,q_2}{\\varepsilon\\,r^2}","alt":[]},"es_field_point":{"lhs":"E","rhs":"k\\,\\frac{Q}{\\varepsilon\\,r^2}","alt":[]},"es_superposition":{"lhs":"\\vec{E}","rhs":"\\vec{E}_1 + \\vec{E}_2 + \\ldots + \\vec{E}_n","alt":[]},"es_work_potential":{"lhs":"A","rhs":"q\\,(\\varphi_1 - \\varphi_2)","alt":["q\\,U","q\\,(\\varphi_1 - \\varphi_2) = q\\,U"]},"cap_energy":{"lhs":"W","rhs":"\\frac{q\\,U}{2}","alt":["\\frac{C\\,U^2}{2}","\\frac{q\\,U}{2} = \\frac{C\\,U^2}{2}","\\frac{q^2}{2\\,C}","\\frac{q\\,U}{2} = \\frac{q^2}{2\\,C}","\\frac{C\\,U^2}{2} = \\frac{q^2}{2\\,C}","\\frac{q\\,U}{2} = \\frac{C\\,U^2}{2} = \\frac{q^2}{2\\,C}"]},"dc_work":{"lhs":"A","rhs":"U\\,I\\,t","alt":["I^2 R\\,t","U\\,I\\,t = I^2 R\\,t","\\frac{U^2}{R}\\,t","U\\,I\\,t = \\frac{U^2}{R}\\,t","I^2 R\\,t = \\frac{U^2}{R}\\,t","U\\,I\\,t = I^2 R\\,t = \\frac{U^2}{R}\\,t"]},"dc_power":{"lhs":"P","rhs":"U\\,I","alt":["I^2 R","U\\,I = I^2 R","\\frac{U^2}{R}","U\\,I = \\frac{U^2}{R}","I^2 R = \\frac{U^2}{R}","U\\,I = I^2 R = \\frac{U^2}{R}"]},"dc_ohm_full":{"lhs":"I","rhs":"\\frac{\\mathcal{E}}{R + r}","alt":[]},"dc_terminal":{"lhs":"U","rhs":"\\mathcal{E} - I\\,r","alt":["I\\,R","\\mathcal{E} - I\\,r = I\\,R"]},"dc_short":{"lhs":"I_{\\text{кз}}","rhs":"\\frac{\\mathcal{E}}{r}","alt":[]},"dc_efficiency":{"lhs":"\\eta","rhs":"\\frac{P_{\\text{полезн}}}{P_{\\text{полн}}}","alt":["\\frac{U}{\\mathcal{E}}","\\frac{P_{\\text{полезн}}}{P_{\\text{полн}}} = \\frac{U}{\\mathcal{E}}","\\frac{R}{R + r}","\\frac{P_{\\text{полезн}}}{P_{\\text{полн}}} = \\frac{R}{R + r}","\\frac{U}{\\mathcal{E}} = \\frac{R}{R + r}","\\frac{P_{\\text{полезн}}}{P_{\\text{полн}}} = \\frac{U}{\\mathcal{E}} = \\frac{R}{R + r}"]},"dc_pmax":{"lhs":"P_{\\max}","rhs":"\\frac{\\mathcal{E}^2}{4\\,r}","alt":[]},"media_faraday":{"lhs":"m","rhs":"k\\,I\\,t","alt":["\\frac{M}{F\\,n}\\,I\\,t","k\\,I\\,t = \\frac{M}{F\\,n}\\,I\\,t"]},"mag_lorentz":{"lhs":"F_{\\text{Л}}","rhs":"q\\,v\\,B \\sin\\alpha","alt":[]},"mag_radius":{"lhs":"R","rhs":"\\frac{m\\,v}{q\\,B}","alt":[]},"mag_period":{"lhs":"T","rhs":"\\frac{2\\pi\\,m}{q\\,B}","alt":[]},"mag_solenoid":{"lhs":"B","rhs":"\\mu_0\\,\\mu\\,n\\,I","alt":["\\frac{\\mu_0\\,\\mu\\,N\\,I}{l}","\\mu_0\\,\\mu\\,n\\,I = \\frac{\\mu_0\\,\\mu\\,N\\,I}{l}"]},"ind_charge":{"lhs":"q","rhs":"\\frac{\\Delta\\Phi}{R}","alt":[]}});
     function ctSplitFormula(f) {
       if (CT_MULTI[f.id]) return CT_MULTI[f.id];
       const eq = f.latex.indexOf('=');
@@ -5328,7 +6438,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         if (mc) { i += mc[1].length; return mc[1].replace(/\\,/g, ' ').replace(/\s+/g, ' ') + subSup(); }
         if (rest.startsWith('\\cos(')) { i += 4; return '\\cos(' + grp('(', ')').replace(/\\,/g, ' ').replace(/\s+/g, ' ') + ')' + subSup(); }
         const c = S[i]; let t;
-        if (c === '\\') { t = cmd(); if (t === '\\operatorname' || t === '\\vec' || t === '\\overline') t += '{' + grp('{', '}') + '}'; else if (t === '\\Delta') { skip(); return t + ' ' + leaf(); } }
+        if (c === '\\') { t = cmd(); if (t === '\\operatorname' || t === '\\vec' || t === '\\overline' || t === '\\mathcal') t += '{' + grp('{', '}') + '}'; else if (t === '\\Delta') { skip(); return t + ' ' + leaf(); } }
         else if (c === '(') t = '(' + grp('(', ')').replace(/\\,/g, ' ').replace(/\s+/g, ' ') + ')';
         else if (/\d/.test(c)) { t = ''; while (/\d/.test(S[i] || '')) t += S[i++]; }
         else t = S[i++];
@@ -5473,7 +6583,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
     function ctBank(f, ref) {
       if (!CT_POOL) {
         CT_POOL = {};
-        [...MECHANICS_DATA, ...MKT_DATA].forEach((g) => { CT_POOL[g.id] = ctTiles(ctParse(ctSplitFormula(g).rhs), []); });
+        [...MECHANICS_DATA, ...MKT_DATA, ...ED_DATA].forEach((g) => { CT_POOL[g.id] = ctTiles(ctParse(ctSplitFormula(g).rhs), []); });
       }
       const need = ctTiles(ref, []), have = new Set(need), uniq = (a) => [...new Set([].concat(...a))].filter((t) => !have.has(t));
       const same = uniq(HBD().filter((g) => g.category === f.category && g.id !== f.id).map((g) => CT_POOL[g.id]));
@@ -5823,6 +6933,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
       BL.running = false;
       document.body.classList.remove('no-nav');
       document.documentElement.classList.remove('bl-run');
+      if (SECTIONS[SEC].noTrain) { $('bl-root').innerHTML = noTrainHTML(); return; }
       const timeSeg = BL_TIMES.map((t) => `<button type="button" data-bl-time="${t}" class="${BL.cfg.time === t ? 'on' : ''}">${t} сек</button>`).join('');
       const errBtns = BL_ERR_MODES.map((m) => `<button type="button" data-bl-err="${m.k}" class="bl-err-btn${BL.cfg.err === m.k ? ' on' : ''}">${m.label}</button>`).join('');
       $('bl-root').innerHTML = `<div class="mx-auto max-w-xl space-y-4 text-center">
@@ -6307,7 +7418,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         b.classList.toggle('on', on);
         const c = b.querySelector('.fcnt'); if (c) c.textContent = (on ? 'Выбрано · ' : '') + n + ' ' + plForm(n);
       });
-      if (!same) { hbBuild(); hbFilterUI(); hbRender(); TR.mode = 'cat'; trMenu(true); }
+      if (!same) { hbBuild(); hbFilterUI(); hbRender(); TR.mode = 'cat'; trMenu(true); if (!BL.running) blMenu(); }
       if (!first) {
         switchTab('handbook');
         window.scrollTo({ top: 0, behavior: 'auto' });
