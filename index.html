@@ -61,7 +61,7 @@
   </style>
   <script>
     /* Время в миллисекундах. startDelay — пауза после заставки, после которой справочник начинает заранее дорисовывать формулы. */
-    window.FX_CFG = { startDelay: 700,
+    window.FX_CFG = { startDelay: 150,
        /* Часть 2 (мс, доли, пиксели). pressScale — во сколько сжимается нажатая кнопка, pressOut — возврат пружиной.
           riseStep — задержка между карточками, riseMax — сколько карточек появляется по очереди, risePx — подъём.
           fwdDur — выход следующей карточки в Блице, edgeFull — на сколько пикселей отклонения край светит на максимум,
@@ -198,7 +198,7 @@ article button.rounded-lg:not([class*="emerald"]){background:var(--sf2)}
 .sp-bg.a{left:-48vmax;top:-48vmax;background:radial-gradient(closest-side,rgba(64,160,255,.34),rgba(64,160,255,0) 70%);animation:sp-in 1.4s ease-out forwards}
 .sp-bg.b{right:-52vmax;bottom:-52vmax;background:radial-gradient(closest-side,rgba(96,84,235,.36),rgba(43,116,234,0) 70%);animation:sp-in 1.4s .25s ease-out forwards}
 @keyframes sp-in{to{opacity:1}}
-.sp-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;filter:blur(7px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:42% 100%;mask-size:42% 100%;-webkit-mask-image:linear-gradient(100deg,transparent,#000 50%,transparent);mask-image:linear-gradient(100deg,transparent,#000 50%,transparent)}
+.sp-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;will-change:mask-position,-webkit-mask-position,opacity;transform:translateZ(0);filter:blur(7px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:42% 100%;mask-size:42% 100%;-webkit-mask-image:linear-gradient(100deg,transparent,#000 50%,transparent);mask-image:linear-gradient(100deg,transparent,#000 50%,transparent)}
 .sp-glow.sp-glow-tag{filter:blur(2.6px)}
 #sp-tag,#sg-tag{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-weight:500;font-size:23px;letter-spacing:2.07px;text-rendering:geometricPrecision}
 @media (prefers-reduced-motion:reduce){#splash{display:none}}
@@ -507,7 +507,7 @@ article.rounded-2xl{border-radius:28px;padding:1.3rem 1.25rem 1.2rem}
 #hb-list article .eyebrow::before{content:"";flex:none;width:.5rem;height:.5rem;border-radius:50%;background:#5aa0ff;box-shadow:0 0 10px rgba(90,160,255,.55)}
 #hb-list article .eyebrow [data-ec]{margin-left:auto;padding:.22rem .65rem;border-radius:999px;font-size:.8rem;font-weight:650;background:rgba(229,87,91,.16);color:#ff9fa3}
 #hb-list article .eyebrow [data-ec].text-slate-500{background:rgba(255,255,255,.07);color:var(--mu)}
-#hb-list article h3{margin-top:.8rem;font-size:1.3rem;line-height:1.25;font-weight:760}
+#hb-list article{content-visibility:auto;contain-intrinsic-size:0 220px}#hb-list article h3{margin-top:.8rem;font-size:1.3rem;line-height:1.25;font-weight:760}
 /* Формула по центру, с тихим свечением без рамки */
 #hb-list article .fbox{margin-top:.4rem;padding:1.8rem 0 1.6rem;text-align:center;
   background:radial-gradient(ellipse closest-side at 50% 50%,rgba(104,208,248,.13) 0,rgba(104,208,248,.05) 55%,rgba(104,208,248,0) 100%)}
@@ -840,7 +840,7 @@ html:root[data-theme] :focus-visible{outline:2px solid var(--acc);outline-offset
 
 /* Заставка: фон и цвета берутся из темы приложения (тёмная — графит, светлая — светлый фон) */
 html:root[data-theme="dark"]{--sp-mark:#F1F4FF;--sp-tag:#9AA8E0;--sp-glow:#8FA2FF;--sp-glow2:rgba(56,189,248,.55);--sp-vig:#1A2346}
-html:root[data-theme="light"]{--sp-mark:#0B1020;--sp-tag:#5B6480;--sp-glow:#6A7DFF;--sp-glow2:rgba(56,189,248,.45);--sp-vig:#FFFFFF}
+html:root[data-theme="light"]{--sp-mark:#0B1020;--sp-tag:#5B6480;--sp-glow:rgba(168,85,247,.25);--sp-glow2:rgba(168,85,247,.25);--sp-vig:#FFFFFF}
 html:root[data-theme] #splash{background:radial-gradient(ellipse 60% 50% at 50% 46%,var(--sp-vig) 0,var(--bg) 100%);transition:opacity .42s ease}
 html:root[data-theme] .sp-glow{filter:blur(7px) drop-shadow(0 0 14px var(--sp-glow2))}
 html:root[data-theme] .sp-glow.sp-glow-tag{filter:blur(2.6px)}
@@ -1619,12 +1619,16 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         var vy = 3 * u2 * (seg[1][1] - seg[0][1]) + 6 * u * t * (seg[2][1] - seg[1][1]) + 3 * t2 * (seg[3][1] - seg[2][1]);
         return [x, y, vx, vy];
       }
-      // Определяем, является ли устройство маломощным (мобильное/планшет)
-      var isLowPower = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) || (window.screen && screen.width < 800);
+      // Плавная анимация 60 кадров/с на всех устройствах: предвычисление геометрии штрихов и кэширование состояния DOM
+      var TIP_SEGS = 8, TIP_COS = [], TIP_SIN = [];
+      for (var ti = 1; ti < TIP_SEGS; ti++) {
+        var ta = (ti / TIP_SEGS) * Math.PI;
+        TIP_COS.push(Math.cos(ta));
+        TIP_SIN.push(Math.sin(ta));
+      }
       function buildSpline(segs, N, radFn) {
-        var raw = [], arc = [0], i, s, t, p, dx, dy;
+        var raw = [], arc = [0], i, s, p, dx, dy, steps = 120;
         for (s = 0; s < segs.length; s++) {
-          var steps = isLowPower ? 60 : 120;
           for (i = 0; i < steps || (s === segs.length - 1 && i === steps); i++) {
             p = evalBez(segs[s], i / steps);
             if (raw.length) {
@@ -1645,9 +1649,19 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
           var x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
           var vx = a[2] + (b[2] - a[2]) * f, vy = a[3] + (b[3] - a[3]) * f;
           var len = Math.hypot(vx, vy) || 1;
-          var tx = vx / len, ty = vy / len;
-          pts.push({ x: x, y: y, tx: tx, ty: ty, nx: -ty, ny: tx, r: radFn(u) });
+          var tx = vx / len, ty = vy / len, nx = -ty, ny = tx, r = radFn(u);
+          pts.push({
+            x: x, y: y, tx: tx, ty: ty, nx: nx, ny: ny, r: r,
+            lp: (x + nx * r).toFixed(1) + ',' + (y + ny * r).toFixed(1),
+            rp: (x - nx * r).toFixed(1) + ',' + (y - ny * r).toFixed(1)
+          });
         }
+        var ps = pts[0], tail = [];
+        for (i = 0; i < TIP_COS.length; i++) {
+          var c = TIP_COS[i], sn = TIP_SIN[i];
+          tail.push((ps.x + ps.r * (-c * ps.nx - sn * ps.tx)).toFixed(1) + ',' + (ps.y + ps.r * (-c * ps.ny - sn * ps.ty)).toFixed(1));
+        }
+        pts.tailStr = tail.join('L');
         return pts;
       }
       function ribbonD(pts, prog) {
@@ -1655,37 +1669,29 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         var n = pts.length, mf = Math.min(1, prog) * (n - 1);
         var k = Math.floor(mf), fr = mf - k;
         if (k >= n - 1) { k = n - 1; fr = 0; }
-        var sub = pts.slice(0, k + 1);
-        if (fr > 1e-3 && k < n - 1) {
+        var out = [], i, p;
+        for (i = 0; i <= k; i++) out.push(pts[i].lp);
+        var pe = pts[k], hasFr = fr > 1e-3 && k < n - 1;
+        if (hasFr) {
           var A = pts[k], B = pts[k + 1];
           var tx = A.tx + (B.tx - A.tx) * fr, ty = A.ty + (B.ty - A.ty) * fr;
           var l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
-          sub.push({
-            x: A.x + (B.x - A.x) * fr,
-            y: A.y + (B.y - A.y) * fr,
-            tx: tx, ty: ty, nx: -ty, ny: tx,
-            r: A.r + (B.r - A.r) * fr
-          });
+          var nx = -ty, ny = tx, rx = A.r + (B.r - A.r) * fr;
+          var px = A.x + (B.x - A.x) * fr, py = A.y + (B.y - A.y) * fr;
+          pe = {
+            x: px, y: py, tx: tx, ty: ty, nx: nx, ny: ny, r: rx,
+            lp: (px + nx * rx).toFixed(1) + ',' + (py + ny * rx).toFixed(1),
+            rp: (px - nx * rx).toFixed(1) + ',' + (py - ny * rx).toFixed(1)
+          };
+          out.push(pe.lp);
         }
-        var m = sub.length, i, p, a, c, s, out = [], tipSegs = isLowPower ? 5 : 8;
-        for (i = 0; i < m; i++) {
-          p = sub[i];
-          out.push((p.x + p.nx * p.r).toFixed(1) + ',' + (p.y + p.ny * p.r).toFixed(1));
-        }
-        var pe = sub[m - 1];
-        for (i = 1; i < tipSegs; i++) {
-          a = (i / tipSegs) * Math.PI; c = Math.cos(a); s = Math.sin(a);
+        for (i = 0; i < TIP_COS.length; i++) {
+          var c = TIP_COS[i], s = TIP_SIN[i];
           out.push((pe.x + pe.r * (c * pe.nx + s * pe.tx)).toFixed(1) + ',' + (pe.y + pe.r * (c * pe.ny + s * pe.ty)).toFixed(1));
         }
-        for (i = m - 1; i >= 0; i--) {
-          p = sub[i];
-          out.push((p.x - p.nx * p.r).toFixed(1) + ',' + (p.y - p.ny * p.r).toFixed(1));
-        }
-        var ps = sub[0];
-        for (i = 1; i < tipSegs; i++) {
-          a = (i / tipSegs) * Math.PI; c = Math.cos(a); s = Math.sin(a);
-          out.push((ps.x + ps.r * (-c * ps.nx - s * ps.tx)).toFixed(1) + ',' + (ps.y + ps.r * (-c * ps.ny - s * ps.ty)).toFixed(1));
-        }
+        if (hasFr) out.push(pe.rp);
+        for (i = k; i >= 0; i--) out.push(pts[i].rp);
+        if (pts.tailStr) out.push(pts.tailStr);
         return 'M' + out.join('L') + 'Z';
       }
 
@@ -1696,14 +1702,14 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
         [[223, 55], [223, 4], [144, -2], [118, 78]],
         [[118, 78], [102, 127.2], [80, 215], [61.5, 290]]
       ];
-      var phiPts = buildSpline(phiSegs, isLowPower ? 80 : 140, function (s) {
+      var phiPts = buildSpline(phiSegs, 140, function (s) {
         var wBowl = ss(0, 0.11, s) * (1 - ss(0.14, 0.28, s));
         var wStem = ss(0.58, 0.72, s) * (1 - 0.30 * ss(0.90, 1.0, s));
         return 5.0 + 5.6 * Math.min(1, wBowl + wStem) + 1.6 * (1 - ss(0, 0.08, s));
       });
 
       function mkLine(p0, p1, p2, p3, r0, rm, r1) {
-        return buildSpline([[p0, p1, p2, p3]], isLowPower ? 16 : 28, function (s) {
+        return buildSpline([[p0, p1, p2, p3]], 28, function (s) {
           return (1 - s) * r0 + s * r1 + (rm - 0.5 * (r0 + r1)) * Math.sin(Math.PI * s);
         });
       }
@@ -1711,19 +1717,19 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
       // Порядок письма H: левая ножка -> перекладина слева направо (одним движением) -> правая ножка сверху -> I.
       // Каждый штрих начинается ровно там, где закончился предыдущий (t0 следующего = t1 предыдущего).
       var hiStrokes = [
-        { el: document.getElementById('sp-h1'), pts: mkLine([282, 22], [270, 82], [259, 142], [247, 202], 7.4, 10.8, 7.2), t0: 1270, t1: 1570 },
-        { el: document.getElementById('sp-h2'), pts: mkLine([376, 22], [364, 82], [353, 142], [341, 202], 7.4, 10.8, 7.2), t0: 1870, t1: 2170 },
-        { el: document.getElementById('sp-h3'), pts: mkLine([262, 119], [296, 114], [330, 108], [362, 105], 3.6, 5.0, 3.4), t0: 1570, t1: 1870 },
-        { el: document.getElementById('sp-i1'), pts: mkLine([446, 22], [434, 82], [423, 142], [411, 202], 7.4, 10.8, 7.2), t0: 2210, t1: 2520 }
+        { el: document.getElementById('sp-h1'), pts: mkLine([282, 22], [270, 82], [259, 142], [247, 202], 7.4, 10.8, 7.2), t0: 1270, t1: 1570, lastP: -1 },
+        { el: document.getElementById('sp-h2'), pts: mkLine([376, 22], [364, 82], [353, 142], [341, 202], 7.4, 10.8, 7.2), t0: 1870, t1: 2170, lastP: -1 },
+        { el: document.getElementById('sp-h3'), pts: mkLine([262, 119], [296, 114], [330, 108], [362, 105], 3.6, 5.0, 3.4), t0: 1570, t1: 1870, lastP: -1 },
+        { el: document.getElementById('sp-i1'), pts: mkLine([446, 22], [434, 82], [423, 142], [411, 202], 7.4, 10.8, 7.2), t0: 2210, t1: 2520, lastP: -1 }
       ];
 
-      var elPhi = document.getElementById('sp-phi');
+      var elPhi = document.getElementById('sp-phi'), lastPhiP = -1, lastShiftP = -1;
       var elMark = document.getElementById('sp-mark');
       var glow = document.getElementById('sp-glow'), glowReady = false, sweepDone = false, gw = 0, G0 = 2560, G1 = 4060, BX0 = -126, BX1 = 590, SWELL = 0.12, SWELL_R = 115, letters = [];
       // G0..G1 — когда идёт блик (мс); SWELL — на сколько буква вырастает (0.12 = на 12%); SWELL_R — как широко свет «подхватывает» букву
       var glowTag = document.getElementById('sp-glow-tag'), elTag = document.getElementById('sp-tag'), sgTag = document.getElementById('sg-tag'), tag = [];
 
-      // Обновление букв подписи «Learn Physics Formulas» от положения центра блика bx
+      // Обновление букв подписи «Learn Physics Formulas» от положения центра блика bx (только при реальном изменении атрибутов)
       function tagFrame(bx, sweeping) {
         try {
           for (var j = 0; j < tag.length; j++) {
@@ -1731,19 +1737,29 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
             var a = sweeping ? ss(T.cx - 42, T.cx - 14.7, bx) : 0;
             var dd = Math.abs(bx - T.cx);
             var k = (sweeping && dd < 42) ? 0.5 * (1 + Math.cos(Math.PI * dd / 42)) : 0;
-            var tf = k > 0.0005 ? 'translate(' + T.cx.toFixed(1) + ' 280) scale(' + (1 + 0.30 * k).toFixed(4) + ') translate(' + (-T.cx).toFixed(1) + ' -280)' : '';
-            if (tf) {
-              T.a.setAttribute('transform', tf);
-              T.b.setAttribute('transform', tf);
-            } else {
-              T.a.removeAttribute('transform');
-              T.b.removeAttribute('transform');
+            var tf = k > 0.0005 ? 'translate(' + T.cxStr + ' 280) scale(' + (1 + 0.30 * k).toFixed(4) + ') translate(' + T.ncxStr + ' -280)' : '';
+            if (tf !== T.tf) {
+              T.tf = tf;
+              if (tf) {
+                T.a.setAttribute('transform', tf);
+                T.b.setAttribute('transform', tf);
+              } else {
+                T.a.removeAttribute('transform');
+                T.b.removeAttribute('transform');
+              }
             }
-            var op = a.toFixed(4);
-            T.a.setAttribute('opacity', op);
-            T.b.setAttribute('opacity', op);
+            var op = a <= 0 ? '0' : (a >= 1 ? '1' : a.toFixed(4));
+            if (op !== T.op) {
+              T.op = op;
+              T.a.setAttribute('opacity', op);
+              T.b.setAttribute('opacity', op);
+            }
             var r = Math.round(142 + 88 * k), gr = Math.round(152 + 81 * k), bl = Math.round(168 + 72 * k);
-            T.a.setAttribute('fill', 'rgb(' + r + ',' + gr + ',' + bl + ')');
+            var fl = 'rgb(' + r + ',' + gr + ',' + bl + ')';
+            if (fl !== T.fl) {
+              T.fl = fl;
+              T.a.setAttribute('fill', fl);
+            }
           }
         } catch (e) {
           if (elTag) elTag.innerHTML = '';
@@ -1782,7 +1798,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
               var ta = document.createElementNS(ns, 'text');
               ta.setAttribute('x', xi.toFixed(2));
               ta.setAttribute('y', '288');
-              ta.setAttribute('fill', 'rgb(169,200,236)');
+              ta.setAttribute('fill', 'rgb(142,152,168)');
               ta.setAttribute('opacity', '0');
               ta.textContent = ch;
               elTag.appendChild(ta);
@@ -1792,7 +1808,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
               tb.setAttribute('opacity', '0');
               tb.textContent = ch;
               sgTag.appendChild(tb);
-              tag.push({ a: ta, b: tb, cx: cx });
+              tag.push({ a: ta, b: tb, cx: cx, cxStr: cx.toFixed(1), ncxStr: (-cx).toFixed(1), tf: '', op: '0', fl: 'rgb(142,152,168)' });
             }
             elTag.removeChild(tmp);
           }
@@ -1801,39 +1817,42 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
           if (sgTag) sgTag.innerHTML = '';
           tag = [];
         }
-        var f0 = null, T_PHI = 1100, T_SHIFT0 = 1000, T_SHIFT1 = 1560, T_TOTAL = 4410, lastFrame = 0;
+        var f0 = null, T_PHI = 1100, T_SHIFT0 = 1000, T_SHIFT1 = 1560, T_TOTAL = 4410;
         function frame(ts) {
           if (done) return;
-          // На слабых устройствах пропускаем кадры: не чаще ~30 fps
-          if (isLowPower && ts - lastFrame < 30) { requestAnimationFrame(frame); return; }
-          lastFrame = ts;
           if (f0 === null) f0 = ts;
-          var t = (ts - f0) * 1.47; // скорость ×1.47: раскадровка на 4410 мс проходит за ~3 с
-          // 1. Рисование прописной буквы φ по центру (0 .. 1600 мс)
+          var t = (ts - f0) * 1.47; // скорость ×1.47: раскадровка на 4410 мс проходит за ~3 с в честных 60 fps
+          // 1. Рисование прописной буквы φ по центру (0 .. 1100 мс)
           var pPhi = handEase(Math.min(1, t / T_PHI));
-          elPhi.setAttribute('d', ribbonD(phiPts, pPhi));
+          if (pPhi !== lastPhiP) {
+            lastPhiP = pPhi;
+            elPhi.setAttribute('d', ribbonD(phiPts, pPhi));
+          }
 
-          // 2. Плавный сдвиг φ влево (1580 .. 2160 мс)
+          // 2. Плавный сдвиг φ влево (1000 .. 1560 мс)
           var sProg = ss(T_SHIFT0, T_SHIFT1, t);
-          var tx = 93 * (1 - sProg);
-          var ty = -18 * (1 - sProg);
-          var sc = 1.16 - 0.16 * sProg;
-          elMark.setAttribute('transform', 'translate(' + tx.toFixed(2) + ',' + ty.toFixed(2) + ') scale(' + sc.toFixed(4) + ')');
+          if (sProg !== lastShiftP) {
+            lastShiftP = sProg;
+            var tx = 93 * (1 - sProg);
+            var ty = -18 * (1 - sProg);
+            var sc = 1.16 - 0.16 * sProg;
+            elMark.setAttribute('transform', 'translate(' + tx.toFixed(2) + ',' + ty.toFixed(2) + ') scale(' + sc.toFixed(4) + ')');
+          }
 
           // 3. Дорисовка H (ножка, перекладина, вторая ножка) и I по очереди (1270 .. 2520 мс)
           for (var i = 0; i < hiStrokes.length; i++) {
             var st = hiStrokes[i];
-            if (t >= st.t0) {
+            if (t >= st.t0 && st.lastP < 1) {
               var spg = handEase(Math.min(1, (t - st.t0) / (st.t1 - st.t0)));
-              st.el.setAttribute('d', ribbonD(st.pts, spg));
+              if (spg !== st.lastP) {
+                st.lastP = spg;
+                st.el.setAttribute('d', ribbonD(st.pts, spg));
+              }
             }
           }
 
           // 4. Блик идёт слева направо; буква, над которой он сейчас, плавно вырастает,
           //    а когда свет уходит дальше, возвращается, и растёт следующая
-          if (t < G0 && tag.length) {
-            tagFrame(BX0, false);
-          }
           if (t >= G0 && !sweepDone) {
             if (!glowReady) {
               glowReady = true;
@@ -1844,7 +1863,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
               [[120, 144], [318, 112], [428, 112]].forEach(function (fb, n) {
                 var a = document.getElementById('sp-L' + n), cx = fb[0], cy = fb[1];
                 try { var bb = a.getBBox(); cx = bb.x + bb.width / 2; cy = bb.y + bb.height / 2; } catch (e) {}
-                letters.push({ a: a, b: document.getElementById('sg-L' + n), cx: cx, cy: cy });
+                letters.push({ a: a, b: document.getElementById('sg-L' + n), cx: cx, cy: cy, cxStr: cx.toFixed(1) + ' ' + cy.toFixed(1), ncxStr: (-cx).toFixed(1) + ' ' + (-cy).toFixed(1), tf: '' });
               });
             }
             var g = Math.max(0, Math.min(1, (t - G0) / (G1 - G0)));
@@ -1861,11 +1880,10 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
               }
               if (g >= 1) {
                 for (var tj = 0; tj < tag.length; tj++) {
-                  tag[tj].a.removeAttribute('transform');
-                  tag[tj].b.removeAttribute('transform');
-                  tag[tj].a.setAttribute('opacity', '1');
-                  tag[tj].b.setAttribute('opacity', '1');
-                  tag[tj].a.setAttribute('fill', 'rgb(169,200,236)');
+                  var T = tag[tj];
+                  if (T.tf) { T.tf = ''; T.a.removeAttribute('transform'); T.b.removeAttribute('transform'); }
+                  if (T.op !== '1') { T.op = '1'; T.a.setAttribute('opacity', '1'); T.b.setAttribute('opacity', '1'); }
+                  if (T.fl !== 'rgb(169,200,236)') { T.fl = 'rgb(169,200,236)'; T.a.setAttribute('fill', 'rgb(169,200,236)'); }
                 }
               } else {
                 tagFrame(bx, true);
@@ -1879,11 +1897,14 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
             for (var li = 0; li < letters.length; li++) {
               var L = letters[li], dd = Math.abs(bx - L.cx);
               var k = (g >= 1 || dd >= SWELL_R) ? 0 : 0.5 * (1 + Math.cos(Math.PI * dd / SWELL_R));
-              if (k > 0.0005) {
-                var tf = 'translate(' + L.cx.toFixed(1) + ' ' + L.cy.toFixed(1) + ') scale(' + (1 + SWELL * k).toFixed(4) + ') translate(' + (-L.cx).toFixed(1) + ' ' + (-L.cy).toFixed(1) + ')';
-                L.a.setAttribute('transform', tf); L.b.setAttribute('transform', tf);
-              } else {
-                L.a.removeAttribute('transform'); L.b.removeAttribute('transform');
+              var ltf = k > 0.0005 ? 'translate(' + L.cxStr + ') scale(' + (1 + SWELL * k).toFixed(4) + ') translate(' + L.ncxStr + ')' : '';
+              if (ltf !== L.tf) {
+                L.tf = ltf;
+                if (ltf) {
+                  L.a.setAttribute('transform', ltf); L.b.setAttribute('transform', ltf);
+                } else {
+                  L.a.removeAttribute('transform'); L.b.removeAttribute('transform');
+                }
               }
             }
             if (g >= 1) sweepDone = true;
@@ -1899,9 +1920,9 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
       function poll() {
         if (started || done) return;
         var waited = performance.now() - t0;
-        if ((window.MC_READY && fontsOk && waited >= 120) || waited >= 1500) start(); else setTimeout(poll, 30);
+        if ((window.MC_READY && fontsOk && waited >= 120) || waited >= 1500) start(); else requestAnimationFrame(poll);
       }
-      poll();
+      requestAnimationFrame(poll);
     } catch (err) { finish(); }
   })();
   </script>
@@ -6225,7 +6246,7 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
       if (window.fxProbed) { start(); return; }
       document.addEventListener('fx:probed', start, { once: true });
       // страховка на случай, если проверка плавности фона не запускалась (например, отключены анимации)
-      const wait = () => { if (go || tok !== hbPreTok) return; if (document.getElementById('splash')) { setTimeout(wait, 150); return; } setTimeout(start, 4500); };
+      const wait = () => { if (go || tok !== hbPreTok) return; setTimeout(start, 800); };
       wait();
     }
     // Поиск и разделы только прячут и показывают готовые карточки
@@ -6290,7 +6311,8 @@ html:root[data-theme] #hb-progress .rn{font-size:2.1rem;color:var(--t1)}
     }
     document.addEventListener('DOMContentLoaded', initHandbook);
     document.addEventListener('mechcore:tabprepare', (e) => { if (e.detail.tab === 'handbook') hbRefreshChips(); });
-    document.addEventListener('mechcore:tabchange', (e) => { if (e.detail.tab === 'handbook' && window.fxHue) fxHue(HB.cat); if (e.detail.prev === 'handbook') hbWarmLater(); });
+    document.addEventListener('mechcore:tabchange', (e) => { if (e.detail.tab === 'handbook' && window.fxHue) fxHue(HB.cat); if (e.detail.tab === 'handbook') hbBusyUntil = 0; if (e.detail.prev === 'handbook') hbWarmLater(); });
+    document.getElementById('tabbtn-handbook')?.addEventListener('pointerenter', () => hbWarmLater(), { passive: true });
 
 
     // ───────── 5. Тренажёр ─────────
